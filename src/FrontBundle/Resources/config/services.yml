@@ -1,0 +1,3 @@
+services:
+    test_service:
+        class: FrontBundle\Controller\TestController

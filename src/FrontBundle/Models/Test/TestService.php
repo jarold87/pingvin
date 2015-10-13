@@ -1,12 +1,12 @@
 <?php
 
-namespace FrontBundle\Controller;
+namespace FrontBundle\Models\Test;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
-class TestController extends Controller
+class TestService extends Controller
 {
     public function testAction()
     {

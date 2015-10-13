@@ -1,3 +1,3 @@
 services:
     test_service:
-        class: FrontBundle\Controller\TestController
+        class: FrontBundle\Models\Test\TestService

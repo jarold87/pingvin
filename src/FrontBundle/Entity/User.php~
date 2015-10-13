@@ -1,0 +1,33 @@
+<?php
+namespace FrontBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="user")
+ */
+class User
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(name="user_id", type="integer", length=11)
+     * @ORM\GeneratedValue
+     */
+    protected $userId = null;
+
+    /**
+     * @ORM\Column(name="username", type="string", length=10)
+     */
+    protected $username = null;
+
+    /**
+     * @ORM\Column(name="password", type="string", length=50)
+     */
+    protected $password = null;
+
+    /**
+     * @ORM\Column(name="create_date", type="datetime")
+     */
+    protected $createDate = null;
+}

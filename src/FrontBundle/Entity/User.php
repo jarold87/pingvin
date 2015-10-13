@@ -4,7 +4,7 @@ namespace FrontBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="FrontBundle\Entity\UserRepository")
  * @ORM\Table(name="user")
  */
 class User
@@ -30,6 +30,11 @@ class User
      * @ORM\Column(name="create_date", type="datetime")
      */
     protected $createDate = null;
+
+    /**
+     * @ORM\Column(name="update_date", type="datetime")
+     */
+    protected $updateDate = null;
 
     /**
      * Get userId
@@ -111,5 +116,29 @@ class User
     public function getCreateDate()
     {
         return $this->createDate;
+    }
+
+    /**
+     * Set updateDate
+     *
+     * @param \DateTime $updateDate
+     *
+     * @return User
+     */
+    public function setUpdateDate($updateDate)
+    {
+        $this->updateDate = $updateDate;
+    
+        return $this;
+    }
+
+    /**
+     * Get updateDate
+     *
+     * @return \DateTime
+     */
+    public function getUpdateDate()
+    {
+        return $this->updateDate;
     }
 }

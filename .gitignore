@@ -44,3 +44,5 @@ Temporary Items
 .apdisk
 app/cache
 web/bundles
+composer.phar
+vendor

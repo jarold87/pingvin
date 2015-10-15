@@ -4,10 +4,10 @@ namespace FrontBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="FrontBundle\Entity\UserRepository")
+ * @ORM\Entity(repositoryClass="FrontBundle\Repository\User")
  * @ORM\Table(name="user")
  */
-class User
+class User extends SuperClass
 {
     /**
      * @ORM\Id
@@ -25,16 +25,6 @@ class User
      * @ORM\Column(name="password", type="string", length=50)
      */
     protected $password = null;
-
-    /**
-     * @ORM\Column(name="create_date", type="datetime")
-     */
-    protected $createDate = null;
-
-    /**
-     * @ORM\Column(name="update_date", type="datetime")
-     */
-    protected $updateDate = null;
 
     /**
      * Get userId
@@ -95,6 +85,26 @@ class User
     }
 
     /**
+     * Get createDate
+     *
+     * @return \DateTime
+     */
+    public function getCreateDate()
+    {
+        return $this->createDate;
+    }
+
+    /**
+     * Get updateDate
+     *
+     * @return \DateTime
+     */
+    public function getUpdateDate()
+    {
+        return $this->updateDate;
+    }
+
+    /**
      * Set createDate
      *
      * @param \DateTime $createDate
@@ -106,39 +116,5 @@ class User
         $this->createDate = $createDate;
 
         return $this;
-    }
-
-    /**
-     * Get createDate
-     *
-     * @return \DateTime
-     */
-    public function getCreateDate()
-    {
-        return $this->createDate;
-    }
-
-    /**
-     * Set updateDate
-     *
-     * @param \DateTime $updateDate
-     *
-     * @return User
-     */
-    public function setUpdateDate($updateDate)
-    {
-        $this->updateDate = $updateDate;
-    
-        return $this;
-    }
-
-    /**
-     * Get updateDate
-     *
-     * @return \DateTime
-     */
-    public function getUpdateDate()
-    {
-        return $this->updateDate;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace FrontBundle\Controller;
 
+use Doctrine\Common\Collections\Criteria;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,8 +48,7 @@ class HomeController extends Controller
         $user = new User();
         $user->setUsername('Test');
         $user->setPassword(md5('test' . rand(0,9)));
-        $user->setCreateDate(new \DateTime("now"));
-        $user->setUpdateDate(new \DateTime("now"));
+        $user->setCreateDate(new \DateTime('2014-01-01'));
 
         $this->em->persist($user);
         $this->em->flush();
@@ -60,11 +60,13 @@ class HomeController extends Controller
     protected function editUser($user)
     {
         $user->setPassword(md5('test' . rand(0,9)));
-        $user->setUpdateDate(new \DateTime("now"));
 
         $this->em->flush();
     }
 
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     protected function testService()
     {
         $testService = $this->get('test_service');

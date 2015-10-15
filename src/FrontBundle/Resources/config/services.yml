@@ -1,3 +1,7 @@
 services:
     test_service:
         class: FrontBundle\Models\Test\TestService
+    my.subscriber1:
+        class: FrontBundle\EventSubscriber\UserEventSubscriber
+        tags:
+            - { name: doctrine.event_subscriber, event: prePersist }

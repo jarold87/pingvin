@@ -1,9 +1,9 @@
 <?php
-namespace FrontBundle\Entity;
+namespace FrontBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
-class UserRepository extends EntityRepository
+class User extends EntityRepository
 {
     public function findAllOrderedByName()
     {

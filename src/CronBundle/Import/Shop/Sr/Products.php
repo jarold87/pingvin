@@ -44,8 +44,7 @@ class Products extends ShopProducts
         while ($do == 1) {
             $this->actualTime = round(microtime(true) - $this->startTime);
             if ($this->actualTime < $this->timeLimit) {
-                $response = $this->client->getCollectionRequest('products?page=' . $page . '&limit=' . $limit);
-                $list = $response->getParsedResponseBody();
+                $list = $this->client->getCollectionRequest('products?page=' . $page . '&limit=' . $limit);
                 if (!isset($list['items'])) {
                     $do = 0;
                 } else {
@@ -71,8 +70,7 @@ class Products extends ShopProducts
             foreach ($this->items as $index => $item) {
                 $this->actualTime = round(microtime(true) - $this->startTime);
                 if ($this->actualTime < $this->timeLimit) {
-                    $response = $this->client->getRequest($item['href']);
-                    $data = $response->getParsedResponseBody();
+                    $data = $this->client->getRequest($item['href']);
                     if ($this->isAllowed($data)) {
                         // Termék leírást külön le kell kérdezni
                         $this->products[] = array(

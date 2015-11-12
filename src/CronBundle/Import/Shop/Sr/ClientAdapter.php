@@ -22,28 +22,28 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
 
     /**
      * @param $request
-     * @return ApiClient\Response|null
+     * @return array|null
      * @throws ApiClient\Exception
      */
     public function getCollectionRequest($request)
     {
         $response = $this->apiCall->execute('GET', $this->url . '/' . $request);
         if ($response) {
-            return $response;
+            return $response->getParsedResponseBody();
         }
         return null;
     }
 
     /**
      * @param $request
-     * @return ApiClient\Response|null
+     * @return array|null
      * @throws ApiClient\Exception
      */
     public function getRequest($request)
     {
         $response = $this->apiCall->execute('GET', $request);
         if ($response) {
-            return $response;
+            return $response->getParsedResponseBody();
         }
         return null;
     }

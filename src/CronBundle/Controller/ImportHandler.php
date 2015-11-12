@@ -12,7 +12,7 @@ use CronBundle\Import\ClientAdapterFactory;
 class ImportHandler extends Controller
 {
     /** @var int */
-    protected $clientLimit = 1;
+    protected $userLimit = 1;
 
     /** @var int */
     protected $timeLimit = 3;
@@ -29,15 +29,15 @@ class ImportHandler extends Controller
     public function indexAction(Request $request)
     {
         $this->startTime = microtime(true);
-        //Limitnek megfelelően addig végezzük az ügyfelek importjait,
+        //Limitnek megfelelően addig végezzük a user importjait,
         //amíg az időlimit engedi
-        for ($i = 0; $i < $this->clientLimit; $i++) {
+        for ($i = 0; $i < $this->userLimit; $i++) {
             $this->actualTime = round(microtime(true) - $this->startTime);
             if ($this->actualTime < $this->timeLimit) {
-                //Adatbázisból lekérjük, hogy melyik ügyfél és annak melyik importja következik
+                //Adatbázisból lekérjük, hogy melyik user és annak melyik importja következik
                 $user = 1;
                 $importIndex = 0;
-                $this->runOneClientImports($user, $importIndex);
+                $this->runOneUserImports($user, $importIndex);
             } else {
                 break;
             }
@@ -54,9 +54,9 @@ class ImportHandler extends Controller
      * @param $user
      * @param $importIndex
      */
-    protected function runOneClientImports($user, $importIndex)
+    protected function runOneUserImports($user, $importIndex)
     {
-        //Biztosítani kell, hogy az adott ügyfél adatbázis kapcsolata legyen behúzva
+        //Biztosítani kell, hogy az adott user adatbázis kapcsolata legyen behúzva
 
         $shopType = $this->container->getParameter('shop_type');
         $entityManager = $this->getDoctrine()->getManager('customer');
@@ -94,7 +94,7 @@ class ImportHandler extends Controller
             }
         }
         if (!$iterator->hasNextImport()) {
-            //Ez volt az ügyfél utolsó importja
+            //Ez volt a user utolsó importja
             //Utolsó teljes frissítés dátumát aktualizáljuk
         }
     }

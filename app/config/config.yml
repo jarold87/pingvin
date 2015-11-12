@@ -2,7 +2,9 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
-    - { resource: "@FrontBundle/Resources/config/services.yml" }
+    - { resource: "@TestBundle/Resources/config/services.yml" }
+    - { resource: "@CronBundle/Resources/config/services.yml" }
+    - { resource: customer_parameters.yml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -53,13 +55,25 @@ assetic:
 # Doctrine Configuration
 doctrine:
     dbal:
-        driver:   pdo_mysql
-        host:     "%database_host%"
-        port:     "%database_port%"
-        dbname:   "%database_name%"
-        user:     "%database_user%"
-        password: "%database_password%"
-        charset:  UTF8
+        default_connection: customer
+        connections:
+            customer:
+                driver:   pdo_mysql
+                host:     "%database_host_customer%"
+                port:     "%database_port_customer%"
+                dbname:   "%database_name_customer%"
+                user:     "%database_user_customer%"
+                password: "%database_password_customer%"
+                charset:  UTF8
+            global:
+                driver:   pdo_mysql
+                host:     "%database_host%"
+                port:     "%database_port%"
+                dbname:   "%database_name%"
+                user:     "%database_user%"
+                password: "%database_password%"
+                charset:  UTF8
+
         # if using pdo_sqlite as your database driver:
         #   1. add the path in parameters.yml
         #     e.g. database_path: "%kernel.root_dir%/data/data.db3"
@@ -68,9 +82,21 @@ doctrine:
         #     path:     "%database_path%"
 
     orm:
-        auto_generate_proxy_classes: "%kernel.debug%"
-        naming_strategy: doctrine.orm.naming_strategy.underscore
-        auto_mapping: true
+        default_entity_manager: customer
+        entity_managers:
+            customer:
+                connection: customer
+                mappings:
+                    AppBundle: ~
+                    CronBundle:  ~
+                    TestBundle:  ~
+            global:
+                connection: global
+                mappings:
+                    AppBundle:  ~
+                    CronBundle:  ~
+                    TestBundle:  ~
+
 
 # Swiftmailer Configuration
 swiftmailer:

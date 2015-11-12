@@ -3,7 +3,12 @@ app:
     type:     annotation
     prefix:   /
 
-front:
-    resource: "@FrontBundle/Controller/"
+cron:
+    resource: "@CronBundle/Controller/"
     type:     annotation
-    prefix:   /front
+    prefix:   /cron
+
+front:
+    resource: "@TestBundle/Controller/"
+    type:     annotation
+    prefix:   /test

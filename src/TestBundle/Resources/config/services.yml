@@ -1,0 +1,11 @@
+services:
+    test_service:
+        class: TestBundle\Models\Test\TestService
+    test_action_service:
+        class: TestBundle\Models\Test\TestActionService
+    my.subscriber1:
+        class: TestBundle\EventSubscriber\UserEventSubscriber
+        tags:
+            - { name: doctrine.event_subscriber, event: prePersist }
+    test_event_dispatcher:
+        class: TestBundle\Models\EventDispatcher\TestEventDispatcherService

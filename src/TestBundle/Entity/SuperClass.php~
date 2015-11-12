@@ -1,0 +1,20 @@
+<?php
+namespace FrontBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\MappedSuperclass
+ */
+class SuperClass
+{
+    /**
+     * @ORM\Column(name="create_date", type="datetime")
+     */
+    protected $createDate = null;
+
+    /**
+     * @ORM\Column(name="update_date", type="datetime")
+     */
+    protected $updateDate = null;
+}

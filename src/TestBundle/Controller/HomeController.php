@@ -26,7 +26,7 @@ class HomeController extends Controller
      */
     public function indexAction(Request $request)
     {
-        $this->em = $this->getDoctrine()->getManager('default');
+        $this->em = $this->getDoctrine()->getManager('global');
 
         $user = $this->searchUser();
         if (!$user) {

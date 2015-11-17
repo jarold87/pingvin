@@ -11,7 +11,6 @@ class ImportList implements ImportListInterface
     /** @var array */
     protected $imports = array(
         1 => 'Products',
-        2 => 'Urls',
     );
 
     /**

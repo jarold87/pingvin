@@ -1,0 +1,22 @@
+<?php
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="import_item_process")
+ */
+class ImportItemProcess
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(name="itemIndex", type="integer", length=11)
+     */
+    protected $itemIndex = null;
+
+    /**
+     * @ORM\Column(name="item_value", type="string", length=255)
+     */
+    protected $itemValue = null;
+}

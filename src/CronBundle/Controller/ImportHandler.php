@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use CronBundle\Import\ImportListFactory;
 use CronBundle\Import\ImportIterator;
 use CronBundle\Import\ClientAdapterFactory;
+use CronBundle\Service\Benchmark;
 
 class ImportHandler extends Controller
 {
@@ -15,7 +16,7 @@ class ImportHandler extends Controller
     protected $userLimit = 1;
 
     /** @var int */
-    protected $timeLimit = 3;
+    protected $timeLimit = 50;
 
     /** @var */
     protected $actualTime;
@@ -43,10 +44,10 @@ class ImportHandler extends Controller
             }
         }
 
-
-        echo '<hr>';
+        $benchmark = $this->get('benchmark');
+        $message = $benchmark->lastIndex;
         return $this->render('CronBundle::message.html.twig', array(
-            'message' => 'SUCCESS',
+            'message' => $message,
         ));
     }
 
@@ -58,8 +59,11 @@ class ImportHandler extends Controller
     {
         //Biztosítani kell, hogy az adott user adatbázis kapcsolata legyen behúzva
 
-        $shopType = $this->container->getParameter('shop_type');
+        /*$shopType = $this->container->getParameter('shop_type');
         $entityManager = $this->getDoctrine()->getManager('customer');
+        */
+        $shopType = 'SR2';
+        
 
         $factory = new ImportListFactory($shopType);
         $importList = $factory->getImportList();
@@ -79,6 +83,7 @@ class ImportHandler extends Controller
                 $import->setStartTime($this->startTime);
                 $import->setActualTime($this->actualTime);
                 $import->setTimeLimit($this->timeLimit);
+                $import->setBenchmark($this->get('benchmark'));
                 $import->import();
                 //Meg kell nézni, hogy hiba volt-e az importban
                 //Ha igen, akkor rögzíteni adatbázisban

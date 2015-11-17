@@ -59,11 +59,8 @@ class ImportHandler extends Controller
     {
         //Biztosítani kell, hogy az adott user adatbázis kapcsolata legyen behúzva
 
-        /*$shopType = $this->container->getParameter('shop_type');
+        $shopType = $this->container->getParameter('shop_type');
         $entityManager = $this->getDoctrine()->getManager('customer');
-        */
-        $shopType = 'SR2';
-        
 
         $factory = new ImportListFactory($shopType);
         $importList = $factory->getImportList();

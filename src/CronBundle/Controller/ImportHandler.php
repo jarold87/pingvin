@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 use CronBundle\Import\ImportListFactory;
 use CronBundle\Import\ImportIterator;
 use CronBundle\Import\ClientAdapterFactory;
-use CronBundle\Service\Benchmark;
 
 class ImportHandler extends Controller
 {
@@ -16,7 +15,7 @@ class ImportHandler extends Controller
     protected $userLimit = 1;
 
     /** @var int */
-    protected $timeLimit = 50;
+    protected $timeLimit = 3;
 
     /** @var */
     protected $actualTime;
@@ -44,10 +43,10 @@ class ImportHandler extends Controller
             }
         }
 
-        $benchmark = $this->get('benchmark');
-        $message = $benchmark->lastIndex;
+
+        echo '<hr>';
         return $this->render('CronBundle::message.html.twig', array(
-            'message' => $message,
+            'message' => 'SUCCESS',
         ));
     }
 
@@ -80,7 +79,6 @@ class ImportHandler extends Controller
                 $import->setStartTime($this->startTime);
                 $import->setActualTime($this->actualTime);
                 $import->setTimeLimit($this->timeLimit);
-                $import->setBenchmark($this->get('benchmark'));
                 $import->import();
                 //Meg kell nézni, hogy hiba volt-e az importban
                 //Ha igen, akkor rögzíteni adatbázisban

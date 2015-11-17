@@ -7,5 +7,3 @@ services:
     setting:
         class: AppBundle\Service\Setting
         arguments: [ "@doctrine.orm.customer_entity_manager" ]
-    benchmark:
-        class: CronBundle\Service\Benchmark

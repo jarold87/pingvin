@@ -2,16 +2,13 @@
 
 namespace CronBundle\Import;
 
-use CronBundle\Import\Shop\Sr\ImportList as SrImportList;
-use CronBundle\Import\Shop\Shopify\ImportList as ShopifyImportList;
+use AppBundle\Service\Setting;
+use ShoprenterBundle\Import\ImportList as SrImportList;
 
 class ImportListFactory
 {
-    /** @var string */
-    protected $shop = '';
-
-    /** @var \Doctrine\Common\Persistence\ObjectManager */
-    protected $entityManager;
+    /** @var Setting */
+    protected $settingService;
 
     /** @var string */
     protected $srId = 'SR';
@@ -20,23 +17,23 @@ class ImportListFactory
     protected $shopifyId = 'Shopify';
 
     /**
-     * @param $shop
+     * @param Setting $settingService
      */
-    public function __construct($shop)
+    public function __construct(Setting $settingService)
     {
-        $this->shop = $shop;
+        $this->settingService = $settingService;
     }
 
     /**
-     * @return ShopifyImportList|SrImportList|void
+     * @return SrImportList|void
      */
     public function getImportList()
     {
-        switch ($this->shop) {
+        switch ($this->settingService->get('shop_type')) {
             case $this->srId:
                 return new SrImportList();
             case $this->shopifyId:
-                return new ShopifyImportList();
+                return;
             default:
                 return;
         }

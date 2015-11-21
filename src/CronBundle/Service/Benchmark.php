@@ -4,9 +4,9 @@ namespace CronBundle\Service;
 
 class Benchmark
 {
-    public $runtime;
+    public $runtime = 0;
 
-    public $lastIndex;
+    public $lastIndex = 0;
 
-    public $processItemCount;
+    public $processItemCount = 0;
 }

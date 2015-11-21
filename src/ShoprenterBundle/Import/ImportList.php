@@ -1,17 +1,16 @@
 <?php
 
-namespace CronBundle\Import\Shop\Shopify;
+namespace ShoprenterBundle\Import;
 
-use CronBundle\Import\Shop\ImportListInterface;
-use CronBundle\Import\Shop\Shopify\Products;
-use CronBundle\Import\Shop\Shopify\Urls;
+use CronBundle\Import\ImportListInterface;
 
 class ImportList implements ImportListInterface
 {
     /** @var array */
     protected $imports = array(
-        1 => 'Products',
-        2 => 'Urls',
+        1 => 'Product',
+        2 => 'Order',
+        3 => 'OrderProduct',
     );
 
     /**
@@ -24,15 +23,17 @@ class ImportList implements ImportListInterface
 
     /**
      * @param $index
-     * @return Products|Urls|void
+     * @return OrderImporter|ProductImporter|void
      */
     public function getImport($index)
     {
         switch ($index) {
             case 1:
-                return new Products();
+                return new ProductImporter();
             case 2:
-                return new Urls();
+                return new OrderImporter();
+            case 3:
+                return new OrderProductImporter();
             default:
                 return;
         }

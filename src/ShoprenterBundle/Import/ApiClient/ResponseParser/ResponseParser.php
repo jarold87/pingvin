@@ -1,6 +1,6 @@
 <?php
 
-namespace CronBundle\Import\Shop\Sr\ApiClient\ResponseParser;
+namespace ShoprenterBundle\Import\ApiClient\ResponseParser;
 
 /**
  * ResponseParser

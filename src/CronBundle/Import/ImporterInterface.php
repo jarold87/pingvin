@@ -1,9 +1,9 @@
 <?php
 
-namespace CronBundle\Import\Shop;
+namespace CronBundle\Import;
 
 
-interface ImportInterface
+interface ImporterInterface
 {
     public function setEntityManager($entityManager);
 

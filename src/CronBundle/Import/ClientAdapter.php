@@ -1,6 +1,6 @@
 <?php
 
-namespace CronBundle\Import\Shop;
+namespace CronBundle\Import;
 
 use AppBundle\Service\Setting;
 

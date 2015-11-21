@@ -38,14 +38,24 @@ class Product
     protected $url = null;
 
     /**
-     * @ORM\Column(name="available_date", type="date")
+     * @ORM\Column(name="manufacturer", type="string", length=255)
      */
-    protected $availableDate = null;
+    protected $manufacturer = null;
+
+    /**
+     * @ORM\Column(name="category", type="string", length=255)
+     */
+    protected $category = null;
 
     /**
      * @ORM\Column(name="outer_id", type="string", length=100)
      */
     protected $outerId = null;
+
+    /**
+     * @ORM\Column(name="product_create_date", type="datetime")
+     */
+    protected $productCreateDate = null;
 
     /**
      * @ORM\Column(name="create_date", type="datetime")
@@ -140,30 +150,6 @@ class Product
     }
 
     /**
-     * Set availableDate
-     *
-     * @param \DateTime $availableDate
-     *
-     * @return Product
-     */
-    public function setAvailableDate($availableDate)
-    {
-        $this->availableDate = $availableDate;
-
-        return $this;
-    }
-
-    /**
-     * Get availableDate
-     *
-     * @return \DateTime
-     */
-    public function getAvailableDate()
-    {
-        return $this->availableDate;
-    }
-
-    /**
      * Set outerId
      *
      * @param string $outerId
@@ -249,5 +235,77 @@ class Product
     public function getUrl()
     {
         return $this->url;
+    }
+
+    /**
+     * Set manufacturer
+     *
+     * @param string $manufacturer
+     *
+     * @return Product
+     */
+    public function setManufacturer($manufacturer)
+    {
+        $this->manufacturer = $manufacturer;
+
+        return $this;
+    }
+
+    /**
+     * Get manufacturer
+     *
+     * @return string
+     */
+    public function getManufacturer()
+    {
+        return $this->manufacturer;
+    }
+
+    /**
+     * Set category
+     *
+     * @param string $category
+     *
+     * @return Product
+     */
+    public function setCategory($category)
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * Get category
+     *
+     * @return string
+     */
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+    /**
+     * Set productCreateDate
+     *
+     * @param \DateTime $productCreateDate
+     *
+     * @return Product
+     */
+    public function setProductCreateDate($productCreateDate)
+    {
+        $this->productCreateDate = $productCreateDate;
+
+        return $this;
+    }
+
+    /**
+     * Get productCreateDate
+     *
+     * @return \DateTime
+     */
+    public function getProductCreateDate()
+    {
+        return $this->productCreateDate;
     }
 }

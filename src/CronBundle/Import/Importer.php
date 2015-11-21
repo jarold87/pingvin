@@ -1,13 +1,15 @@
 <?php
 
-namespace CronBundle\Import\Shop;
+namespace CronBundle\Import;
 
-use CronBundle\Import\Shop\ImportInterface;
-use CronBundle\Import\Shop\ClientAdapter;
+use Doctrine\ORM\EntityManager;
 
-class Urls implements ImportInterface
+abstract class Importer
 {
-    /** @var \Doctrine\Common\Persistence\ObjectManager */
+    /** @var string */
+    protected $importName;
+
+    /** @var EntityManager */
     protected $entityManager;
 
     /** @var ClientAdapter */
@@ -21,6 +23,9 @@ class Urls implements ImportInterface
 
     /** @var */
     protected $timeLimit;
+
+    /** @var int */
+    protected $timeOut = 0;
 
     /**
      * @param $entityManager
@@ -67,8 +72,14 @@ class Urls implements ImportInterface
 
     }
 
+    /**
+     * @return bool
+     */
     public function isFinishedImport()
     {
+        if ($this->timeOut == 1) {
+            return false;
+        }
         return true;
     }
 }

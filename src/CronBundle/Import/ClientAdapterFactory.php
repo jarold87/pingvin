@@ -2,17 +2,13 @@
 
 namespace CronBundle\Import;
 
-use CronBundle\Import\Shop\Sr\ClientAdapter as SrClient;
-use CronBundle\Import\Shop\Shopify\ClientAdapter as ShopifyClient;
+use ShoprenterBundle\Import\ClientAdapter as SrClient;
 use AppBundle\Service\Setting;
 
 class ClientAdapterFactory
 {
     /** @var Setting */
     protected $settingService;
-
-    /** @var \Doctrine\Common\Persistence\ObjectManager */
-    protected $entityManager;
 
     /** @var string */
     protected $srId = 'SR';
@@ -29,7 +25,7 @@ class ClientAdapterFactory
     }
 
     /**
-     * @return ShopifyClient|SrClient|void
+     * @return SrClient|void
      */
     public function getClientAdapter()
     {
@@ -38,7 +34,7 @@ class ClientAdapterFactory
                 return new SrClient($this->settingService);
                 break;
             case $this->shopifyId:
-                return new ShopifyClient($this->settingService);
+                return;
                 break;
             default:
                 return false;

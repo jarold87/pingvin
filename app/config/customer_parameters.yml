@@ -4,8 +4,3 @@ parameters:
     database_name_customer: pingvin_customer1
     database_user_customer: root
     database_password_customer: null
-
-    shop_type: SR
-    shop_api_url: kgabi.api.shoprenter.hu
-    shop_api_user: kgabi
-    shop_api_password: d0b21d2ee0f20699b290c1edd6461244

@@ -1,8 +1,8 @@
 <?php
 
-namespace CronBundle\Import\Shop\Sr\ApiClient;
+namespace ShoprenterBundle\Import\ApiClient;
 
-use CronBundle\Import\Shop\Sr\ApiClient\Response;
+use ShoprenterBundle\Import\ApiClient\Response;
 /**
  * Api Call
  *

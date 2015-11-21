@@ -2,10 +2,10 @@
 
 namespace CronBundle\Import;
 
-use CronBundle\Import\Shop\Sr\Products;
-use CronBundle\Import\Shop\Sr\ImportList;
+use ShoprenterBundle\Import\ProductImporter;
+use ShoprenterBundle\Import\ImportList;
 
-class ImportIterator
+class ImporterIterator
 {
     protected $importList;
 
@@ -34,7 +34,7 @@ class ImportIterator
     }
 
     /**
-     * @return Products|Shop\Sr\Urls|null|void
+     * @return null|ProductImporter|\ShoprenterBundle\Import\UrlImporter|void
      */
     public function getNextImport()
     {

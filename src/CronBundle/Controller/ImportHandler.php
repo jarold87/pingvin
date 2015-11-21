@@ -6,7 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use CronBundle\Import\ImportListFactory;
-use CronBundle\Import\ImportIterator;
+use CronBundle\Import\ImporterIterator;
 use CronBundle\Import\ClientAdapterFactory;
 use CronBundle\Service\Benchmark;
 
@@ -30,15 +30,14 @@ class ImportHandler extends Controller
     public function indexAction(Request $request)
     {
         $this->startTime = microtime(true);
-        //Limitnek megfelelően addig végezzük a user importjait,
-        //amíg az időlimit engedi
+        $importIndex = 0;
         for ($i = 0; $i < $this->userLimit; $i++) {
             $this->actualTime = round(microtime(true) - $this->startTime);
             if ($this->actualTime < $this->timeLimit) {
-                //Adatbázisból lekérjük, hogy melyik user és annak melyik importja következik
+                //TODO Adatbázisból lekérjük, hogy melyik user és annak melyik importja következik
                 $user = 1;
-                $importIndex = 0;
                 $this->runOneUserImports($user, $importIndex);
+                $importIndex++;
             } else {
                 break;
             }
@@ -57,47 +56,43 @@ class ImportHandler extends Controller
      */
     protected function runOneUserImports($user, $importIndex)
     {
-        //Biztosítani kell, hogy az adott user adatbázis kapcsolata legyen behúzva
-
-        $shopType = $this->container->getParameter('shop_type');
+        //TODO Biztosítani kell, hogy az adott user adatbázis kapcsolata legyen behúzva
         $entityManager = $this->getDoctrine()->getManager('customer');
 
-        $factory = new ImportListFactory($shopType);
+        $settingService = $this->container->get('setting');
+
+        $factory = new ImportListFactory($settingService);
         $importList = $factory->getImportList();
-        $iterator = new ImportIterator($importList);
+        $iterator = new ImporterIterator($importList);
         $iterator->setActualImportIndex($importIndex);
 
-        $settingService = $this->container->get('setting');
         $clientFactory = new ClientAdapterFactory($settingService);
         $client = $clientFactory->getClientAdapter();
 
         while ($iterator->hasNextImport()) {
             $this->actualTime = round(microtime(true) - $this->startTime);
             if ($this->actualTime < $this->timeLimit) {
-                $import = $iterator->getNextImport();
-                $import->setEntityManager($entityManager);
-                $import->setClient($client);
-                $import->setStartTime($this->startTime);
-                $import->setActualTime($this->actualTime);
-                $import->setTimeLimit($this->timeLimit);
-                $import->setBenchmark($this->get('benchmark'));
-                $import->import();
-                //Meg kell nézni, hogy hiba volt-e az importban
-                //Ha igen, akkor rögzíteni adatbázisban
-
-                //Végig futott-e az adott import?
-                if ($import->isFinishedImport()) {
+                $importer = $iterator->getNextImport();
+                $importer->setEntityManager($entityManager);
+                $importer->setClient($client);
+                $importer->setStartTime($this->startTime);
+                $importer->setActualTime($this->actualTime);
+                $importer->setTimeLimit($this->timeLimit);
+                $importer->setBenchmark($this->get('benchmark'));
+                $importer->import();
+                //TODO Meg kell nézni, hogy hiba volt-e az importban
+                //TODO Ha igen, akkor rögzíteni adatbázisban
+                if ($importer->isFinishedImport()) {
                     $importIndex = $iterator->getActualImportIndex();
-                    //Adatbázisba rögzítjük a most futtatott import indexét.
+                    //TODO Adatbázisba rögzítjük a most futtatott import indexét.
                 }
-                //Ellenkező esetben marad az aktuális import index
             } else {
                 break;
             }
         }
         if (!$iterator->hasNextImport()) {
             //Ez volt a user utolsó importja
-            //Utolsó teljes frissítés dátumát aktualizáljuk
+            //TODO Utolsó teljes frissítés dátumát aktualizáljuk
         }
     }
 }

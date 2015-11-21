@@ -1,0 +1,54 @@
+<?php
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="shop_order_product")
+ * @ORM\HasLifecycleCallbacks()
+ */
+class OrderProduct
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(name="order_product_id", type="integer", length=11)
+     * @ORM\GeneratedValue
+     */
+    protected $orderProductId = null;
+
+    /**
+     * @ORM\Column(name="outer_id", type="string", length=100)
+     */
+    protected $outerId = null;
+
+    /**
+     * @ORM\Column(name="order_outer_id", type="string", length=100)
+     */
+    protected $orderOuterId = null;
+
+    /**
+     * @ORM\Column(name="product_outer_id", type="string", length=100)
+     */
+    protected $productOuterId = null;
+
+    /**
+     * @ORM\Column(name="quantity", type="integer", length=11)
+     */
+    protected $quantity = null;
+
+    /**
+     * @ORM\Column(name="total", type="float", scale=2)
+     */
+    protected $total = null;
+
+    /**
+     * @ORM\Column(name="create_date", type="datetime")
+     */
+    protected $createDate = null;
+
+    /**
+     * @ORM\Column(name="update_date", type="datetime")
+     */
+    protected $updateDate = null;
+}

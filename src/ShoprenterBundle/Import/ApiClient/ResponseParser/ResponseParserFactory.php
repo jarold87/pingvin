@@ -1,10 +1,10 @@
 <?php
 
-namespace CronBundle\Import\Shop\Sr\ApiClient\ResponseParser;
+namespace ShoprenterBundle\Import\ApiClient\ResponseParser;
 
-use CronBundle\Import\Shop\Sr\ApiClient\ResponseParser\ResponseParser;
-use CronBundle\Import\Shop\Sr\ApiClient\ResponseParser\XmlResponseParser;
-use CronBundle\Import\Shop\Sr\ApiClient\ResponseParser\JsonResponseParser;
+use ShoprenterBundle\Import\ApiClient\ResponseParser\ResponseParser;
+use ShoprenterBundle\Import\ApiClient\ResponseParser\XmlResponseParser;
+use ShoprenterBundle\Import\ApiClient\ResponseParser\JsonResponseParser;
 /**
  * ResponseParser Factory
  *

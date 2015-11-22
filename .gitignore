@@ -43,6 +43,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 app/cache
+app/logs
 web/bundles
+web/downloads
 composer.phar
 vendor

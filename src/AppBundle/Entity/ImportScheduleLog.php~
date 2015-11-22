@@ -1,0 +1,59 @@
+<?php
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="import_schedule")
+ * @ORM\HasLifecycleCallbacks()
+ */
+class ImportScheduleLog
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(name="schedule_id", type="integer", length=11)
+     * @ORM\GeneratedValue
+     */
+    protected $scheduleId = null;
+
+    /**
+     * @ORM\Column(name="user_id", type="integer", length=11)
+     */
+    protected $userId = null;
+
+    /**
+     * @ORM\Column(name="actual_import_index", type="integer", length=11)
+     */
+    protected $actualImportIndex = null;
+
+    /**
+     * @ORM\Column(name="failed_counter", type="integer", length=11)
+     */
+    protected $failedCounter = null;
+
+    /**
+     * @ORM\Column(name="priority", type="integer", length=11)
+     */
+    protected $priority = null;
+
+    /**
+     * @ORM\Column(name="last_finished_import_date", type="datetime")
+     */
+    protected $lastFinishedImportDate = null;
+
+    /**
+     * @ORM\Column(name="handler", type="datetime")
+     */
+    protected $handler = null;
+
+    /**
+     * @ORM\Column(name="create_date", type="datetime")
+     */
+    protected $createDate = null;
+
+    /**
+     * @ORM\Column(name="update_date", type="datetime")
+     */
+    protected $updateDate = null;
+}

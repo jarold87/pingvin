@@ -10,7 +10,7 @@ class ImporterIterator
     protected $importList;
 
     /** @var int */
-    protected $actualIndex = 0;
+    protected $actualIndex = 1;
 
     public function __construct(ImportList $importList)
     {
@@ -19,9 +19,14 @@ class ImporterIterator
 
     /**
      * @param $index
+     * @throws Exception
      */
     public function setActualImportIndex($index)
     {
+        $index = intval($index);
+        if (!$index) {
+            throw new Exception("Not a valid import index!");
+        }
         $this->actualIndex = $index;
     }
 
@@ -30,7 +35,8 @@ class ImporterIterator
      */
     public function getActualImportIndex()
     {
-        return $this->actualIndex;
+        $nextIndex = $this->actualIndex;
+        return $nextIndex--;
     }
 
     /**
@@ -41,8 +47,9 @@ class ImporterIterator
         if (!$this->hasNextImport()) {
             return null;
         }
+        $index = $this->importList->getImport($this->actualIndex);
         $this->actualIndex++;
-        return $this->importList->getImport($this->actualIndex);
+        return $index;
     }
 
     /**
@@ -50,7 +57,7 @@ class ImporterIterator
      */
     public function hasNextImport()
     {
-        $nextIndex = $this->actualIndex + 1;
+        $nextIndex = $this->actualIndex;
         if ($nextIndex > $this->importList->getNumberOfImports()) {
             return false;
         }

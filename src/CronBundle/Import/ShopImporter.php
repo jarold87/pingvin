@@ -5,12 +5,14 @@ namespace CronBundle\Import;
 use Doctrine\Common\Collections\ArrayCollection;
 use AppBundle\Entity\ImportCollectionLog;
 use AppBundle\Entity\ImportItemLog;
-use AppBundle\Entity\ImportLog;
 use AppBundle\Entity\ImportItemProcess;
 use CronBundle\Service\Benchmark;
 
 class ShopImporter extends Importer
 {
+    /** @var int */
+    protected $flushItemPackageNumber = 400;
+
     /** @var string */
     protected $entity;
 
@@ -198,16 +200,13 @@ class ShopImporter extends Importer
     protected function createImportLog()
     {
         $runtime = microtime(true) - $this->startTime;
-        $processed = $this->benchmark->processItemCount;
-        $unprocessed = $this->itemProcessCollection->count();
-        $log = new ImportLog();
-        $log->setImportName($this->importName);
-        $log->setRunTime($runtime);
-        $log->setProcessed($processed);
-        $log->setUnprocessed($unprocessed);
-        $this->entityManager->persist($log);
-        $this->benchmark->runtime = $runtime;
+
         $this->benchmark->lastIndex = $this->getLastItemIndexFromLog();
-        $this->benchmark->processItemCount = $processed;
+        $this->benchmark->runtime = $runtime;
+        $this->benchmark->unProcessItemCount = $this->itemProcessCollection->count();
+
+        $log = $this->benchmark->getLog();
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 }

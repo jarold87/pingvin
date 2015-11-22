@@ -1,0 +1,74 @@
+<?php
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="customer")
+ * @ORM\HasLifecycleCallbacks()
+ */
+class Customer
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(name="customer_id", type="integer", length=11)
+     * @ORM\GeneratedValue
+     */
+    protected $customerId = null;
+
+    /**
+     * @ORM\Column(name="outer_id", type="string", length=100)
+     */
+    protected $outerId = null;
+
+    /**
+     * @ORM\Column(name="firstname", type="string", length=100)
+     */
+    protected $firstname = null;
+
+    /**
+     * @ORM\Column(name="lastname", type="string", length=100)
+     */
+    protected $lastname = null;
+
+    /**
+     * @ORM\Column(name="email", type="string", length=100)
+     */
+    protected $email = null;
+
+    /**
+     * @ORM\Column(name="customer_group", type="string", length=100)
+     */
+    protected $customerGroup = null;
+
+    /**
+     * @ORM\Column(name="company", type="string", length=100)
+     */
+    protected $company = null;
+
+    /**
+     * @ORM\Column(name="city", type="string", length=100)
+     */
+    protected $city = null;
+
+    /**
+     * @ORM\Column(name="country", type="string", length=100)
+     */
+    protected $country = null;
+
+    /**
+     * @ORM\Column(name="registration_date", type="datetime")
+     */
+    protected $registrationDate = null;
+
+    /**
+     * @ORM\Column(name="create_date", type="datetime")
+     */
+    protected $createDate = null;
+
+    /**
+     * @ORM\Column(name="update_date", type="datetime")
+     */
+    protected $updateDate = null;
+}

@@ -17,9 +17,7 @@ class OrderProductImporter extends MainOrderProductImporter implements ShopImpor
         $this->client->init();
         $this->collectOrderProductItems();
         $this->collectOrderProducts();
-        $this->entityManager->flush();
         $this->createImportLog();
-        $this->entityManager->flush();
     }
 
     protected function collectOrderProductItems()
@@ -33,17 +31,18 @@ class OrderProductImporter extends MainOrderProductImporter implements ShopImpor
         $this->addItemsToProcessCollection($list);
         $this->saveItemsToProcess();
         $this->setCollectionLogFinish();
+        $this->entityManager->flush();
     }
 
     protected function collectOrderProducts()
     {
         if ($this->itemProcessCollection->count()) {
             $items = $this->itemProcessCollection->toArray();
+            $counterToFlush = 0;
             foreach ($items as $key => $item) {
                 $index = $item->getItemIndex();
                 $value = $item->getItemValue();
-                $this->actualTime = round(microtime(true) - $this->startTime);
-                if ($this->actualTime < $this->timeLimit) {
+                if ($this->isInLimits($key)) {
                     $this->setItemLogIndex($index);
                     $data = $this->getOrderProductData($value);
                     $this->setProcessed($item, $key);
@@ -58,6 +57,12 @@ class OrderProductImporter extends MainOrderProductImporter implements ShopImpor
                             )
                         );
                     }
+                    if ($counterToFlush == $this->flushItemPackageNumber) {
+                        $this->entityManager->flush();
+                        $counterToFlush = 0;
+                    } else {
+                        $counterToFlush++;
+                    }
                 } else {
                     $this->timeOut = 1;
                     break;
@@ -67,6 +72,7 @@ class OrderProductImporter extends MainOrderProductImporter implements ShopImpor
         if ($this->timeOut == 0) {
             $this->setItemLogFinish();
         }
+        $this->entityManager->flush();
     }
 
     /**
@@ -79,9 +85,9 @@ class OrderProductImporter extends MainOrderProductImporter implements ShopImpor
         SELECT
             op.order_product_id
         FROM
-            `order` as o
-            LEFT JOIN order_product as op
-                ON o.order_id = op.order_id
+            order_product as op
+            LEFT JOIN `order` as o
+                ON op.order_id = o.order_id
         WHERE
             (
                 o.date_added > '0000-00-00 00:00:00'

@@ -21,9 +21,7 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
         $this->loadLanguageId();
         $this->collectProductItems();
         $this->collectProducts();
-        $this->entityManager->flush();
         $this->createImportLog();
-        $this->entityManager->flush();
     }
 
     protected function loadLanguageId()
@@ -56,17 +54,18 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
         $this->addItemsToProcessCollection($list);
         $this->saveItemsToProcess();
         $this->setCollectionLogFinish();
+        $this->entityManager->flush();
     }
 
     protected function collectProducts()
     {
         if ($this->itemProcessCollection->count()) {
             $items = $this->itemProcessCollection->toArray();
+            $counterToFlush = 0;
             foreach ($items as $key => $item) {
                 $index = $item->getItemIndex();
                 $value = $item->getItemValue();
-                $this->actualTime = round(microtime(true) - $this->startTime);
-                if ($this->actualTime < $this->timeLimit) {
+                if ($this->isInLimits()) {
                     $this->setItemLogIndex($index);
                     $data = $this->getProductData($value);
                     $this->setProcessed($item, $key);
@@ -85,6 +84,12 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
                             )
                         );
                     }
+                    if ($counterToFlush == $this->flushItemPackageNumber) {
+                        $this->entityManager->flush();
+                        $counterToFlush = 0;
+                    } else {
+                        $counterToFlush++;
+                    }
                 } else {
                     $this->timeOut = 1;
                     break;
@@ -94,6 +99,7 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
         if ($this->timeOut == 0) {
             $this->setItemLogFinish();
         }
+        $this->entityManager->flush();
     }
 
     /**
@@ -115,7 +121,6 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
             AND p.status = 1
             AND p.date_available <= NOW()
         ORDER BY p.product_id ASC
-        LIMIT 0,10000
         ";
         $list = $this->client->getCollectionRequest($sql);
         return $list;

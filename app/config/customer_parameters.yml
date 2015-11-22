@@ -1,6 +1,8 @@
 parameters:
     database_host_customer: 127.0.0.1
     database_port_customer: null
-    database_name_customer: pingvin_customer1
     database_user_customer: root
     database_password_customer: null
+
+    database_name_customer1: pingvin_customer1
+    database_name_customer2: pingvin_customer2

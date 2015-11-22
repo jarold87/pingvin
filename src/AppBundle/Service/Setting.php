@@ -16,16 +16,10 @@ class Setting
     /**
      * @param EntityManager $entityManager
      */
-    public function __construct(EntityManager $entityManager)
+    public function setEntityManager(EntityManager $entityManager)
     {
+        $this->reset();
         $this->entityManager = $entityManager;
-
-        $settings = $shop_type = $entityManager->getRepository('AppBundle:Setting')->findAll();
-        if ($settings) {
-            foreach ($settings as $setting) {
-                $this->settings[$setting->getName()] = $setting->getValue();
-            }
-        }
     }
 
     /**
@@ -34,9 +28,27 @@ class Setting
      */
     public function get($name)
     {
+        if (!$this->settings) {
+            $this->loadSettings();
+        }
         if (isset($this->settings[$name])) {
             return $this->settings[$name];
         }
         return null;
+    }
+
+    protected function reset()
+    {
+        $this->settings = array();
+    }
+
+    protected function loadSettings()
+    {
+        $settings = $shop_type = $this->entityManager->getRepository('AppBundle:Setting')->findAll();
+        if ($settings) {
+            foreach ($settings as $setting) {
+                $this->settings[$setting->getName()] = $setting->getValue();
+            }
+        }
     }
 }

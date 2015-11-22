@@ -9,6 +9,8 @@ use CronBundle\Import\ImportListFactory;
 use CronBundle\Import\ImporterIterator;
 use CronBundle\Import\ClientAdapterFactory;
 use CronBundle\Service\Benchmark;
+use Doctrine\ORM\EntityManager;
+use AppBundle\Entity\ImportScheduleLog;
 
 class ImportHandler extends Controller
 {
@@ -16,7 +18,10 @@ class ImportHandler extends Controller
     protected $userLimit = 1;
 
     /** @var int */
-    protected $timeLimit = 50;
+    protected $timeLimit = 40;
+
+    /** @var string */
+    protected $sleepInterval = 'PT5S';
 
     /** @var */
     protected $actualTime;
@@ -24,42 +29,60 @@ class ImportHandler extends Controller
     /** @var */
     protected $startTime;
 
+    /** @var EntityManager */
+    protected $globalEntityManager;
+
     /**
      * @Route("/", name="homepage")
      */
     public function indexAction(Request $request)
     {
         $this->startTime = microtime(true);
-        $importIndex = 0;
         for ($i = 0; $i < $this->userLimit; $i++) {
-            $this->actualTime = round(microtime(true) - $this->startTime);
-            if ($this->actualTime < $this->timeLimit) {
-                //TODO Adatbázisból lekérjük, hogy melyik user és annak melyik importja következik
-                $user = 1;
-                $this->runOneUserImports($user, $importIndex);
-                $importIndex++;
+            if ($this->isInLimit()) {
+                $time = new \DateTime();
+                $time->sub(new \DateInterval('PT5S'));
+                $this->globalEntityManager = $this->getDoctrine()->getManager('global');
+                $repository = $this->globalEntityManager->getRepository('AppBundle:ImportScheduleLog');
+                $query = $repository->createQueryBuilder('s')
+                    ->where('s.lastFinishedImportDate < :time')
+                    ->setParameter('time', $time)
+                    ->addOrderBy('s.priority', 'DESC')
+                    ->addOrderBy('s.lastFinishedImportDate', 'ASC')
+                    ->addOrderBy('s.createDate', 'ASC')
+                    ->setMaxResults(1)
+                    ->getQuery();
+                $schedules = $query->getResult();
+                //var_dump('<pre>', $schedules); exit;
+                if (!isset($schedules[0])) {
+                    die('NO PROCESS');
+                    return;
+                }
+                $schedule = $schedules[0];
+                $this->runOneUserImports($schedule);
+                $this->globalEntityManager->flush();
             } else {
                 break;
             }
         }
 
-        $benchmark = $this->get('benchmark');
-        $message = $benchmark->lastIndex;
+        $message = round(microtime(true) - $this->startTime);
         return $this->render('CronBundle::message.html.twig', array(
             'message' => $message,
         ));
     }
 
     /**
-     * @param $user
-     * @param $importIndex
+     * @param ImportScheduleLog $schedule
      */
-    protected function runOneUserImports($user, $importIndex)
+    protected function runOneUserImports(ImportScheduleLog $schedule)
     {
         //TODO Biztosítani kell, hogy az adott user adatbázis kapcsolata legyen behúzva
-        $entityManager = $this->getDoctrine()->getManager('customer');
+        $entityManager = $this->getDoctrine()->getManager('customer' . $schedule->getUserId());
 
         $settingService = $this->container->get('setting');
+        $settingService->setEntityManager($entityManager);
+        $importIndex = $schedule->getActualImportIndex();
 
         $factory = new ImportListFactory($settingService);
         $importList = $factory->getImportList();
@@ -70,8 +93,7 @@ class ImportHandler extends Controller
         $client = $clientFactory->getClientAdapter();
 
         while ($iterator->hasNextImport()) {
-            $this->actualTime = round(microtime(true) - $this->startTime);
-            if ($this->actualTime < $this->timeLimit) {
+            if ($this->isInLimit()) {
                 $importer = $iterator->getNextImport();
                 $importer->setEntityManager($entityManager);
                 $importer->setClient($client);
@@ -84,15 +106,31 @@ class ImportHandler extends Controller
                 //TODO Ha igen, akkor rögzíteni adatbázisban
                 if ($importer->isFinishedImport()) {
                     $importIndex = $iterator->getActualImportIndex();
-                    //TODO Adatbázisba rögzítjük a most futtatott import indexét.
+                    $schedule->setActualImportIndex($importIndex);
+                    $schedule->setUpdateDate();
+                    if (!$iterator->hasNextImport()) {
+                        $schedule->setActualImportIndex(1);
+                        $schedule->setLastFinishedImportDate(new \DateTime());
+                        //TODO prioritást nullázni kell
+                    }
+                } else {
+                    break;
                 }
             } else {
                 break;
             }
         }
-        if (!$iterator->hasNextImport()) {
-            //Ez volt a user utolsó importja
-            //TODO Utolsó teljes frissítés dátumát aktualizáljuk
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isInLimit()
+    {
+        $this->actualTime = round(microtime(true) - $this->startTime);
+        if ($this->actualTime >= round($this->timeLimit / 2)) {
+            return false;
         }
+        return true;
     }
 }

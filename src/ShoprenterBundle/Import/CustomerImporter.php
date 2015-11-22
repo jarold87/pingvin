@@ -2,11 +2,11 @@
 
 namespace ShoprenterBundle\Import;
 
-use CronBundle\Import\OrderImporter as MainOrderImporter;
+use CronBundle\Import\CustomerImporter as MainCustomerImporter;
 use CronBundle\Import\ShopImporterInterface;
 use CronBundle\Import\ImporterInterface;
 
-class OrderImporter extends MainOrderImporter implements ShopImporterInterface, ImporterInterface
+class CustomerImporter extends MainCustomerImporter implements ShopImporterInterface, ImporterInterface
 {
     /** @var ClientAdapter */
     protected $client;
@@ -15,26 +15,26 @@ class OrderImporter extends MainOrderImporter implements ShopImporterInterface, 
     {
         $this->initCollections();
         $this->client->init();
-        $this->collectOrderItems();
-        $this->collectOrders();
+        $this->collectCustomerItems();
+        $this->collectCustomers();
         $this->createImportLog();
     }
 
-    protected function collectOrderItems()
+    protected function collectCustomerItems()
     {
         if ($this->hasInProgressItemRequests()) {
             return;
         }
         $this->setCollectionLogIndex(1);
         $this->setItemLogIndex(1);
-        $list = $this->getOrders();
+        $list = $this->getCustomers();
         $this->addItemsToProcessCollection($list);
         $this->saveItemsToProcess();
         $this->setCollectionLogFinish();
         $this->entityManager->flush();
     }
 
-    protected function collectOrders()
+    protected function collectCustomers()
     {
         if ($this->itemProcessCollection->count()) {
             $items = $this->itemProcessCollection->toArray();
@@ -44,17 +44,20 @@ class OrderImporter extends MainOrderImporter implements ShopImporterInterface, 
                 $value = $item->getItemValue();
                 if ($this->isInLimits($key)) {
                     $this->setItemLogIndex($index);
-                    $data = $this->getOrderData($value);
+                    $data = $this->getCustomerData($value);
                     $this->setProcessed($item, $key);
                     if ($this->isAllowed($data)) {
-                        $this->setOrder(
+                        $this->setCustomer(
                             array(
-                                'outerId' => $data['order_id'],
-                                'customerOuterId' => $data['customer_id'],
-                                'shippingMethod' => $data['shipping_method'],
-                                'paymentMethod' => $data['payment_method'],
-                                'currency' => $data['currency'],
-                                'orderDate' => $data['date_added'],
+                                'outerId' => $data['customer_id'],
+                                'lastname' => $data['lastname'],
+                                'firstname' => $data['firstname'],
+                                'email' => $data['email'],
+                                'registrationDate' => $data['date_added'],
+                                'customerGroup' => $data['customer_group'],
+                                'company' => $data['company'],
+                                'city' => $data['city'],
+                                'country' => $data['country'],
                             )
                         );
                     }
@@ -80,20 +83,20 @@ class OrderImporter extends MainOrderImporter implements ShopImporterInterface, 
      * @return array
      * @throws Exception
      */
-    protected function getOrders()
+    protected function getCustomers()
     {
         $sql = "
         SELECT
-            o.order_id
+            c.customer_id
         FROM
-            `order` as o
+            customer as c
         WHERE
             (
-                o.date_added > '0000-00-00 00:00:00'
-                OR o.date_modified > '0000-00-00 00:00:00'
+                c.date_added > '0000-00-00 00:00:00'
+                OR c.date_modified > '0000-00-00 00:00:00'
             )
-            AND o.order_status_id != 0
-        ORDER BY o.order_id ASC
+            AND c.status = 1
+        ORDER BY c.customer_id ASC
         ";
         $list = $this->client->getCollectionRequest($sql);
         return $list;
@@ -104,23 +107,31 @@ class OrderImporter extends MainOrderImporter implements ShopImporterInterface, 
      * @return mixed
      * @throws Exception
      */
-    protected function getOrderData($id)
+    protected function getCustomerData($id)
     {
         $sql = "
                     SELECT
-                        o.order_id,
-                        o.customer_id,
-                        o.shipping_method,
-                        o.payment_method,
-                        o.currency,
-                        o.date_added
+                        c.customer_id,
+                        c.firstname as lastname,
+                        c.lastname as firstname,
+                        c.email,
+                        c.date_added,
+                        cg.name as customer_group,
+                        a.company,
+                        a.city,
+                        co.name as country
                     FROM
-                        `order` as o
+                        customer as c
+                        LEFT JOIN customer_group as cg
+                            ON c.customer_group_id = cg.customer_group_id
+                        LEFT JOIN address as a
+                            ON c.address_id = a.address_id
+                        LEFT JOIN country as co
+                            ON a.country_id = co.country_id
                     WHERE
-                        o.order_id = " . $id . "
+                        c.customer_id = " . $id . "
                     LIMIT 0,1
         ";
-
         $data = $this->client->getRequest($sql);
         return $data;
     }
@@ -134,7 +145,7 @@ class OrderImporter extends MainOrderImporter implements ShopImporterInterface, 
             return;
         }
         foreach ($items as $index => $value) {
-            $item = $this->setImportItemProcess($index + 1, $value['order_id']);
+            $item = $this->setImportItemProcess($index + 1, $value['customer_id']);
             $this->itemProcessCollection->add($item);
         }
     }
@@ -145,7 +156,7 @@ class OrderImporter extends MainOrderImporter implements ShopImporterInterface, 
      */
     protected function isAllowed($data)
     {
-        if (!isset($data['order_id'])) {
+        if (!isset($data['customer_id'])) {
             return false;
         }
         return true;

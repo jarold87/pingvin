@@ -82,4 +82,19 @@ abstract class Importer
         }
         return true;
     }
+
+    /**
+     * @return bool
+     */
+    protected function isInLimits()
+    {
+        if ($this->timeOut == 1) {
+            return false;
+        }
+        $this->actualTime = round(microtime(true) - $this->startTime);
+        if ($this->actualTime >= $this->timeLimit) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -55,13 +55,21 @@ assetic:
 # Doctrine Configuration
 doctrine:
     dbal:
-        default_connection: customer
+        default_connection: customer1
         connections:
-            customer:
+            customer1:
                 driver:   pdo_mysql
                 host:     "%database_host_customer%"
                 port:     "%database_port_customer%"
-                dbname:   "%database_name_customer%"
+                dbname:   "%database_name_customer1%"
+                user:     "%database_user_customer%"
+                password: "%database_password_customer%"
+                charset:  UTF8
+            customer2:
+                driver:   pdo_mysql
+                host:     "%database_host_customer%"
+                port:     "%database_port_customer%"
+                dbname:   "%database_name_customer2%"
                 user:     "%database_user_customer%"
                 password: "%database_password_customer%"
                 charset:  UTF8
@@ -82,10 +90,16 @@ doctrine:
         #     path:     "%database_path%"
 
     orm:
-        default_entity_manager: customer
+        default_entity_manager: customer1
         entity_managers:
-            customer:
-                connection: customer
+            customer1:
+                connection: customer1
+                mappings:
+                    AppBundle: ~
+                    CronBundle:  ~
+                    TestBundle:  ~
+            customer2:
+                connection: customer2
                 mappings:
                     AppBundle: ~
                     CronBundle:  ~

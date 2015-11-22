@@ -9,8 +9,9 @@ class ImportList implements ImportListInterface
     /** @var array */
     protected $imports = array(
         1 => 'Product',
-        2 => 'Order',
-        3 => 'OrderProduct',
+        2 => 'Customer',
+        3 => 'Order',
+        4 => 'OrderProduct',
     );
 
     /**
@@ -23,7 +24,7 @@ class ImportList implements ImportListInterface
 
     /**
      * @param $index
-     * @return OrderImporter|ProductImporter|void
+     * @return CustomerImporter|OrderImporter|OrderProductImporter|ProductImporter|void
      */
     public function getImport($index)
     {
@@ -31,8 +32,10 @@ class ImportList implements ImportListInterface
             case 1:
                 return new ProductImporter();
             case 2:
-                return new OrderImporter();
+                return new CustomerImporter();
             case 3:
+                return new OrderImporter();
+            case 4:
                 return new OrderProductImporter();
             default:
                 return;

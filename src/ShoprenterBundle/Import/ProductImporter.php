@@ -52,13 +52,17 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
         $this->setItemLogIndex(1);
         $list = $this->getProducts();
         $this->addItemsToProcessCollection($list);
-        $this->saveItemsToProcess();
-        $this->setCollectionLogFinish();
-        $this->entityManager->flush();
+        $this->saveCollectionItems();
     }
 
     protected function collectProducts()
     {
+        if (!$this->isInLimits()) {
+            $this->timeOut = 1;
+            return;
+        }
+        $this->loadItemsToProcessCollection();
+        $this->loadExistEntityCollection();
         if ($this->itemProcessCollection->count()) {
             $items = $this->itemProcessCollection->toArray();
             $counterToFlush = 0;
@@ -96,7 +100,7 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
                 }
             }
         }
-        if ($this->timeOut == 0) {
+        if ($this->isFinishedImport()) {
             $this->setItemLogFinish();
         }
         $this->entityManager->flush();

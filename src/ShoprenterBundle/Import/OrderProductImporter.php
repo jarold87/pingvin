@@ -29,20 +29,24 @@ class OrderProductImporter extends MainOrderProductImporter implements ShopImpor
         $this->setItemLogIndex(1);
         $list = $this->getOrderProducts();
         $this->addItemsToProcessCollection($list);
-        $this->saveItemsToProcess();
-        $this->setCollectionLogFinish();
-        $this->entityManager->flush();
+        $this->saveCollectionItems();
     }
 
     protected function collectOrderProducts()
     {
+        if (!$this->isInLimits()) {
+            $this->timeOut = 1;
+            return;
+        }
+        $this->loadItemsToProcessCollection();
+        $this->loadExistEntityCollection();
         if ($this->itemProcessCollection->count()) {
             $items = $this->itemProcessCollection->toArray();
             $counterToFlush = 0;
             foreach ($items as $key => $item) {
                 $index = $item->getItemIndex();
                 $value = $item->getItemValue();
-                if ($this->isInLimits($key)) {
+                if ($this->isInLimits()) {
                     $this->setItemLogIndex($index);
                     $data = $this->getOrderProductData($value);
                     $this->setProcessed($item, $key);
@@ -69,7 +73,7 @@ class OrderProductImporter extends MainOrderProductImporter implements ShopImpor
                 }
             }
         }
-        if ($this->timeOut == 0) {
+        if ($this->isFinishedImport()) {
             $this->setItemLogFinish();
         }
         $this->entityManager->flush();

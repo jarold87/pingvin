@@ -29,20 +29,24 @@ class CustomerImporter extends MainCustomerImporter implements ShopImporterInter
         $this->setItemLogIndex(1);
         $list = $this->getCustomers();
         $this->addItemsToProcessCollection($list);
-        $this->saveItemsToProcess();
-        $this->setCollectionLogFinish();
-        $this->entityManager->flush();
+        $this->saveCollectionItems();
     }
 
     protected function collectCustomers()
     {
+        if (!$this->isInLimits()) {
+            $this->timeOut = 1;
+            return;
+        }
+        $this->loadItemsToProcessCollection();
+        $this->loadExistEntityCollection();
         if ($this->itemProcessCollection->count()) {
             $items = $this->itemProcessCollection->toArray();
             $counterToFlush = 0;
             foreach ($items as $key => $item) {
                 $index = $item->getItemIndex();
                 $value = $item->getItemValue();
-                if ($this->isInLimits($key)) {
+                if ($this->isInLimits()) {
                     $this->setItemLogIndex($index);
                     $data = $this->getCustomerData($value);
                     $this->setProcessed($item, $key);
@@ -73,7 +77,7 @@ class CustomerImporter extends MainCustomerImporter implements ShopImporterInter
                 }
             }
         }
-        if ($this->timeOut == 0) {
+        if ($this->isFinishedImport()) {
             $this->setItemLogFinish();
         }
         $this->entityManager->flush();

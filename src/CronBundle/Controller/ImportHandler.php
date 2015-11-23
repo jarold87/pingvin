@@ -15,13 +15,13 @@ use AppBundle\Entity\ImportScheduleLog;
 class ImportHandler extends Controller
 {
     /** @var int */
-    protected $userLimit = 1;
+    protected $userLimit = 2;
 
     /** @var int */
-    protected $timeLimit = 40;
+    protected $timeLimit = 45;
 
     /** @var string */
-    protected $sleepInterval = 'PT5S';
+    protected $sleepInterval = 'PT86400S';
 
     /** @var */
     protected $actualTime;
@@ -33,7 +33,7 @@ class ImportHandler extends Controller
     protected $globalEntityManager;
 
     /**
-     * @Route("/", name="homepage")
+     * @Route("/", name="cron")
      */
     public function indexAction(Request $request)
     {
@@ -41,7 +41,7 @@ class ImportHandler extends Controller
         for ($i = 0; $i < $this->userLimit; $i++) {
             if ($this->isInLimit()) {
                 $time = new \DateTime();
-                $time->sub(new \DateInterval('PT5S'));
+                $time->sub(new \DateInterval($this->sleepInterval));
                 $this->globalEntityManager = $this->getDoctrine()->getManager('global');
                 $repository = $this->globalEntityManager->getRepository('AppBundle:ImportScheduleLog');
                 $query = $repository->createQueryBuilder('s')
@@ -94,6 +94,7 @@ class ImportHandler extends Controller
 
         while ($iterator->hasNextImport()) {
             if ($this->isInLimit()) {
+                echo '|';
                 $importer = $iterator->getNextImport();
                 $importer->setEntityManager($entityManager);
                 $importer->setClient($client);
@@ -101,7 +102,15 @@ class ImportHandler extends Controller
                 $importer->setActualTime($this->actualTime);
                 $importer->setTimeLimit($this->timeLimit);
                 $importer->setBenchmark($this->get('benchmark'));
-                $importer->import();
+                try {
+                    $importer->import();
+                }
+                catch (\Exception $e) {
+                    $importIndex = $iterator->getActualImportIndex();
+                    $schedule->setActualImportIndex($importIndex + 1);
+                    $schedule->setUpdateDate();
+                    continue;
+                }
                 //TODO Meg kell nézni, hogy hiba volt-e az importban
                 //TODO Ha igen, akkor rögzíteni adatbázisban
                 if ($importer->isFinishedImport()) {
@@ -111,10 +120,10 @@ class ImportHandler extends Controller
                     if (!$iterator->hasNextImport()) {
                         $schedule->setActualImportIndex(1);
                         $schedule->setLastFinishedImportDate(new \DateTime());
-                        //TODO prioritást nullázni kell
+                        $schedule->setPriority(0);
                     }
                 } else {
-                    break;
+                    $iterator->setActualImportIndex($importIndex);
                 }
             } else {
                 break;
@@ -128,7 +137,7 @@ class ImportHandler extends Controller
     protected function isInLimit()
     {
         $this->actualTime = round(microtime(true) - $this->startTime);
-        if ($this->actualTime >= round($this->timeLimit / 2)) {
+        if ($this->actualTime >= round($this->timeLimit)) {
             return false;
         }
         return true;

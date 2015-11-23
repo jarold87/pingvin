@@ -11,13 +11,19 @@ use CronBundle\Service\Benchmark;
 class ShopImporter extends Importer
 {
     /** @var int */
-    protected $flushItemPackageNumber = 400;
+    protected $flushItemPackageNumber = 1000;
 
-    /** @var string */
-    protected $entity;
+    /** @var int */
+    protected $itemProcessLimit = 10000;
+
+    /** @var int */
+    protected $countAllItemProcess = 0;
 
     /** @var ArrayCollection */
     protected $itemProcessCollection;
+
+    /** @var string */
+    protected $entity;
 
     /** @var ImportCollectionLog */
     protected $collectionLog;
@@ -42,17 +48,62 @@ class ShopImporter extends Importer
         $this->benchmark = $service;
     }
 
+    /**
+     * @return bool
+     */
+    public function isFinishedImport()
+    {
+        if ($this->countAllItemProcess != $this->itemProcessCollection->count()) {
+            return false;
+        }
+        return parent::isFinishedImport();
+    }
+
     protected function initCollections()
     {
         $this->itemProcessCollection = new ArrayCollection();
+        $this->existEntityCollection = new ArrayCollection();
+    }
+
+    protected function saveCollectionItems()
+    {
+        $this->saveItemsToProcess();
+        $this->setCollectionLogFinish();
+        $this->entityManager->flush();
+        $this->clearItemsToProcessCollection();
+    }
+
+    protected function saveItemsToProcess()
+    {
+        $items = $this->itemProcessCollection->toArray();
+        foreach ($items as $item) {
+            $this->entityManager->persist($item);
+        }
+    }
+
+    protected function clearItemsToProcessCollection()
+    {
+        $this->itemProcessCollection->clear();
+    }
+
+    protected function loadItemsToProcessCollection()
+    {
         $items = $this->entityManager->getRepository('AppBundle:ImportItemProcess')->findAll();
+        $this->countAllItemProcess = count($items);
         if ($items) {
+            $limitCounter = 0;
             foreach ($items as $item) {
+                if ($limitCounter > $this->itemProcessLimit) {
+                    break;
+                }
                 $this->itemProcessCollection->add($item);
+                $limitCounter++;
             }
         }
+    }
 
-        $this->existEntityCollection = new ArrayCollection();
+    protected function loadExistEntityCollection()
+    {
         $objects = $this->entityManager->getRepository('AppBundle:' . $this->entity)->findAll();
         if ($objects) {
             $key = 0;
@@ -61,14 +112,6 @@ class ShopImporter extends Importer
                 $this->existEntityKeyByOuterId[$object->getOuterId()] = $key;
                 $key++;
             }
-        }
-    }
-
-    protected function saveItemsToProcess()
-    {
-        $items = $this->itemProcessCollection->toArray();
-        foreach ($items as $item) {
-            $this->entityManager->persist($item);
         }
     }
 

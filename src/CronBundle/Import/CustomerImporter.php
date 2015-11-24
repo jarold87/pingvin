@@ -17,31 +17,29 @@ class CustomerImporter extends ShopImporter
      */
     protected function setCustomer($data)
     {
-        if (isset($this->existEntityKeyByOuterId[$data['outerId']])) {
-            /** @var Customer $customer */
-            $customer = $this->existEntityCollection->get(
-                $this->existEntityKeyByOuterId[$data['outerId']]
-            );
-            $customer->setLastname((isset($data['lastname'])) ? $data['lastname'] : '');
-            $customer->setFirstname((isset($data['firstname'])) ? $data['firstname'] : '');
-            $customer->setEmail((isset($data['email'])) ? $data['email'] : '');
-            $customer->setCustomerGroup((isset($data['customerGroup'])) ? $data['customerGroup'] : '');
-            $customer->setCompany((isset($data['company'])) ? $data['company'] : '');
-            $customer->setCity((isset($data['city'])) ? $data['city'] : '');
-            $customer->setCountry((isset($data['country'])) ? $data['country'] : '');
-            $customer->setRegistrationDate((isset($data['registrationDate'])) ? new \DateTime($data['registrationDate']) : new \DateTime());
-            return;
-        }
-        $customer = new Customer();
-        $customer->setOuterId($data['outerId']);
-        $customer->setLastname((isset($data['lastname'])) ? $data['lastname'] : '');
-        $customer->setFirstname((isset($data['firstname'])) ? $data['firstname'] : '');
-        $customer->setEmail((isset($data['email'])) ? $data['email'] : '');
-        $customer->setCustomerGroup((isset($data['customerGroup'])) ? $data['customerGroup'] : '');
-        $customer->setCompany((isset($data['company'])) ? $data['company'] : '');
-        $customer->setCity((isset($data['city'])) ? $data['city'] : '');
-        $customer->setCountry((isset($data['country'])) ? $data['country'] : '');
-        $customer->setRegistrationDate((isset($data['registrationDate'])) ? new \DateTime($data['registrationDate']) : new \DateTime());
-        $this->entityManager->persist($customer);
+        $this->validateOuterIdInData($data);
+        $outerId = $data['outerId'];
+        $object = $this->getEntityObject($outerId);
+        $object = $this->setDataToObject($object, $data);
+        $this->entityManager->persist($object);
+    }
+
+    /**
+     * @param Customer $object
+     * @param $data
+     * @return Customer
+     * @throws \Exception
+     */
+    protected function setDataToObject(Customer $object, $data)
+    {
+        $object->setLastname($this->getFormattedData($data, 'lastname', 'string'));
+        $object->setFirstname($this->getFormattedData($data, 'firstname', 'string'));
+        $object->setEmail($this->getFormattedData($data, 'email', 'string'));
+        $object->setCustomerGroup($this->getFormattedData($data, 'objectGroup', 'string'));
+        $object->setCompany($this->getFormattedData($data, 'company', 'string'));
+        $object->setCity($this->getFormattedData($data, 'city', 'string'));
+        $object->setCountry($this->getFormattedData($data, 'country', 'string'));
+        $object->setRegistrationDate($this->getFormattedData($data, 'registrationDate', 'date'));
+        return $object;
     }
 }

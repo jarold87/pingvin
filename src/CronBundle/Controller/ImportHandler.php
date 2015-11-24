@@ -17,7 +17,7 @@ class ImportHandler extends Controller
     protected $userLimit = 2;
 
     /** @var int 45 */
-    protected $timeLimit = 10;
+    protected $timeLimit = 45;
 
     /** @var int */
     protected $failLimit = 6;
@@ -29,7 +29,7 @@ class ImportHandler extends Controller
     protected $sleepInterval = 'PT1S';
 
     /** @var float */
-    protected $actualTime = 0.00;
+    protected $runTime = 0.00;
 
     /** @var */
     protected $startTime;
@@ -79,7 +79,7 @@ class ImportHandler extends Controller
 
         $this->get('import_log')->addMessage('run finished | ' . $this->get('import_log')->getAllProcessItemCount());
 
-        $this->get('import_log')->setRuntime($this->actualRuntime());
+        $this->get('import_log')->setRuntime($this->getRuntime());
         $log = $this->get('import_log')->getGlobalLog();
         $this->globalEntityManager->persist($log);
         $this->globalEntityManager->flush();
@@ -130,7 +130,7 @@ class ImportHandler extends Controller
             $importer->setEntityManager($entityManager);
             $importer->setClient($client);
             $importer->setStartTime($this->startTime);
-            $importer->setActualTime($this->actualRuntime());
+            $importer->setRuntime($this->getRuntime());
             $importer->setTimeLimit($this->timeLimit);
             $importer->setImportLog($this->get('import_log'));
             $this->get('import_log')->addMessage('import run => ' . $importIndex);
@@ -168,10 +168,10 @@ class ImportHandler extends Controller
         $this->globalEntityManager->flush();
     }
 
-    protected function actualRuntime()
+    protected function getRuntime()
     {
-        $this->actualTime = round(microtime(true) - $this->startTime, 2);
-        return $this->actualTime;
+        $this->runTime = round(microtime(true) - $this->startTime, 2);
+        return $this->runTime;
     }
 
     /**
@@ -179,7 +179,7 @@ class ImportHandler extends Controller
      */
     protected function isInTimeLimit()
     {
-        if ($this->actualRuntime() >= round($this->timeLimit)) {
+        if ($this->getRuntime() >= round($this->timeLimit)) {
             return false;
         }
         return true;

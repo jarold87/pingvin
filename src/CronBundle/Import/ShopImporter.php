@@ -9,20 +9,23 @@ use AppBundle\Entity\ImportItemProcess;
 
 class ShopImporter extends Importer
 {
+    /** @var string */
+    protected $entity;
+
+    /** @var string */
+    protected $outerIdKey;
+
     /** @var int 1000 */
-    protected $flushItemPackageNumber = 100;
+    protected $flushItemPackageNumber = 1000;
 
     /** @var int 10000*/
-    protected $itemProcessLimit = 1000;
+    protected $itemProcessLimit = 10000;
 
     /** @var int */
     protected $countAllItemProcess = 0;
 
     /** @var ArrayCollection */
     protected $itemProcessCollection;
-
-    /** @var string */
-    protected $entity;
 
     /** @var ImportCollectionLog */
     protected $collectionLog;
@@ -53,54 +56,11 @@ class ShopImporter extends Importer
         $this->existEntityCollection = new ArrayCollection();
     }
 
-    protected function saveCollectionItems()
+    protected function saveImportLog()
     {
-        $this->saveItemsToProcess();
-        $this->setCollectionLogFinish();
-        $this->entityManager->flush();
-        $this->clearItemsToProcessCollection();
-    }
-
-    protected function saveItemsToProcess()
-    {
-        $items = $this->itemProcessCollection->toArray();
-        foreach ($items as $item) {
-            $this->entityManager->persist($item);
-        }
-    }
-
-    protected function clearItemsToProcessCollection()
-    {
-        $this->itemProcessCollection->clear();
-    }
-
-    protected function loadItemsToProcessCollection()
-    {
-        $items = $this->entityManager->getRepository('AppBundle:ImportItemProcess')->findAll();
-        $this->countAllItemProcess = count($items);
-        if ($items) {
-            $limitCounter = 0;
-            foreach ($items as $item) {
-                if ($limitCounter > $this->itemProcessLimit) {
-                    break;
-                }
-                $this->itemProcessCollection->add($item);
-                $limitCounter++;
-            }
-        }
-    }
-
-    protected function loadExistEntityCollection()
-    {
-        $objects = $this->entityManager->getRepository('AppBundle:' . $this->entity)->findAll();
-        if ($objects) {
-            $key = 0;
-            foreach ($objects as $object) {
-                $this->existEntityCollection->add($object);
-                $this->existEntityKeyByOuterId[$object->getOuterId()] = $key;
-                $key++;
-            }
-        }
+        $this->importLog->setUserLastIndex($this->getLastItemIndexFromLog());
+        $this->importLog->setUnProcessItemCount($this->itemProcessCollection->count());
+        parent::saveImportLog();
     }
 
     /**
@@ -134,41 +94,6 @@ class ShopImporter extends Importer
     }
 
     /**
-     * @return int
-     */
-    protected function getLastItemIndexFromLog()
-    {
-        if ($this->itemLog) {
-            return $this->itemLog->getLastIndex();
-        }
-        return 0;
-    }
-
-    /**
-     * @return int
-     */
-    protected function getNextCollectionIndexFromLog()
-    {
-        if ($this->itemLog) {
-            return $this->collectionLog->getLastIndex() + 1;
-        }
-        return 0;
-    }
-
-    /**
-     * @param $index
-     * @param $value
-     * @return ImportItemProcess
-     */
-    protected function setImportItemProcess($index, $value)
-    {
-        $item = new ImportItemProcess();
-        $item->setItemIndex($index);
-        $item->setItemValue($value);
-        return $item;
-    }
-
-    /**
      * @param $page
      */
     protected function setCollectionLogIndex($page)
@@ -183,13 +108,6 @@ class ShopImporter extends Importer
         $log->setFinishDate(new \DateTime('0000-00-00'));
         $this->entityManager->persist($log);
         $this->collectionLog = $log;
-    }
-
-    protected function setCollectionLogFinish()
-    {
-        if ($this->collectionLog) {
-            $this->collectionLog->setFinishDate(new \DateTime());
-        }
     }
 
     /**
@@ -209,11 +127,114 @@ class ShopImporter extends Importer
         $this->itemLog = $log;
     }
 
+    /**
+     * @param $items
+     * @throws \Exception
+     */
+    protected function addItemsToProcessCollection($items)
+    {
+        if (!$items) {
+            return;
+        }
+        if (!$this->outerIdKey) {
+            throw new \Exception("Not a valid outerIdKey!");
+        }
+        foreach ($items as $index => $value) {
+            $item = $this->setImportItemProcess($index + 1, $value[$this->outerIdKey]);
+            $this->itemProcessCollection->add($item);
+        }
+    }
+
+    protected function saveCollectionItems()
+    {
+        $this->saveItemsToProcess();
+        $this->setCollectionLogFinish();
+        $this->entityManager->flush();
+        $this->clearItemsToProcessCollection();
+    }
+
+    protected function loadItemsToProcessCollection()
+    {
+        $items = $this->entityManager->getRepository('AppBundle:ImportItemProcess')->findAll();
+        $this->countAllItemProcess = count($items);
+        if ($items) {
+            $limitCounter = 0;
+            foreach ($items as $item) {
+                if ($limitCounter > $this->itemProcessLimit) {
+                    break;
+                }
+                $this->itemProcessCollection->add($item);
+                $limitCounter++;
+            }
+        }
+    }
+
+    protected function loadExistEntityCollection()
+    {
+        $objects = $this->entityManager->getRepository('AppBundle:' . $this->entity)->findAll();
+        if ($objects) {
+            $key = 0;
+            foreach ($objects as $object) {
+                $this->existEntityCollection->add($object);
+                $this->existEntityKeyByOuterId[$object->getOuterId()] = $key;
+                $key++;
+            }
+        }
+    }
+
     protected function setItemLogFinish()
     {
-        if ($this->itemLog) {
-            $this->itemLog->setFinishDate(new \DateTime());
+        $this->itemLog->setFinishDate(new \DateTime());
+    }
+
+    protected function saveItemsToProcess()
+    {
+        $items = $this->itemProcessCollection->toArray();
+        if (!$items) {
+            return;
         }
+        foreach ($items as $item) {
+            $this->entityManager->persist($item);
+        }
+    }
+
+    protected function clearItemsToProcessCollection()
+    {
+        $this->itemProcessCollection->clear();
+    }
+
+    /**
+     * @return int
+     */
+    protected function getLastItemIndexFromLog()
+    {
+        return $this->itemLog->getLastIndex();
+    }
+
+    /**
+     * @return int
+     */
+    protected function getNextCollectionIndexFromLog()
+    {
+        return $this->collectionLog->getLastIndex() + 1;
+    }
+
+    /**
+     * @param $index
+     * @param $value
+     * @return ImportItemProcess
+     */
+    protected function setImportItemProcess($index, $value)
+    {
+        $item = new ImportItemProcess();
+        $item->setItemIndex($index);
+        $item->setItemValue($value);
+        return $item;
+    }
+
+    protected function setCollectionLogFinish()
+    {
+        $this->collectionLog->setFinishDate(new \DateTime());
     }
 
     /**
@@ -227,11 +248,61 @@ class ShopImporter extends Importer
         $this->importLog->addProcessItemCount();
     }
 
-
-    protected function refreshImportLog()
+    /**
+     * @param $data
+     * @throws \Exception
+     */
+    protected function validateOuterIdInData($data)
     {
-        $this->importLog->setUserLastIndex($this->getLastItemIndexFromLog());
-        $this->importLog->setUnProcessItemCount($this->itemProcessCollection->count());
-        parent::refreshImportLog();
+        if (!isset($data['outerId']) || !$data['outerId']) {
+            throw new \Exception("Not a valid key or not exist in data!");
+        }
+    }
+
+    /**
+     * @param $outerId
+     * @return mixed
+     */
+    protected function getEntityObject($outerId)
+    {
+        if ($this->isExistEntityObject($outerId)) {
+            return $this->getObjectFromExistEntityCollectionByOuterId($outerId);
+        }
+        return $this->newEntityObject($outerId);
+    }
+
+    /**
+     * @param $outerId
+     * @return mixed
+     */
+    protected function newEntityObject($outerId)
+    {
+        $className = 'AppBundle\\Entity\\' . $this->entity;
+        $object = new $className();
+        $object->setOuterId($outerId);
+        return $object;
+    }
+
+    /**
+     * @param $outerId
+     * @return bool
+     */
+    protected function isExistEntityObject($outerId)
+    {
+        if (isset($this->existEntityKeyByOuterId[$outerId])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param $outerId
+     * @return mixed
+     */
+    protected function getObjectFromExistEntityCollectionByOuterId($outerId)
+    {
+        return $this->existEntityCollection->get(
+            $this->existEntityKeyByOuterId[$outerId]
+        );
     }
 }

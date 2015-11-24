@@ -17,7 +17,7 @@ abstract class Importer
     protected $client;
 
     /** @var float */
-    protected $actualTime = 0.00;
+    protected $runtime = 0.00;
 
     /** @var */
     protected $startTime;
@@ -35,17 +35,17 @@ abstract class Importer
     protected $error = array();
 
     /**
-     * @param $entityManager
+     * @param EntityManager $entityManager
      */
-    public function setEntityManager($entityManager)
+    public function setEntityManager(EntityManager $entityManager)
     {
         $this->entityManager = $entityManager;
     }
 
     /**
-     * @param $client
+     * @param ClientAdapter $client
      */
-    public function setClient($client)
+    public function setClient(ClientAdapter $client)
     {
         $this->client = $client;
     }
@@ -59,11 +59,11 @@ abstract class Importer
     }
 
     /**
-     * @param $actualTime
+     * @param $runtime
      */
-    public function setActualTime($actualTime)
+    public function setRuntime($runtime)
     {
-        $this->actualTime = $actualTime;
+        $this->runtime = $runtime;
     }
 
     /**
@@ -82,17 +82,9 @@ abstract class Importer
         $this->importLog = $service;
     }
 
-    /**
-     * @param array $error
-     */
-    public function setError(array $error)
-    {
-        $this->error = $error;
-    }
-
     public function import()
     {
-
+        throw new \Exception("Not a valid importer!");
     }
 
     /**
@@ -118,6 +110,14 @@ abstract class Importer
     }
 
     /**
+     * @param array $error
+     */
+    protected function setError(array $error)
+    {
+        $this->error = $error;
+    }
+
+    /**
      * @return bool
      */
     protected function isInLimits()
@@ -125,28 +125,47 @@ abstract class Importer
         if ($this->timeOut == 1) {
             return false;
         }
-        $this->refreshActualTime();
-        if ($this->actualTime >= $this->timeLimit) {
+        $this->refreshRunTime();
+        if ($this->runtime >= $this->timeLimit) {
             return false;
         }
         return true;
     }
 
-    protected function refreshActualTime()
+    protected function refreshRunTime()
     {
-        $this->actualTime = round(microtime(true) - $this->startTime, 2);
+        $this->runtime = round(microtime(true) - $this->startTime, 2);
     }
 
-    protected function refreshImportLog()
+    protected function saveImportLog()
     {
-        $this->refreshActualTime();
-        $this->importLog->setRuntime($this->actualTime);
-    }
-
-    protected function createImportLog()
-    {
+        $this->refreshRunTime();
+        $this->importLog->setRuntime($this->runtime);
         $log = $this->importLog->getUserLog();
         $this->entityManager->persist($log);
         $this->entityManager->flush();
+    }
+
+    /**
+     * @param $data
+     * @param $key
+     * @param $type
+     * @return \DateTime|int|string
+     * @throws \Exception
+     */
+    protected function getFormattedData($data, $key, $type)
+    {
+        if (!isset($data[$key])) {
+            throw new \Exception("Not a valid key or not exist in data!");
+        }
+        switch ($type) {
+            case 'string':
+                return (isset($data[$key])) ? $data[$key] : '';
+            case 'integer':
+                return (isset($data[$key])) ? $data[$key] : 0;
+            case 'date':
+                return (isset($data[$key])) ? new \DateTime($data[$key]) : new \DateTime();
+        }
+        return '';
     }
 }

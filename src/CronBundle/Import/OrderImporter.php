@@ -17,25 +17,26 @@ class OrderImporter extends ShopImporter
      */
     protected function setOrder($data)
     {
-        if (isset($this->existEntityKeyByOuterId[$data['outerId']])) {
-            /** @var Order $order */
-            $order = $this->existEntityCollection->get(
-                $this->existEntityKeyByOuterId[$data['outerId']]
-            );
-            $order->setCustomerOuterId((isset($data['customerOuterId'])) ? $data['customerOuterId'] : '');
-            $order->setShippingMethod((isset($data['shippingMethod'])) ? $data['shippingMethod'] : '');
-            $order->setPaymentMethod((isset($data['paymentMethod'])) ? $data['paymentMethod'] : '');
-            $order->setCurrency((isset($data['currency'])) ? $data['currency'] : '');
-            $order->setOrderDate((isset($data['orderDate'])) ? new \DateTime($data['orderDate']) : new \DateTime());
-            return;
-        }
-        $order = new Order();
-        $order->setOuterId($data['outerId']);
-        $order->setCustomerOuterId((isset($data['customerOuterId'])) ? $data['customerOuterId'] : 0);
-        $order->setShippingMethod((isset($data['shippingMethod'])) ? $data['shippingMethod'] : '');
-        $order->setPaymentMethod((isset($data['paymentMethod'])) ? $data['paymentMethod'] : '');
-        $order->setCurrency((isset($data['currency'])) ? $data['currency'] : '');
-        $order->setOrderDate((isset($data['orderDate'])) ? new \DateTime($data['orderDate']) : new \DateTime());
-        $this->entityManager->persist($order);
+        $this->validateOuterIdInData($data);
+        $outerId = $data['outerId'];
+        $object = $this->getEntityObject($outerId);
+        $object = $this->setDataToObject($object, $data);
+        $this->entityManager->persist($object);
+    }
+
+    /**
+     * @param Order $object
+     * @param $data
+     * @return Order
+     * @throws \Exception
+     */
+    protected function setDataToObject(Order $object, $data)
+    {
+        $object->setCustomerOuterId($this->getFormattedData($data, 'customerOuterId', 'integer'));
+        $object->setShippingMethod($this->getFormattedData($data, 'shippingMethod', 'string'));
+        $object->setPaymentMethod($this->getFormattedData($data, 'paymentMethod', 'string'));
+        $object->setCurrency($this->getFormattedData($data, 'currency', 'string'));
+        $object->setOrderDate($this->getFormattedData($data, 'orderDate', 'date'));
+        return $object;
     }
 }

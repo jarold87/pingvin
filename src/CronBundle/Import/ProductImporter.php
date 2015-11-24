@@ -17,29 +17,28 @@ class ProductImporter extends ShopImporter
      */
     protected function setProduct($data)
     {
-        if (isset($this->existEntityKeyByOuterId[$data['outerId']])) {
-            /** @var Product $product */
-            $product = $this->existEntityCollection->get(
-                $this->existEntityKeyByOuterId[$data['outerId']]
-            );
-            $product->setName((isset($data['name'])) ? $data['name'] : '');
-            $product->setPicture((isset($data['picture'])) ? $data['picture'] : '');
-            $product->setUrl((isset($data['url'])) ? $data['url'] : '');
-            $product->setManufacturer((isset($data['manufacturer'])) ? $data['manufacturer'] : '');
-            $product->setCategory((isset($data['category'])) ? $data['category'] : '');
-            $product->setOuterId($data['outerId']);
-            $product->setProductCreateDate((isset($data['productCreateDate'])) ? new \DateTime($data['productCreateDate']) : new \DateTime());
-            return;
-        }
-        $product = new Product();
-        $product->setSku($data['sku']);
-        $product->setName((isset($data['name'])) ? $data['name'] : '');
-        $product->setPicture((isset($data['picture'])) ? $data['picture'] : '');
-        $product->setUrl((isset($data['url'])) ? $data['url'] : '');
-        $product->setManufacturer((isset($data['manufacturer'])) ? $data['manufacturer'] : '');
-        $product->setCategory((isset($data['category'])) ? $data['category'] : '');
-        $product->setOuterId($data['outerId']);
-        $product->setProductCreateDate((isset($data['productCreateDate'])) ? new \DateTime($data['productCreateDate']) : new \DateTime());
-        $this->entityManager->persist($product);
+        $this->validateOuterIdInData($data);
+        $outerId = $data['outerId'];
+        $object = $this->getEntityObject($outerId);
+        $object = $this->setDataToObject($object, $data);
+        $this->entityManager->persist($object);
+    }
+
+    /**
+     * @param Product $object
+     * @param $data
+     * @return Product
+     * @throws \Exception
+     */
+    protected function setDataToObject(Product $object, $data)
+    {
+        $object->setSku($this->getFormattedData($data, 'sku', 'string'));
+        $object->setName($this->getFormattedData($data, 'name', 'string'));
+        $object->setPicture($this->getFormattedData($data, 'picture', 'string'));
+        $object->setUrl($this->getFormattedData($data, 'url', 'string'));
+        $object->setManufacturer($this->getFormattedData($data, 'manufacturer', 'string'));
+        $object->setCategory($this->getFormattedData($data, 'category', 'string'));
+        $object->setProductCreateDate($this->getFormattedData($data, 'productCreateDate', 'date'));
+        return $object;
     }
 }

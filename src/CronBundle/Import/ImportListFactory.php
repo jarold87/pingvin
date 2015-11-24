@@ -11,7 +11,7 @@ class ImportListFactory
     protected $settingService;
 
     /** @var string */
-    protected $srId = 'SR';
+    protected $shoprenterId = 'SR';
 
     /** @var string */
     protected $shopifyId = 'Shopify';
@@ -25,16 +25,14 @@ class ImportListFactory
     }
 
     /**
-     * @return SrImportList|void
+     * @return SrImportList
      */
     public function getImportList()
     {
         switch ($this->settingService->get('shop_type')) {
-            case $this->srId:
+            case $this->shoprenterId:
                 return new SrImportList();
             case $this->shopifyId:
-                return;
-            default:
                 return;
         }
     }

@@ -3,11 +3,13 @@
 namespace ShoprenterBundle\Import;
 
 use CronBundle\Import\CustomerImporter as MainCustomerImporter;
-use CronBundle\Import\ShopImporterInterface;
 use CronBundle\Import\ImporterInterface;
 
-class CustomerImporter extends MainCustomerImporter implements ShopImporterInterface, ImporterInterface
+class CustomerImporter extends MainCustomerImporter implements ImporterInterface
 {
+    /** @var string */
+    protected $outerIdKey = 'customer_id';
+
     /** @var ClientAdapter */
     protected $client;
 
@@ -17,8 +19,7 @@ class CustomerImporter extends MainCustomerImporter implements ShopImporterInter
         $this->client->init();
         $this->collectCustomerItems();
         $this->collectCustomers();
-        $this->refreshImportLog();
-        $this->createImportLog();
+        $this->saveImportLog();
     }
 
     protected function collectCustomerItems()

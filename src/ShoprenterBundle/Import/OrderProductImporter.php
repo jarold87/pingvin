@@ -6,8 +6,11 @@ use CronBundle\Import\OrderProductImporter as MainOrderProductImporter;
 use CronBundle\Import\ShopImporterInterface;
 use CronBundle\Import\ImporterInterface;
 
-class OrderProductImporter extends MainOrderProductImporter implements ShopImporterInterface, ImporterInterface
+class OrderProductImporter extends MainOrderProductImporter implements ImporterInterface
 {
+    /** @var string */
+    protected $outerIdKey = 'order_product_id';
+
     /** @var ClientAdapter */
     protected $client;
 
@@ -17,8 +20,7 @@ class OrderProductImporter extends MainOrderProductImporter implements ShopImpor
         $this->client->init();
         $this->collectOrderProductItems();
         $this->collectOrderProducts();
-        $this->refreshImportLog();
-        $this->createImportLog();
+        $this->saveImportLog();
     }
 
     protected function collectOrderProductItems()

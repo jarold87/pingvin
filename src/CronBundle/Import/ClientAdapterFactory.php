@@ -11,7 +11,7 @@ class ClientAdapterFactory
     protected $settingService;
 
     /** @var string */
-    protected $srId = 'SR';
+    protected $shoprenterId = 'SR';
 
     /** @var string */
     protected $shopifyId = 'Shopify';
@@ -25,19 +25,15 @@ class ClientAdapterFactory
     }
 
     /**
-     * @return SrClient|void
+     * @return SrClient
      */
     public function getClientAdapter()
     {
         switch ($this->settingService->get('shop_type')) {
-            case $this->srId:
+            case $this->shoprenterId:
                 return new SrClient($this->settingService);
-                break;
             case $this->shopifyId:
                 return;
-                break;
-            default:
-                return false;
         }
     }
 }

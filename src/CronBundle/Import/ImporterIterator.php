@@ -19,13 +19,13 @@ class ImporterIterator
 
     /**
      * @param $index
-     * @throws Exception
+     * @throws \Exception
      */
     public function setActualImportIndex($index)
     {
         $index = intval($index);
         if (!$index) {
-            throw new Exception("Not a valid import index!");
+            throw new \Exception("Not a valid import index!");
         }
         $this->actualIndex = $index;
     }
@@ -40,12 +40,11 @@ class ImporterIterator
      */
     public function getActualImportIndex()
     {
-        $nextIndex = $this->actualIndex;
-        return $nextIndex--;
+        return $this->actualIndex - 1;
     }
 
     /**
-     * @return null|ProductImporter|\ShoprenterBundle\Import\UrlImporter|void
+     * @return null|\ShoprenterBundle\Import\CustomerImporter|\ShoprenterBundle\Import\OrderImporter|\ShoprenterBundle\Import\OrderProductImporter|ProductImporter|void
      */
     public function getActualImport()
     {

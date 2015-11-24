@@ -3,11 +3,13 @@
 namespace ShoprenterBundle\Import;
 
 use CronBundle\Import\ProductImporter as MainProductImporter;
-use CronBundle\Import\ShopImporterInterface;
 use CronBundle\Import\ImporterInterface;
 
-class ProductImporter extends MainProductImporter implements ShopImporterInterface, ImporterInterface
+class ProductImporter extends MainProductImporter implements ImporterInterface
 {
+    /** @var string */
+    protected $outerIdKey = 'product_id';
+
     /** @var ClientAdapter */
     protected $client;
 
@@ -21,8 +23,7 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
         $this->loadLanguageId();
         $this->collectProductItems();
         $this->collectProducts();
-        $this->refreshImportLog();
-        $this->createImportLog();
+        $this->saveImportLog();
     }
 
     protected function loadLanguageId()
@@ -77,6 +78,7 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
                     if ($this->isAllowed($data)) {
                         $this->setProduct(
                             array(
+                                'outerId' => $data['product_id'],
                                 'sku' => $data['sku'],
                                 'name' => $data['name'],
                                 'picture' => $data['image'],
@@ -84,7 +86,6 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
                                 'manufacturer' => $data['manufacturer'],
                                 'category' => $data['category'],
                                 'availableDate' => $data['date_available'],
-                                'outerId' => $data['product_id'],
                                 'productCreateDate' => $data['date_added'],
                             )
                         );
@@ -181,20 +182,6 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
 
         $data = $this->client->getRequest($sql);
         return $data;
-    }
-
-    /**
-     * @param $items
-     */
-    protected function addItemsToProcessCollection($items)
-    {
-        if (!$items) {
-            return;
-        }
-        foreach ($items as $index => $value) {
-            $item = $this->setImportItemProcess($index + 1, $value['product_id']);
-            $this->itemProcessCollection->add($item);
-        }
     }
 
     /**

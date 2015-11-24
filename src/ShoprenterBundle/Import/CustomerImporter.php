@@ -17,6 +17,7 @@ class CustomerImporter extends MainCustomerImporter implements ShopImporterInter
         $this->client->init();
         $this->collectCustomerItems();
         $this->collectCustomers();
+        $this->refreshImportLog();
         $this->createImportLog();
     }
 

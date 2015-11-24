@@ -26,64 +26,40 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
                 array(\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'')
             );
         }
-        catch ( Exception $e ) {
-            throw new Exception("Not a valid database connection!");
+        catch ( \Exception $e ) {
+            throw new \Exception("Not a valid database connection!");
         }
     }
 
     /**
      * @param $request
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
     public function getCollectionRequest($request)
     {
         try {
+            $this->addRequestCount();
             return $this->db->query($request)->fetchAll();
         }
-        catch ( Exception $e ) {
-            throw new Exception("Not a valid query!");
+        catch ( \Exception $e ) {
+            throw new \Exception("Not a valid query!");
         }
     }
 
     /**
      * @param $request
      * @return mixed
-     * @throws Exception
+     * @throws \Exception
      */
     public function getRequest($request)
     {
         try {
+            $this->addRequestCount();
             return $this->db->query($request)->fetch();
         }
-        catch ( Exception $e ) {
-            throw new Exception("Not a valid query!");
+        catch ( \Exception $e ) {
+            throw new \Exception("Not a valid query!");
         }
-    }
-
-    /**
-     * @return ApiCall
-     */
-    protected function getApiCall()
-    {
-        if (!$this->existApiCall()) {
-            $this->apiCall = new ApiCall(
-                $this->settingService->get('shop_api_user'),
-                $this->settingService->get('shop_api_password')
-            );
-            $this->apiCall->setFormat('json');
-        }
-        return $this->apiCall;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function existApiCall()
-    {
-        if ($this->apiCall) {
-            return true;
-        }
-        return false;
     }
 }

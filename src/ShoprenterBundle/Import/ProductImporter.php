@@ -21,6 +21,7 @@ class ProductImporter extends MainProductImporter implements ShopImporterInterfa
         $this->loadLanguageId();
         $this->collectProductItems();
         $this->collectProducts();
+        $this->refreshImportLog();
         $this->createImportLog();
     }
 

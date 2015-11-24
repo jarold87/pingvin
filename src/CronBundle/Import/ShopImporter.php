@@ -6,15 +6,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use AppBundle\Entity\ImportCollectionLog;
 use AppBundle\Entity\ImportItemLog;
 use AppBundle\Entity\ImportItemProcess;
-use CronBundle\Service\Benchmark;
 
 class ShopImporter extends Importer
 {
-    /** @var int */
-    protected $flushItemPackageNumber = 1000;
+    /** @var int 1000 */
+    protected $flushItemPackageNumber = 100;
 
-    /** @var int */
-    protected $itemProcessLimit = 10000;
+    /** @var int 10000*/
+    protected $itemProcessLimit = 1000;
 
     /** @var int */
     protected $countAllItemProcess = 0;
@@ -31,22 +30,11 @@ class ShopImporter extends Importer
     /** @var ImportItemLog */
     protected $itemLog;
 
-    /** @var Benchmark */
-    protected $benchmark;
-
     /** @var ArrayCollection */
     protected $existEntityCollection;
 
     /** @var array */
     protected $existEntityKeyByOuterId = array();
-
-    /**
-     * @param $service
-     */
-    public function setBenchmark($service)
-    {
-        $this->benchmark = $service;
-    }
 
     /**
      * @return bool
@@ -236,20 +224,14 @@ class ShopImporter extends Importer
     {
         $this->entityManager->remove($item);
         $this->itemProcessCollection->remove($key);
-        $this->benchmark->processItemCount++;
+        $this->importLog->addProcessItemCount();
     }
 
 
-    protected function createImportLog()
+    protected function refreshImportLog()
     {
-        $runtime = microtime(true) - $this->startTime;
-
-        $this->benchmark->lastIndex = $this->getLastItemIndexFromLog();
-        $this->benchmark->runtime = $runtime;
-        $this->benchmark->unProcessItemCount = $this->itemProcessCollection->count();
-
-        $log = $this->benchmark->getLog();
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
+        $this->importLog->setUserLastIndex($this->getLastItemIndexFromLog());
+        $this->importLog->setUnProcessItemCount($this->itemProcessCollection->count());
+        parent::refreshImportLog();
     }
 }

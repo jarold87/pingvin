@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="import_log")
  * @ORM\HasLifecycleCallbacks()
  */
-class ImportLog
+class GlobalImportLog
 {
     /**
      * @ORM\Id
@@ -16,11 +16,6 @@ class ImportLog
      * @ORM\GeneratedValue
      */
     protected $logId = null;
-
-    /**
-     * @ORM\Column(name="import_name", type="string", length=50)
-     */
-    protected $importName = null;
 
     /**
      * @ORM\Column(name="runtime", type="float", scale=2)
@@ -33,14 +28,14 @@ class ImportLog
     protected $processed = null;
 
     /**
-     * @ORM\Column(name="unprocessed", type="integer", length=11)
-     */
-    protected $unprocessed = null;
-
-    /**
      * @ORM\Column(name="messages", type="text")
      */
     protected $messages = null;
+
+    /**
+     * @ORM\Column(name="start_date", type="datetime")
+     */
+    protected $startDate = null;
 
     /**
      * @ORM\Column(name="finish_date", type="datetime")
@@ -58,35 +53,11 @@ class ImportLog
     }
 
     /**
-     * Set importName
-     *
-     * @param string $importName
-     *
-     * @return ImportLog
-     */
-    public function setImportName($importName)
-    {
-        $this->importName = $importName;
-
-        return $this;
-    }
-
-    /**
-     * Get importName
-     *
-     * @return string
-     */
-    public function getImportName()
-    {
-        return $this->importName;
-    }
-
-    /**
      * Set runTime
      *
      * @param float $runTime
      *
-     * @return ImportLog
+     * @return UserImportLog
      */
     public function setRunTime($runTime)
     {
@@ -110,7 +81,7 @@ class ImportLog
      *
      * @param integer $processed
      *
-     * @return ImportLog
+     * @return UserImportLog
      */
     public function setProcessed($processed)
     {
@@ -130,27 +101,14 @@ class ImportLog
     }
 
     /**
-     * Set unprocessed
-     *
-     * @param integer $unprocessed
-     *
-     * @return ImportLog
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
      */
-    public function setUnprocessed($unprocessed)
+    public function setStartDate()
     {
-        $this->unprocessed = $unprocessed;
-
-        return $this;
-    }
-
-    /**
-     * Get unprocessed
-     *
-     * @return integer
-     */
-    public function getUnprocessed()
-    {
-        return $this->unprocessed;
+        if (!$this->startDate) {
+            $this->startDate = new \DateTime();
+        }
     }
 
     /**
@@ -170,5 +128,29 @@ class ImportLog
     public function getFinishDate()
     {
         return $this->finishDate;
+    }
+
+    /**
+     * Set messages
+     *
+     * @param string $messages
+     *
+     * @return GlobalImportLog
+     */
+    public function setMessages($messages)
+    {
+        $this->messages = $messages;
+
+        return $this;
+    }
+
+    /**
+     * Get messages
+     *
+     * @return string
+     */
+    public function getMessages()
+    {
+        return $this->messages;
     }
 }

@@ -17,6 +17,7 @@ class OrderProductImporter extends MainOrderProductImporter implements ShopImpor
         $this->client->init();
         $this->collectOrderProductItems();
         $this->collectOrderProducts();
+        $this->refreshImportLog();
         $this->createImportLog();
     }
 

@@ -30,6 +30,11 @@ class ImporterIterator
         $this->actualIndex = $index;
     }
 
+    public function setNextImportIndex()
+    {
+        $this->actualIndex++;
+    }
+
     /**
      * @return int
      */
@@ -42,13 +47,12 @@ class ImporterIterator
     /**
      * @return null|ProductImporter|\ShoprenterBundle\Import\UrlImporter|void
      */
-    public function getNextImport()
+    public function getActualImport()
     {
         if (!$this->hasNextImport()) {
             return null;
         }
         $index = $this->importList->getImport($this->actualIndex);
-        $this->actualIndex++;
         return $index;
     }
 
@@ -57,7 +61,7 @@ class ImporterIterator
      */
     public function hasNextImport()
     {
-        $nextIndex = $this->actualIndex;
+        $nextIndex = $this->actualIndex + 1;
         if ($nextIndex > $this->importList->getNumberOfImports()) {
             return false;
         }

@@ -17,6 +17,7 @@ class OrderImporter extends MainOrderImporter implements ShopImporterInterface, 
         $this->client->init();
         $this->collectOrderItems();
         $this->collectOrders();
+        $this->refreshImportLog();
         $this->createImportLog();
     }
 

@@ -6,5 +6,5 @@ parameters:
 services:
     setting:
         class: AppBundle\Service\Setting
-    benchmark:
-        class: CronBundle\Service\Benchmark
+    import_log:
+        class: CronBundle\Service\ImportLog

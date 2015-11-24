@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="import_log")
  * @ORM\HasLifecycleCallbacks()
  */
-class ImportLog
+class UserImportLog
 {
     /**
      * @ORM\Id
@@ -38,9 +38,14 @@ class ImportLog
     protected $unprocessed = null;
 
     /**
-     * @ORM\Column(name="messages", type="text")
+     * @ORM\Column(name="shop_request", type="integer", length=11)
      */
-    protected $messages = null;
+    protected $shopRequest = null;
+
+    /**
+     * @ORM\Column(name="start_date", type="datetime")
+     */
+    protected $startDate = null;
 
     /**
      * @ORM\Column(name="finish_date", type="datetime")
@@ -62,7 +67,7 @@ class ImportLog
      *
      * @param string $importName
      *
-     * @return ImportLog
+     * @return UserImportLog
      */
     public function setImportName($importName)
     {
@@ -86,7 +91,7 @@ class ImportLog
      *
      * @param float $runTime
      *
-     * @return ImportLog
+     * @return UserImportLog
      */
     public function setRunTime($runTime)
     {
@@ -110,7 +115,7 @@ class ImportLog
      *
      * @param integer $processed
      *
-     * @return ImportLog
+     * @return UserImportLog
      */
     public function setProcessed($processed)
     {
@@ -134,7 +139,7 @@ class ImportLog
      *
      * @param integer $unprocessed
      *
-     * @return ImportLog
+     * @return UserImportLog
      */
     public function setUnprocessed($unprocessed)
     {
@@ -157,6 +162,17 @@ class ImportLog
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
+    public function setStartDate()
+    {
+        if (!$this->startDate) {
+            $this->startDate = new \DateTime();
+        }
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
     public function setFinishDate()
     {
         $this->finishDate = new \DateTime();
@@ -170,5 +186,29 @@ class ImportLog
     public function getFinishDate()
     {
         return $this->finishDate;
+    }
+
+    /**
+     * Set shopRequest
+     *
+     * @param integer $shopRequest
+     *
+     * @return UserImportLog
+     */
+    public function setShopRequest($shopRequest)
+    {
+        $this->shopRequest = $shopRequest;
+
+        return $this;
+    }
+
+    /**
+     * Get shopRequest
+     *
+     * @return integer
+     */
+    public function getShopRequest()
+    {
+        return $this->shopRequest;
     }
 }

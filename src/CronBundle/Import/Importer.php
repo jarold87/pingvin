@@ -3,6 +3,7 @@
 namespace CronBundle\Import;
 
 use Doctrine\ORM\EntityManager;
+use CronBundle\Service\ImportLog;
 
 abstract class Importer
 {
@@ -15,8 +16,8 @@ abstract class Importer
     /** @var ClientAdapter */
     protected $client;
 
-    /** @var */
-    protected $actualTime;
+    /** @var float */
+    protected $actualTime = 0.00;
 
     /** @var */
     protected $startTime;
@@ -24,8 +25,14 @@ abstract class Importer
     /** @var */
     protected $timeLimit;
 
+    /** @var ImportLog */
+    protected $importLog;
+
     /** @var int */
     protected $timeOut = 0;
+
+    /** @var array */
+    protected $error = array();
 
     /**
      * @param $entityManager
@@ -67,9 +74,36 @@ abstract class Importer
         $this->timeLimit = $timeLimit;
     }
 
+    /**
+     * @param ImportLog $service
+     */
+    public function setImportLog(ImportLog $service)
+    {
+        $this->importLog = $service;
+    }
+
+    /**
+     * @param array $error
+     */
+    public function setError(array $error)
+    {
+        $this->error = $error;
+    }
+
     public function import()
     {
 
+    }
+
+    /**
+     * @return array|bool
+     */
+    public function getError()
+    {
+        if ($this->error) {
+            return $this->error;
+        }
+        return false;
     }
 
     /**
@@ -91,10 +125,28 @@ abstract class Importer
         if ($this->timeOut == 1) {
             return false;
         }
-        $this->actualTime = round(microtime(true) - $this->startTime);
+        $this->refreshActualTime();
         if ($this->actualTime >= $this->timeLimit) {
             return false;
         }
         return true;
+    }
+
+    protected function refreshActualTime()
+    {
+        $this->actualTime = round(microtime(true) - $this->startTime, 2);
+    }
+
+    protected function refreshImportLog()
+    {
+        $this->refreshActualTime();
+        $this->importLog->setRuntime($this->actualTime);
+    }
+
+    protected function createImportLog()
+    {
+        $log = $this->importLog->getUserLog();
+        $this->entityManager->persist($log);
+        $this->entityManager->flush();
     }
 }

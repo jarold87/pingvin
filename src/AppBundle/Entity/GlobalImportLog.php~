@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="import_log")
  * @ORM\HasLifecycleCallbacks()
  */
-class ImportLog
+class GlobalImportLog
 {
     /**
      * @ORM\Id
@@ -16,11 +16,6 @@ class ImportLog
      * @ORM\GeneratedValue
      */
     protected $logId = null;
-
-    /**
-     * @ORM\Column(name="import_name", type="string", length=50)
-     */
-    protected $importName = null;
 
     /**
      * @ORM\Column(name="runtime", type="float", scale=2)
@@ -33,9 +28,9 @@ class ImportLog
     protected $processed = null;
 
     /**
-     * @ORM\Column(name="unprocessed", type="integer", length=11)
+     * @ORM\Column(name="messages", type="text")
      */
-    protected $unprocessed = null;
+    protected $messages = null;
 
     /**
      * @ORM\Column(name="finish_date", type="datetime")
@@ -53,35 +48,11 @@ class ImportLog
     }
 
     /**
-     * Set importName
-     *
-     * @param string $importName
-     *
-     * @return ImportLog
-     */
-    public function setImportName($importName)
-    {
-        $this->importName = $importName;
-
-        return $this;
-    }
-
-    /**
-     * Get importName
-     *
-     * @return string
-     */
-    public function getImportName()
-    {
-        return $this->importName;
-    }
-
-    /**
      * Set runTime
      *
      * @param float $runTime
      *
-     * @return ImportLog
+     * @return UserImportLog
      */
     public function setRunTime($runTime)
     {
@@ -105,7 +76,7 @@ class ImportLog
      *
      * @param integer $processed
      *
-     * @return ImportLog
+     * @return UserImportLog
      */
     public function setProcessed($processed)
     {
@@ -122,30 +93,6 @@ class ImportLog
     public function getProcessed()
     {
         return $this->processed;
-    }
-
-    /**
-     * Set unprocessed
-     *
-     * @param integer $unprocessed
-     *
-     * @return ImportLog
-     */
-    public function setUnprocessed($unprocessed)
-    {
-        $this->unprocessed = $unprocessed;
-
-        return $this;
-    }
-
-    /**
-     * Get unprocessed
-     *
-     * @return integer
-     */
-    public function getUnprocessed()
-    {
-        return $this->unprocessed;
     }
 
     /**

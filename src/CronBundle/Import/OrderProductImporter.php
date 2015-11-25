@@ -2,7 +2,10 @@
 
 namespace CronBundle\Import;
 
-use AppBundle\Entity\OrderProduct;
+use ShoprenterBundle\Import\ResponseDataConverter\OrderProductDataConverter;
+use ShoprenterBundle\Import\RequestModel\OrderProductRequestModel;
+use ShoprenterBundle\Import\AllowanceValidator\OrderProductAllowanceValidator;
+use ShoprenterBundle\Import\EntityObjectSetter\OrderProductEntityObjectSetter;
 
 class OrderProductImporter extends ShopImporter
 {
@@ -12,30 +15,49 @@ class OrderProductImporter extends ShopImporter
     /** @var string */
     protected $entity = 'OrderProduct';
 
-    /**
-     * @param $data
-     */
-    protected function setOrderProduct($data)
+    /** @var OrderProductRequestModel */
+    protected $requestModel;
+
+    /** @var OrderProductDataConverter */
+    protected $responseDataConverter;
+
+    /** @var OrderProductAllowanceValidator */
+    protected $AllowanceValidator;
+
+    /** @var OrderProductEntityObjectSetter */
+    protected $EntityObjectSetter;
+
+    /** @var ClientAdapter */
+    protected $client;
+
+    protected function init()
     {
-        $this->validateOuterIdInData($data);
-        $outerId = $data['outerId'];
-        $object = $this->getEntityObject($outerId);
-        $object = $this->setDataToObject($object, $data);
-        $this->entityManager->persist($object);
+        $this->initRequestModel();
+        $this->initConverter();
+        $this->initAllowanceValidator();
+        $this->initCollections();
+        $this->initEntityObjectSetter();
+        $this->client->init();
     }
 
-    /**
-     * @param OrderProduct $object
-     * @param $data
-     * @return OrderProduct
-     * @throws \Exception
-     */
-    protected function setDataToObject(OrderProduct $object, $data)
+
+    protected function initRequestModel()
     {
-        $object->setOrderOuterId($this->getFormattedData($data, 'orderOuterId', 'string'));
-        $object->setProductOuterId($this->getFormattedData($data, 'productOuterId', 'string'));
-        $object->setQuantity($this->getFormattedData($data, 'quantity', 'integer'));
-        $object->setTotal($this->getFormattedData($data, 'total', 'integer'));
-        return $object;
+        $this->requestModel = new OrderProductRequestModel();
+    }
+
+    protected function initConverter()
+    {
+        $this->responseDataConverter = new OrderProductDataConverter();
+    }
+
+    protected function initAllowanceValidator()
+    {
+        $this->AllowanceValidator = new OrderProductAllowanceValidator();
+    }
+
+    protected function initEntityObjectSetter()
+    {
+        $this->EntityObjectSetter = new OrderProductEntityObjectSetter();
     }
 }

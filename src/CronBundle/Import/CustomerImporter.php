@@ -2,7 +2,10 @@
 
 namespace CronBundle\Import;
 
-use AppBundle\Entity\Customer;
+use ShoprenterBundle\Import\ResponseDataConverter\CustomerDataConverter;
+use ShoprenterBundle\Import\RequestModel\CustomerRequestModel;
+use ShoprenterBundle\Import\AllowanceValidator\CustomerAllowanceValidator;
+use ShoprenterBundle\Import\EntityObjectSetter\CustomerEntityObjectSetter;
 
 class CustomerImporter extends ShopImporter
 {
@@ -12,34 +15,49 @@ class CustomerImporter extends ShopImporter
     /** @var string */
     protected $entity = 'Customer';
 
-    /**
-     * @param $data
-     */
-    protected function setCustomer($data)
+    /** @var CustomerRequestModel */
+    protected $requestModel;
+
+    /** @var CustomerDataConverter */
+    protected $responseDataConverter;
+
+    /** @var CustomerAllowanceValidator */
+    protected $AllowanceValidator;
+
+    /** @var CustomerEntityObjectSetter */
+    protected $EntityObjectSetter;
+
+    /** @var ClientAdapter */
+    protected $client;
+
+    protected function init()
     {
-        $this->validateOuterIdInData($data);
-        $outerId = $data['outerId'];
-        $object = $this->getEntityObject($outerId);
-        $object = $this->setDataToObject($object, $data);
-        $this->entityManager->persist($object);
+        $this->initRequestModel();
+        $this->initConverter();
+        $this->initAllowanceValidator();
+        $this->initCollections();
+        $this->initEntityObjectSetter();
+        $this->client->init();
     }
 
-    /**
-     * @param Customer $object
-     * @param $data
-     * @return Customer
-     * @throws \Exception
-     */
-    protected function setDataToObject(Customer $object, $data)
+
+    protected function initRequestModel()
     {
-        $object->setLastname($this->getFormattedData($data, 'lastname', 'string'));
-        $object->setFirstname($this->getFormattedData($data, 'firstname', 'string'));
-        $object->setEmail($this->getFormattedData($data, 'email', 'string'));
-        $object->setCustomerGroup($this->getFormattedData($data, 'objectGroup', 'string'));
-        $object->setCompany($this->getFormattedData($data, 'company', 'string'));
-        $object->setCity($this->getFormattedData($data, 'city', 'string'));
-        $object->setCountry($this->getFormattedData($data, 'country', 'string'));
-        $object->setRegistrationDate($this->getFormattedData($data, 'registrationDate', 'date'));
-        return $object;
+        $this->requestModel = new CustomerRequestModel();
+    }
+
+    protected function initConverter()
+    {
+        $this->responseDataConverter = new CustomerDataConverter();
+    }
+
+    protected function initAllowanceValidator()
+    {
+        $this->AllowanceValidator = new CustomerAllowanceValidator();
+    }
+
+    protected function initEntityObjectSetter()
+    {
+        $this->EntityObjectSetter = new CustomerEntityObjectSetter();
     }
 }

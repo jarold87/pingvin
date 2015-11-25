@@ -2,7 +2,10 @@
 
 namespace CronBundle\Import;
 
-use AppBundle\Entity\Order;
+use ShoprenterBundle\Import\ResponseDataConverter\OrderDataConverter;
+use ShoprenterBundle\Import\RequestModel\OrderRequestModel;
+use ShoprenterBundle\Import\AllowanceValidator\OrderAllowanceValidator;
+use ShoprenterBundle\Import\EntityObjectSetter\OrderEntityObjectSetter;
 
 class OrderImporter extends ShopImporter
 {
@@ -12,31 +15,49 @@ class OrderImporter extends ShopImporter
     /** @var string */
     protected $entity = 'Order';
 
-    /**
-     * @param $data
-     */
-    protected function setOrder($data)
+    /** @var OrderRequestModel */
+    protected $requestModel;
+
+    /** @var OrderDataConverter */
+    protected $responseDataConverter;
+
+    /** @var OrderAllowanceValidator */
+    protected $AllowanceValidator;
+
+    /** @var OrderEntityObjectSetter */
+    protected $EntityObjectSetter;
+
+    /** @var ClientAdapter */
+    protected $client;
+
+    protected function init()
     {
-        $this->validateOuterIdInData($data);
-        $outerId = $data['outerId'];
-        $object = $this->getEntityObject($outerId);
-        $object = $this->setDataToObject($object, $data);
-        $this->entityManager->persist($object);
+        $this->initRequestModel();
+        $this->initConverter();
+        $this->initAllowanceValidator();
+        $this->initCollections();
+        $this->initEntityObjectSetter();
+        $this->client->init();
     }
 
-    /**
-     * @param Order $object
-     * @param $data
-     * @return Order
-     * @throws \Exception
-     */
-    protected function setDataToObject(Order $object, $data)
+
+    protected function initRequestModel()
     {
-        $object->setCustomerOuterId($this->getFormattedData($data, 'customerOuterId', 'integer'));
-        $object->setShippingMethod($this->getFormattedData($data, 'shippingMethod', 'string'));
-        $object->setPaymentMethod($this->getFormattedData($data, 'paymentMethod', 'string'));
-        $object->setCurrency($this->getFormattedData($data, 'currency', 'string'));
-        $object->setOrderDate($this->getFormattedData($data, 'orderDate', 'date'));
-        return $object;
+        $this->requestModel = new OrderRequestModel();
+    }
+
+    protected function initConverter()
+    {
+        $this->responseDataConverter = new OrderDataConverter();
+    }
+
+    protected function initAllowanceValidator()
+    {
+        $this->AllowanceValidator = new OrderAllowanceValidator();
+    }
+
+    protected function initEntityObjectSetter()
+    {
+        $this->EntityObjectSetter = new OrderEntityObjectSetter();
     }
 }

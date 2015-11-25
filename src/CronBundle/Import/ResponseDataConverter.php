@@ -1,9 +1,9 @@
 <?php
 
-namespace ShoprenterBundle\Import\ResponseDataConverter;
+namespace CronBundle\Import;
 
 
-abstract class DataConverter
+abstract class ResponseDataConverter
 {
     /** @var array */
     protected $responseData = array();
@@ -18,5 +18,13 @@ abstract class DataConverter
     {
         $this->responseData = $responseData;
         $this->convertedData = array();
+    }
+
+    /**
+     * @return array
+     */
+    public function getConvertedData()
+    {
+        return $this->convertedData;
     }
 }

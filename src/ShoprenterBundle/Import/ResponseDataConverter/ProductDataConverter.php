@@ -2,8 +2,10 @@
 
 namespace ShoprenterBundle\Import\ResponseDataConverter;
 
+use CronBundle\Import\ResponseDataConverter;
 
-class ProductDataConverter extends DataConverter
+
+class ProductDataConverter extends ResponseDataConverter
 {
     /**
      * @return array
@@ -25,6 +27,6 @@ class ProductDataConverter extends DataConverter
             'availableDate' => $data['date_available'],
             'productCreateDate' => $data['date_added'],
         );
-        return $this->convertedData;
+        return parent::getConvertedData();
     }
 }

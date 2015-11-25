@@ -2,8 +2,10 @@
 
 namespace CronBundle\Import;
 
-use AppBundle\Entity\Product;
 use ShoprenterBundle\Import\ResponseDataConverter\ProductDataConverter;
+use ShoprenterBundle\Import\RequestModel\ProductRequestModel;
+use ShoprenterBundle\Import\AllowanceValidator\ProductAllowanceValidator;
+use ShoprenterBundle\Import\EntityObjectSetter\ProductEntityObjectSetter;
 
 class ProductImporter extends ShopImporter
 {
@@ -13,56 +15,49 @@ class ProductImporter extends ShopImporter
     /** @var string */
     protected $entity = 'Product';
 
+    /** @var ProductRequestModel */
+    protected $requestModel;
+
     /** @var ProductDataConverter */
     protected $responseDataConverter;
+
+    /** @var ProductAllowanceValidator */
+    protected $AllowanceValidator;
+
+    /** @var ProductEntityObjectSetter */
+    protected $EntityObjectSetter;
+
+    /** @var ClientAdapter */
+    protected $client;
+
+    protected function init()
+    {
+        $this->initRequestModel();
+        $this->initConverter();
+        $this->initAllowanceValidator();
+        $this->initCollections();
+        $this->initEntityObjectSetter();
+        $this->client->init();
+    }
+
+
+    protected function initRequestModel()
+    {
+        $this->requestModel = new ProductRequestModel();
+    }
 
     protected function initConverter()
     {
         $this->responseDataConverter = new ProductDataConverter();
     }
 
-    /**
-     * @param $data
-     */
-    protected function setProduct($data)
+    protected function initAllowanceValidator()
     {
-        $this->validateOuterIdInData($data);
-        $outerId = $data['outerId'];
-        $object = $this->getEntityObject($outerId);
-        $object = $this->setDataToObject($object, $data);
-        $this->entityManager->persist($object);
+        $this->AllowanceValidator = new ProductAllowanceValidator();
     }
 
-    /**
-     * @param Product $object
-     * @param $data
-     * @return Product
-     * @throws \Exception
-     */
-    protected function setDataToObject(Product $object, $data)
+    protected function initEntityObjectSetter()
     {
-        $object->setSku($this->getFormattedData($data, 'sku', 'string'));
-        $object->setName($this->getFormattedData($data, 'name', 'string'));
-        $object->setPicture($this->getFormattedData($data, 'picture', 'string'));
-        $object->setUrl($this->getFormattedData($data, 'url', 'string'));
-        $object->setManufacturer($this->getFormattedData($data, 'manufacturer', 'string'));
-        $object->setCategory($this->getFormattedData($data, 'category', 'string'));
-        $object->setProductCreateDate($this->getFormattedData($data, 'productCreateDate', 'date'));
-        return $object;
-    }
-
-    /**
-     * @param $data
-     * @return bool
-     */
-    protected function isAllowed($data)
-    {
-        if (
-            !isset($data['outerId'])
-            || !isset($data['sku'])
-        ) {
-            return false;
-        }
-        return true;
+        $this->EntityObjectSetter = new ProductEntityObjectSetter();
     }
 }

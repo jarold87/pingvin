@@ -33,6 +33,18 @@ class ShopImporter extends Importer
     /** @var ArrayCollection */
     protected $existEntityCollection;
 
+    /** @var RequestModel */
+    protected $requestModel;
+
+    /** @var ResponseDataConverter */
+    protected $responseDataConverter;
+
+    /** @var AllowanceValidator */
+    protected $AllowanceValidator;
+
+    /** @var EntityObjectSetter */
+    protected $EntityObjectSetter;
+
     /** @var array */
     protected $existEntityKeyByOuterId = array();
 
@@ -40,23 +52,110 @@ class ShopImporter extends Importer
     protected $AllItemProcessCount = 0;
 
     /** @var int */
-    protected $counterToFlush = 0;
+    protected $processedItemCount = 0;
 
-    /**
-     * @return bool
-     */
-    public function isFinishedImport()
-    {
-        if ($this->AllItemProcessCount != $this->itemProcessCollection->count()) {
-            return false;
-        }
-        return parent::isFinishedImport();
-    }
+    /** @var int */
+    protected $counterToFlush = 0;
 
     protected function initCollections()
     {
         $this->itemProcessCollection = new ArrayCollection();
         $this->existEntityCollection = new ArrayCollection();
+    }
+
+    protected function collectItemData()
+    {
+        if (!$this->isInLimits()) {
+            $this->timeOut = 1;
+            return;
+        }
+        $this->loadItemsToProcessCollection();
+        if (!$this->itemProcessCollection->count()) {
+            return;
+        }
+        $this->loadExistEntityCollection();
+        $items = $this->itemProcessCollection->toArray();
+        $this->collectByItems($items);
+        if ($this->isFinishedImport()) {
+            $this->setItemLogFinish();
+        }
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @param $items
+     */
+    protected function collectByItems($items)
+    {
+        foreach ($items as $key => $item) {
+            if (!$this->isInLimits()) {
+                $this->timeOut = 1;
+                break;
+            }
+            $responseData = $this->getItemData($item, $key);
+            $this->setProcessed($item, $key);
+            if (!$responseData) {
+                continue;
+            }
+            $this->responseDataConverter->setResponseData($responseData);
+            $data = $this->responseDataConverter->getConvertedData();
+            if (!$this->isAllowed($data)) {
+                continue;
+            }
+            $this->setEntity($data);
+            $this->manageFlush();
+        }
+    }
+
+    /**
+     * @param $data
+     */
+    protected function setEntity($data)
+    {
+        $this->validateOuterIdInData($data);
+        $outerId = $data['outerId'];
+        $object = $this->getEntityObject($outerId);
+        $object = $this->setDataToObject($object, $data);
+        $this->entityManager->persist($object);
+    }
+
+    /**
+     * @param $object
+     * @param $data
+     * @return \AppBundle\Entity\Product
+     */
+    protected function setDataToObject($object, $data)
+    {
+        $this->EntityObjectSetter->setObject($object);
+        $this->EntityObjectSetter->setData($data);
+        return $this->EntityObjectSetter->getObject();
+    }
+
+    /**
+     * @param ImportItemProcess $item
+     * @return mixed
+     */
+    protected function getItemData(ImportItemProcess $item)
+    {
+        $index = $item->getItemIndex();
+        $key = $item->getItemValue();
+        $this->setItemLogIndex($index);
+        $request = $this->requestModel->getItemRequest($key);
+        return $this->client->getRequest($request);
+    }
+
+
+    /**
+     * @param $data
+     * @return bool
+     */
+    protected function isAllowed($data)
+    {
+        $this->AllowanceValidator->setData($data);
+        if ($this->AllowanceValidator->isAllowed()) {
+            return true;
+        }
+        return false;
     }
 
     protected function saveImportLog()
@@ -146,14 +245,6 @@ class ShopImporter extends Importer
             $item = $this->setImportItemProcess($index + 1, $value[$this->outerIdKey]);
             $this->itemProcessCollection->add($item);
         }
-    }
-
-    protected function saveCollectionItems()
-    {
-        $this->saveItemsToProcess();
-        $this->setCollectionLogFinish();
-        $this->entityManager->flush();
-        $this->clearItemsToProcessCollection();
     }
 
     protected function loadItemsToProcessCollection()
@@ -249,6 +340,7 @@ class ShopImporter extends Importer
         $this->entityManager->remove($item);
         $this->itemProcessCollection->remove($key);
         $this->importLog->addProcessItemCount();
+        $this->processedItemCount++;
     }
 
     /**
@@ -316,5 +408,16 @@ class ShopImporter extends Importer
             $this->counterToFlush = 0;
         }
         $this->counterToFlush++;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFinishedImport()
+    {
+        if ($this->AllItemProcessCount > $this->processedItemCount) {
+            return false;
+        }
+        return parent::isFinishedImport();
     }
 }

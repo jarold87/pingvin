@@ -145,27 +145,4 @@ abstract class Importer
         $this->entityManager->persist($log);
         $this->entityManager->flush();
     }
-
-    /**
-     * @param $data
-     * @param $key
-     * @param $type
-     * @return \DateTime|int|string
-     * @throws \Exception
-     */
-    protected function getFormattedData($data, $key, $type)
-    {
-        if (!isset($data[$key])) {
-            throw new \Exception("Not a valid key or not exist in data!");
-        }
-        switch ($type) {
-            case 'string':
-                return (isset($data[$key])) ? $data[$key] : '';
-            case 'integer':
-                return (isset($data[$key])) ? $data[$key] : 0;
-            case 'date':
-                return (isset($data[$key])) ? new \DateTime($data[$key]) : new \DateTime();
-        }
-        return '';
-    }
 }

@@ -17,7 +17,7 @@ class ImportHandler extends Controller
     protected $userLimit = 2;
 
     /** @var int 45 */
-    protected $timeLimit = 45;
+    protected $timeLimit = 10;
 
     /** @var int */
     protected $failLimit = 6;
@@ -114,7 +114,7 @@ class ImportHandler extends Controller
         $client = $clientFactory->getClientAdapter();
         $client->setImportLog($this->get('import_log'));
 
-        while ($iterator->hasNextImport()) {
+        while ($iterator->hasImport()) {
             if (!$this->isInTimeLimit()) {
                 $this->get('import_log')->addMessage('reached user time limit => ' . $schedule->getUserId());
                 break;
@@ -156,7 +156,7 @@ class ImportHandler extends Controller
             $importIndex = $iterator->getActualImportIndex();
             $schedule->setActualImportIndex($importIndex);
             $schedule->setUpdateDate();
-            if (!$iterator->hasNextImport()) {
+            if (!$iterator->hasImport()) {
                 $schedule->setActualImportIndex(1);
                 $schedule->setLastFinishedImportDate(new \DateTime());
                 $schedule->setPriority(0);

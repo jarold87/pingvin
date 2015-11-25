@@ -11,6 +11,9 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
     /** @var \PDO */
     protected $db;
 
+    /** @var array */
+    protected $response = array();
+
     public function init()
     {
         $host = $this->settingService->get('shop_database_host');
@@ -29,18 +32,24 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
         catch ( \Exception $e ) {
             throw new \Exception("Not a valid database connection!");
         }
+        parent::init();
     }
 
     /**
      * @param $request
-     * @return array
+     * @return mixed
      * @throws \Exception
      */
     public function getCollectionRequest($request)
     {
+        $this->resetResponse();
         try {
             $this->addRequestCount();
-            return $this->db->query($request)->fetchAll();
+            $response = $this->db->query($request)->fetchAll();
+            if ($response) {
+                $this->response = $response;
+            }
+            return parent::getCollectionRequest($request);
         }
         catch ( \Exception $e ) {
             throw new \Exception("Not a valid query!");
@@ -54,12 +63,22 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
      */
     public function getRequest($request)
     {
+        $this->resetResponse();
         try {
             $this->addRequestCount();
-            return $this->db->query($request)->fetch();
+            $response = $this->db->query($request)->fetch();
+            if ($response) {
+                $this->response = $response;
+            }
+            return parent::getRequest($request);
         }
         catch ( \Exception $e ) {
             throw new \Exception("Not a valid query!");
         }
+    }
+
+    protected function resetResponse()
+    {
+        $this->response = array();
     }
 }

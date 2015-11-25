@@ -40,7 +40,7 @@ class ImporterIterator
      */
     public function getActualImportIndex()
     {
-        return $this->actualIndex - 1;
+        return $this->actualIndex;
     }
 
     /**
@@ -48,7 +48,7 @@ class ImporterIterator
      */
     public function getActualImport()
     {
-        if (!$this->hasNextImport()) {
+        if (!$this->hasImport()) {
             return null;
         }
         $index = $this->importList->getImport($this->actualIndex);
@@ -58,10 +58,9 @@ class ImporterIterator
     /**
      * @return bool
      */
-    public function hasNextImport()
+    public function hasImport()
     {
-        $nextIndex = $this->actualIndex + 1;
-        if ($nextIndex > $this->importList->getNumberOfImports()) {
+        if ($this->actualIndex > $this->importList->getNumberOfImports()) {
             return false;
         }
         return true;

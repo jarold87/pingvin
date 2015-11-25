@@ -9,20 +9,17 @@ use AppBundle\Entity\ImportItemProcess;
 
 class ShopImporter extends Importer
 {
-    /** @var string */
-    protected $entity;
-
-    /** @var string */
-    protected $outerIdKey;
-
     /** @var int 1000 */
     protected $flushItemPackageNumber = 1000;
 
     /** @var int 10000*/
     protected $itemProcessLimit = 10000;
 
-    /** @var int */
-    protected $countAllItemProcess = 0;
+    /** @var string */
+    protected $entity;
+
+    /** @var string */
+    protected $outerIdKey;
 
     /** @var ArrayCollection */
     protected $itemProcessCollection;
@@ -39,12 +36,18 @@ class ShopImporter extends Importer
     /** @var array */
     protected $existEntityKeyByOuterId = array();
 
+    /** @var int */
+    protected $AllItemProcessCount = 0;
+
+    /** @var int */
+    protected $counterToFlush = 0;
+
     /**
      * @return bool
      */
     public function isFinishedImport()
     {
-        if ($this->countAllItemProcess != $this->itemProcessCollection->count()) {
+        if ($this->AllItemProcessCount != $this->itemProcessCollection->count()) {
             return false;
         }
         return parent::isFinishedImport();
@@ -156,7 +159,7 @@ class ShopImporter extends Importer
     protected function loadItemsToProcessCollection()
     {
         $items = $this->entityManager->getRepository('AppBundle:ImportItemProcess')->findAll();
-        $this->countAllItemProcess = count($items);
+        $this->AllItemProcessCount = count($items);
         if ($items) {
             $limitCounter = 0;
             foreach ($items as $item) {
@@ -304,5 +307,14 @@ class ShopImporter extends Importer
         return $this->existEntityCollection->get(
             $this->existEntityKeyByOuterId[$outerId]
         );
+    }
+
+    protected function manageFlush()
+    {
+        if ($this->counterToFlush == $this->flushItemPackageNumber) {
+            $this->entityManager->flush();
+            $this->counterToFlush = 0;
+        }
+        $this->counterToFlush++;
     }
 }

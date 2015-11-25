@@ -3,6 +3,7 @@
 namespace CronBundle\Import;
 
 use AppBundle\Entity\Product;
+use ShoprenterBundle\Import\ResponseDataConverter\ProductDataConverter;
 
 class ProductImporter extends ShopImporter
 {
@@ -11,6 +12,14 @@ class ProductImporter extends ShopImporter
 
     /** @var string */
     protected $entity = 'Product';
+
+    /** @var ProductDataConverter */
+    protected $responseDataConverter;
+
+    protected function initConverter()
+    {
+        $this->responseDataConverter = new ProductDataConverter();
+    }
 
     /**
      * @param $data
@@ -40,5 +49,20 @@ class ProductImporter extends ShopImporter
         $object->setCategory($this->getFormattedData($data, 'category', 'string'));
         $object->setProductCreateDate($this->getFormattedData($data, 'productCreateDate', 'date'));
         return $object;
+    }
+
+    /**
+     * @param $data
+     * @return bool
+     */
+    protected function isAllowed($data)
+    {
+        if (
+            !isset($data['outerId'])
+            || !isset($data['sku'])
+        ) {
+            return false;
+        }
+        return true;
     }
 }

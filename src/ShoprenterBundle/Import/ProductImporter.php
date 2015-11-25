@@ -2,6 +2,7 @@
 
 namespace ShoprenterBundle\Import;
 
+use AppBundle\Entity\ImportItemProcess;
 use CronBundle\Import\ProductImporter as MainProductImporter;
 use CronBundle\Import\ImporterInterface;
 
@@ -18,6 +19,7 @@ class ProductImporter extends MainProductImporter implements ImporterInterface
 
     public function import()
     {
+        $this->initConverter();
         $this->initCollections();
         $this->client->init();
         $this->loadLanguageId();
@@ -64,48 +66,50 @@ class ProductImporter extends MainProductImporter implements ImporterInterface
             return;
         }
         $this->loadItemsToProcessCollection();
-        $this->loadExistEntityCollection();
-        if ($this->itemProcessCollection->count()) {
-            $items = $this->itemProcessCollection->toArray();
-            $counterToFlush = 0;
-            foreach ($items as $key => $item) {
-                $index = $item->getItemIndex();
-                $value = $item->getItemValue();
-                if ($this->isInLimits()) {
-                    $this->setItemLogIndex($index);
-                    $data = $this->getProductData($value);
-                    $this->setProcessed($item, $key);
-                    if ($this->isAllowed($data)) {
-                        $this->setProduct(
-                            array(
-                                'outerId' => $data['product_id'],
-                                'sku' => $data['sku'],
-                                'name' => $data['name'],
-                                'picture' => $data['image'],
-                                'url' => $data['url'],
-                                'manufacturer' => $data['manufacturer'],
-                                'category' => $data['category'],
-                                'availableDate' => $data['date_available'],
-                                'productCreateDate' => $data['date_added'],
-                            )
-                        );
-                    }
-                    if ($counterToFlush == $this->flushItemPackageNumber) {
-                        $this->entityManager->flush();
-                        $counterToFlush = 0;
-                    } else {
-                        $counterToFlush++;
-                    }
-                } else {
-                    $this->timeOut = 1;
-                    break;
-                }
-            }
+        if (!$this->itemProcessCollection->count()) {
+            return;
         }
+        $this->loadExistEntityCollection();
+        $items = $this->itemProcessCollection->toArray();
+        $this->collectByItems($items);
         if ($this->isFinishedImport()) {
             $this->setItemLogFinish();
         }
         $this->entityManager->flush();
+    }
+
+    /**
+     * @param $items
+     */
+    protected function collectByItems($items)
+    {
+        foreach ($items as $key => $item) {
+            if (!$this->isInLimits()) {
+                $this->timeOut = 1;
+                break;
+            }
+            $responseData = $this->getItemData($item, $key);
+            $this->setProcessed($item, $key);
+            $this->responseDataConverter->setResponseData($responseData);
+            $data = $this->responseDataConverter->getConvertedData();
+            if (!$this->isAllowed($data)) {
+                continue;
+            }
+            $this->setProduct($data);
+            $this->manageFlush();
+        }
+    }
+
+    /**
+     * @param ImportItemProcess $item
+     * @return mixed
+     */
+    protected function getItemData(ImportItemProcess $item)
+    {
+        $index = $item->getItemIndex();
+        $value = $item->getItemValue();
+        $this->setItemLogIndex($index);
+        return $this->getProductData($value);
     }
 
     /**
@@ -182,20 +186,5 @@ class ProductImporter extends MainProductImporter implements ImporterInterface
 
         $data = $this->client->getRequest($sql);
         return $data;
-    }
-
-    /**
-     * @param $data
-     * @return bool
-     */
-    protected function isAllowed($data)
-    {
-        if (
-            !isset($data['product_id'])
-            || !isset($data['sku'])
-        ) {
-            return false;
-        }
-        return true;
     }
 }

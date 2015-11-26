@@ -115,8 +115,25 @@ class ShopImporter extends Importer
         $this->validateOuterIdInData($data);
         $outerId = $data['outerId'];
         $object = $this->getEntityObject($outerId);
-        $object = $this->setDataToObject($object, $data);
-        $this->entityManager->persist($object);
+        $mainObject = $this->setDataToObject($object, $data);
+        $oldItems = $object->getInformation()->toArray();
+        if ($oldItems) {
+            foreach ($oldItems as $item) {
+                $this->entityManager->remove($item);
+            }
+        }
+        $objects = $this->getInformationDataToObjects();
+        if ($objects) {
+            foreach ($oldItems as $item) {
+                $mainObject->addInformation($item);
+            }
+        }
+        $this->entityManager->persist($mainObject);
+        if ($objects) {
+            foreach ($objects as $object) {
+                $this->entityManager->persist($object);
+            }
+        }
     }
 
     /**
@@ -129,6 +146,14 @@ class ShopImporter extends Importer
         $this->EntityObjectSetter->setObject($object);
         $this->EntityObjectSetter->setData($data);
         return $this->EntityObjectSetter->getObject();
+    }
+
+    /**
+     * @return array
+     */
+    protected function getInformationDataToObjects()
+    {
+        return $this->EntityObjectSetter->getInformationObjects();
     }
 
     /**

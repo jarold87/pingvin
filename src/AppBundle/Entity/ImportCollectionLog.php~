@@ -18,7 +18,7 @@ class ImportCollectionLog
     protected $importCollectionLogId = null;
 
     /**
-     * @ORM\Column(name="import_name", type="string", length=255)
+     * @ORM\Column(name="import_name", type="string", length=50)
      */
     protected $importName = null;
 
@@ -103,6 +103,20 @@ class ImportCollectionLog
     public function getStartDate()
     {
         return $this->startDate;
+    }
+
+    /**
+     * Set finishDate
+     *
+     * @param integer $finishDate
+     *
+     * @return ImportCollectionLog
+     */
+    public function setFinishDate($finishDate)
+    {
+        $this->finishDate = $finishDate;
+
+        return $this;
     }
 
     /**

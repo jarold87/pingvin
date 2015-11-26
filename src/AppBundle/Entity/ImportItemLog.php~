@@ -1,37 +1,41 @@
 <?php
-
 namespace AppBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
- * ImportItemLog
+ * @ORM\Entity
+ * @ORM\Table(name="import_item_log")
+ * @ORM\HasLifecycleCallbacks()
  */
 class ImportItemLog
 {
     /**
-     * @var integer
+     * @ORM\Id
+     * @ORM\Column(name="import_item_log_id", type="integer", length=11)
+     * @ORM\GeneratedValue
      */
-    private $importItemLogId;
+    protected $importItemLogId = null;
 
     /**
-     * @var string
+     * @ORM\Column(name="import_name", type="string", length=50)
      */
-    private $importName;
+    protected $importName = null;
 
     /**
-     * @var integer
+     * @ORM\Column(name="last_index", type="integer", length=11)
      */
-    private $lastIndex;
+    protected $lastIndex = null;
 
     /**
-     * @var \DateTime
+     * @ORM\Column(name="start_date", type="datetime")
      */
-    private $startDate;
+    protected $startDate = null;
 
     /**
-     * @var \DateTime
+     * @ORM\Column(name="finish_date", type="datetime")
      */
-    private $finishDate;
-
+    protected $finishDate = null;
 
     /**
      * Get importItemLogId
@@ -92,20 +96,6 @@ class ImportItemLog
     }
 
     /**
-     * Set startDate
-     *
-     * @param \DateTime $startDate
-     *
-     * @return ImportItemLog
-     */
-    public function setStartDate($startDate)
-    {
-        $this->startDate = $startDate;
-
-        return $this;
-    }
-
-    /**
      * Get startDate
      *
      * @return \DateTime
@@ -118,7 +108,7 @@ class ImportItemLog
     /**
      * Set finishDate
      *
-     * @param \DateTime $finishDate
+     * @param integer $finishDate
      *
      * @return ImportItemLog
      */
@@ -138,5 +128,15 @@ class ImportItemLog
     {
         return $this->finishDate;
     }
-}
 
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function setStartDate()
+    {
+        if (!$this->startDate) {
+            $this->startDate = new \DateTime();
+        }
+    }
+}

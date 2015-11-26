@@ -2,6 +2,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -66,6 +67,16 @@ class Product
      * @ORM\Column(name="update_date", type="datetime")
      */
     protected $updateDate = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity="ProductInformation", mappedBy="product")
+     */
+    protected $information;
+
+    public function __construct()
+    {
+        $this->information = new ArrayCollection();
+    }
 
     /**
      * Get productId
@@ -307,5 +318,39 @@ class Product
     public function getProductCreateDate()
     {
         return $this->productCreateDate;
+    }
+
+    /**
+     * Add information
+     *
+     * @param \AppBundle\Entity\ProductInformation $information
+     *
+     * @return Product
+     */
+    public function addInformation(\AppBundle\Entity\ProductInformation $information)
+    {
+        $this->information[] = $information;
+
+        return $this;
+    }
+
+    /**
+     * Remove information
+     *
+     * @param \AppBundle\Entity\ProductInformation $information
+     */
+    public function removeInformation(\AppBundle\Entity\ProductInformation $information)
+    {
+        $this->information->removeElement($information);
+    }
+
+    /**
+     * Get information
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getInformation()
+    {
+        return $this->information;
     }
 }

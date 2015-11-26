@@ -33,6 +33,11 @@ class GlobalImportLog
     protected $messages = null;
 
     /**
+     * @ORM\Column(name="start_date", type="datetime")
+     */
+    protected $startDate = null;
+
+    /**
      * @ORM\Column(name="finish_date", type="datetime")
      */
     protected $finishDate = null;
@@ -99,6 +104,17 @@ class GlobalImportLog
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
+    public function setStartDate()
+    {
+        if (!$this->startDate) {
+            $this->startDate = new \DateTime();
+        }
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
     public function setFinishDate()
     {
         $this->finishDate = new \DateTime();
@@ -112,5 +128,39 @@ class GlobalImportLog
     public function getFinishDate()
     {
         return $this->finishDate;
+    }
+
+    /**
+     * Set messages
+     *
+     * @param string $messages
+     *
+     * @return GlobalImportLog
+     */
+    public function setMessages($messages)
+    {
+        $this->messages = $messages;
+
+        return $this;
+    }
+
+    /**
+     * Get messages
+     *
+     * @return string
+     */
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+
+    /**
+     * Get startDate
+     *
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
     }
 }

@@ -6,6 +6,9 @@ namespace CronBundle\Import;
 abstract class EntityObjectSetter
 {
     protected $object;
+
+    /** @var array */
+    protected $informationObject = array();
     
     /** @var array */
     protected $data = array();
@@ -33,7 +36,15 @@ abstract class EntityObjectSetter
     {
         return $this->object;
     }
-    
+
+    /**
+     * @return array
+     */
+    public function getInformationObjects()
+    {
+        return $this->informationObject;
+    }
+
     
     /**
      * @param $key

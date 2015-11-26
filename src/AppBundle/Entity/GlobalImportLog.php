@@ -153,4 +153,14 @@ class GlobalImportLog
     {
         return $this->messages;
     }
+
+    /**
+     * Get startDate
+     *
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
 }

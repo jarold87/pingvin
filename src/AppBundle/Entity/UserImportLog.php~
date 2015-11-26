@@ -43,6 +43,11 @@ class UserImportLog
     protected $shopRequest = null;
 
     /**
+     * @ORM\Column(name="start_date", type="datetime")
+     */
+    protected $startDate = null;
+
+    /**
      * @ORM\Column(name="finish_date", type="datetime")
      */
     protected $finishDate = null;
@@ -157,6 +162,17 @@ class UserImportLog
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
+    public function setStartDate()
+    {
+        if (!$this->startDate) {
+            $this->startDate = new \DateTime();
+        }
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
     public function setFinishDate()
     {
         $this->finishDate = new \DateTime();
@@ -170,5 +186,39 @@ class UserImportLog
     public function getFinishDate()
     {
         return $this->finishDate;
+    }
+
+    /**
+     * Set shopRequest
+     *
+     * @param integer $shopRequest
+     *
+     * @return UserImportLog
+     */
+    public function setShopRequest($shopRequest)
+    {
+        $this->shopRequest = $shopRequest;
+
+        return $this;
+    }
+
+    /**
+     * Get shopRequest
+     *
+     * @return integer
+     */
+    public function getShopRequest()
+    {
+        return $this->shopRequest;
+    }
+
+    /**
+     * Get startDate
+     *
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
     }
 }

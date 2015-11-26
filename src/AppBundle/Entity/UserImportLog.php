@@ -211,4 +211,14 @@ class UserImportLog
     {
         return $this->shopRequest;
     }
+
+    /**
+     * Get startDate
+     *
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
 }

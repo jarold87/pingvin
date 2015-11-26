@@ -4,7 +4,6 @@ namespace ShoprenterBundle\Import\EntityObjectSetter;
 
 use CronBundle\Import\EntityObjectSetter;
 use AppBundle\Entity\Product;
-use AppBundle\Entity\ProductInformation;
 
 
 class ProductEntityObjectSetter extends EntityObjectSetter
@@ -23,20 +22,11 @@ class ProductEntityObjectSetter extends EntityObjectSetter
         $this->object->setUrl($this->getFormattedData('url', 'string'));
         $this->object->setManufacturer($this->getFormattedData('manufacturer', 'string'));
         $this->object->setCategory($this->getFormattedData('category', 'string'));
+        $this->object->setCategoryOuterId($this->getFormattedData('categoryOuterId', 'string'));
+        $this->object->setIsDescription($this->getFormattedData('isDescription', 'integer'));
+        $this->object->setStatus($this->getFormattedData('status', 'integer'));
+        $this->object->setAvailableDate($this->getFormattedData('availableDate', 'date'));
         $this->object->setProductCreateDate($this->getFormattedData('productCreateDate', 'date'));
-
-        $object = new ProductInformation();
-        $object->setInformationKey('teszt1');
-        $object->setInformationValue('teszt1');
-        $object->setProduct($this->object);
-        $this->informationObject[] = $object;
-
-        $object = new ProductInformation();
-        $object->setInformationKey('teszt2');
-        $object->setInformationValue('teszt2');
-        $object->setProduct($this->object);
-        $this->informationObject[] = $object;
-
         return parent::getObject();
     }
 }

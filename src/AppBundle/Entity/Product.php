@@ -19,6 +19,11 @@ class Product
     protected $productId = null;
 
     /**
+     * @ORM\Column(name="outer_id", type="string", length=100)
+     */
+    protected $outerId = null;
+
+    /**
      * @ORM\Column(name="sku", type="string", length=255)
      */
     protected $sku = null;
@@ -49,9 +54,24 @@ class Product
     protected $category = null;
 
     /**
-     * @ORM\Column(name="outer_id", type="string", length=100)
+     * @ORM\Column(name="category_outer_id", type="string", length=255)
      */
-    protected $outerId = null;
+    protected $categoryOuterId = null;
+
+    /**
+     * @ORM\Column(name="is_description", type="integer", length=11)
+     */
+    protected $isDescription = null;
+
+    /**
+     * @ORM\Column(name="status", type="integer", length=11)
+     */
+    protected $status = null;
+
+    /**
+     * @ORM\Column(name="available_date", type="datetime")
+     */
+    protected $availableDate = null;
 
     /**
      * @ORM\Column(name="product_create_date", type="datetime")
@@ -69,13 +89,23 @@ class Product
     protected $updateDate = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="ProductInformation", mappedBy="product")
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
      */
-    protected $information;
-
-    public function __construct()
+    public function setCreateDate()
     {
-        $this->information = new ArrayCollection();
+        if (!$this->createDate) {
+            $this->createDate = new \DateTime();
+        }
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function setUpdateDate()
+    {
+        $this->updateDate = new \DateTime();
     }
 
     /**
@@ -86,6 +116,30 @@ class Product
     public function getProductId()
     {
         return $this->productId;
+    }
+
+    /**
+     * Set outerId
+     *
+     * @param string $outerId
+     *
+     * @return Product
+     */
+    public function setOuterId($outerId)
+    {
+        $this->outerId = $outerId;
+
+        return $this;
+    }
+
+    /**
+     * Get outerId
+     *
+     * @return string
+     */
+    public function getOuterId()
+    {
+        return $this->outerId;
     }
 
     /**
@@ -161,70 +215,6 @@ class Product
     }
 
     /**
-     * Set outerId
-     *
-     * @param string $outerId
-     *
-     * @return Product
-     */
-    public function setOuterId($outerId)
-    {
-        $this->outerId = $outerId;
-
-        return $this;
-    }
-
-    /**
-     * Get outerId
-     *
-     * @return string
-     */
-    public function getOuterId()
-    {
-        return $this->outerId;
-    }
-
-    /**
-     * Get createDate
-     *
-     * @return \DateTime
-     */
-    public function getCreateDate()
-    {
-        return $this->createDate;
-    }
-
-    /**
-     * Get updateDate
-     *
-     * @return \DateTime
-     */
-    public function getUpdateDate()
-    {
-        return $this->updateDate;
-    }
-
-    /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setCreateDate()
-    {
-        if (!$this->createDate) {
-            $this->createDate = new \DateTime();
-        }
-    }
-
-    /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setUpdateDate()
-    {
-        $this->updateDate = new \DateTime();
-    }
-
-    /**
      * Set url
      *
      * @param string $url
@@ -297,6 +287,30 @@ class Product
     }
 
     /**
+     * Set categoryOuterId
+     *
+     * @param string $categoryOuterId
+     *
+     * @return Product
+     */
+    public function setCategoryOuterId($categoryOuterId)
+    {
+        $this->categoryOuterId = $categoryOuterId;
+
+        return $this;
+    }
+
+    /**
+     * Get categoryOuterId
+     *
+     * @return string
+     */
+    public function getCategoryOuterId()
+    {
+        return $this->categoryOuterId;
+    }
+
+    /**
      * Set productCreateDate
      *
      * @param \DateTime $productCreateDate
@@ -321,36 +335,94 @@ class Product
     }
 
     /**
-     * Add information
+     * Get createDate
      *
-     * @param \AppBundle\Entity\ProductInformation $information
+     * @return \DateTime
+     */
+    public function getCreateDate()
+    {
+        return $this->createDate;
+    }
+
+    /**
+     * Get updateDate
+     *
+     * @return \DateTime
+     */
+    public function getUpdateDate()
+    {
+        return $this->updateDate;
+    }
+
+    /**
+     * Set isDescription
+     *
+     * @param integer $isDescription
      *
      * @return Product
      */
-    public function addInformation(\AppBundle\Entity\ProductInformation $information)
+    public function setIsDescription($isDescription)
     {
-        $this->information[] = $information;
+        $this->isDescription = $isDescription;
 
         return $this;
     }
 
     /**
-     * Remove information
+     * Get isDescription
      *
-     * @param \AppBundle\Entity\ProductInformation $information
+     * @return integer
      */
-    public function removeInformation(\AppBundle\Entity\ProductInformation $information)
+    public function getIsDescription()
     {
-        $this->information->removeElement($information);
+        return $this->isDescription;
     }
 
     /**
-     * Get information
+     * Set status
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @param integer $status
+     *
+     * @return Product
      */
-    public function getInformation()
+    public function setStatus($status)
     {
-        return $this->information;
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return integer
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set availableDate
+     *
+     * @param \DateTime $availableDate
+     *
+     * @return Product
+     */
+    public function setAvailableDate($availableDate)
+    {
+        $this->availableDate = $availableDate;
+
+        return $this;
+    }
+
+    /**
+     * Get availableDate
+     *
+     * @return \DateTime
+     */
+    public function getAvailableDate()
+    {
+        return $this->availableDate;
     }
 }

@@ -11,7 +11,7 @@ class ImportList implements ImportListInterface
         1 => 'Product',
         2 => 'Customer',
         3 => 'Order',
-        4 => 'OrderProduct',
+        4 => 'OrderProduct'
     );
 
     /**

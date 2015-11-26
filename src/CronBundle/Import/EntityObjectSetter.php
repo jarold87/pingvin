@@ -6,9 +6,6 @@ namespace CronBundle\Import;
 abstract class EntityObjectSetter
 {
     protected $object;
-
-    /** @var array */
-    protected $informationObject = array();
     
     /** @var array */
     protected $data = array();
@@ -37,14 +34,6 @@ abstract class EntityObjectSetter
         return $this->object;
     }
 
-    /**
-     * @return array
-     */
-    public function getInformationObjects()
-    {
-        return $this->informationObject;
-    }
-
     
     /**
      * @param $key
@@ -57,6 +46,8 @@ abstract class EntityObjectSetter
             case 'string':
                 return (isset($this->data[$key])) ? $this->data[$key] : '';
             case 'integer':
+                return (isset($this->data[$key])) ? $this->data[$key] : 0;
+            case 'float':
                 return (isset($this->data[$key])) ? $this->data[$key] : 0;
             case 'date':
                 return (isset($this->data[$key])) ? new \DateTime($this->data[$key]) : new \DateTime();

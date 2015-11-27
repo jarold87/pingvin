@@ -1,0 +1,5 @@
+parameters:
+    googleCredentialsFile: "%kernel.root_dir%/config/Pingvin-20119eef0331.json"
+    googleApiKey: "AIzaSyDt632wk_BroVC9kBBLXazIlOjH55K9gyo"
+    googleApiName: "Pingvin"
+    googleAnalyticsAuthUrl: "https://www.googleapis.com/auth/analytics.readonly"

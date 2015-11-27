@@ -1,0 +1,12 @@
+services:
+
+    GoogleClient:
+        class: Google_Client
+        calls:
+            - [setAuthConfig, ["%googleCredentialsFile%"]]
+            - [setApplicationName, ["%googleApiName%"]]
+            - [setScopes, ["%googleAnalyticsAuthUrl%"]]
+
+    GoogleAnalyticsService:
+        class: GoogleApiBundle\Services\Analytics
+        arguments: ["@=service('GoogleClient')"]

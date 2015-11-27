@@ -18,7 +18,9 @@
         "sensio/distribution-bundle": "~4.0",
         "sensio/framework-extra-bundle": "^3.0.2",
         "incenteev/composer-parameter-handler": "~2.0",
-        "phpoffice/phpexcel": "1.8.1"
+        "phpoffice/phpexcel": "1.8.1",
+        "guzzlehttp/guzzle": "5.2.*",
+        "google/apiclient": "^2.0.0@RC"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

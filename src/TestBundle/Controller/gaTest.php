@@ -19,7 +19,7 @@ class gaTest extends Controller
     protected $analyticsService;
 
     /** @var string */
-    protected $profileId = '69399071';
+    protected $profileId = '19036183';
 
     /** @var string */
     protected $serviceId = '';
@@ -44,8 +44,8 @@ class gaTest extends Controller
         );
         $optParams = array(
             'dimensions' => 'ga:pagePath',
-            'sort' => '-ga:pageviews',
-            'max-results' => '1000'
+            'sort' => '-ga:uniquePageviews',
+            'max-results' => '100000'
         );
 
         $response = $this->analyticsService->data_ga->get(
@@ -67,16 +67,8 @@ class gaTest extends Controller
 
     protected function init()
     {
-        $this->initClient();
         $this->initService();
         $this->loadProfileId();
-    }
-
-    protected function initClient()
-    {
-        $this->client = $this->get('GoogleClient');
-        $httpClient = new GuzzleHttpClient();
-        $this->client->fetchAccessTokenWithAssertion($httpClient);
     }
 
     protected function initService()

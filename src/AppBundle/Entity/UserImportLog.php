@@ -18,11 +18,6 @@ class UserImportLog
     protected $logId = null;
 
     /**
-     * @ORM\Column(name="import_name", type="string", length=50)
-     */
-    protected $importName = null;
-
-    /**
      * @ORM\Column(name="runtime", type="float", scale=2)
      */
     protected $runTime = null;
@@ -43,6 +38,16 @@ class UserImportLog
     protected $shopRequest = null;
 
     /**
+     * @ORM\Column(name="error", type="string", length=100)
+     */
+    protected $error = null;
+
+    /**
+     * @ORM\Column(name="warning", type="text")
+     */
+    protected $warning = null;
+
+    /**
      * @ORM\Column(name="start_date", type="datetime")
      */
     protected $startDate = null;
@@ -60,30 +65,6 @@ class UserImportLog
     public function getLogId()
     {
         return $this->logId;
-    }
-
-    /**
-     * Set importName
-     *
-     * @param string $importName
-     *
-     * @return UserImportLog
-     */
-    public function setImportName($importName)
-    {
-        $this->importName = $importName;
-
-        return $this;
-    }
-
-    /**
-     * Get importName
-     *
-     * @return string
-     */
-    public function getImportName()
-    {
-        return $this->importName;
     }
 
     /**
@@ -220,5 +201,53 @@ class UserImportLog
     public function getStartDate()
     {
         return $this->startDate;
+    }
+
+    /**
+     * Set error
+     *
+     * @param string $error
+     *
+     * @return UserImportLog
+     */
+    public function setError($error)
+    {
+        $this->error = $error;
+
+        return $this;
+    }
+
+    /**
+     * Get error
+     *
+     * @return string
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    /**
+     * Set warning
+     *
+     * @param string $warning
+     *
+     * @return UserImportLog
+     */
+    public function setWarning($warning)
+    {
+        $this->warning = $warning;
+
+        return $this;
+    }
+
+    /**
+     * Get warning
+     *
+     * @return string
+     */
+    public function getWarning()
+    {
+        return $this->warning;
     }
 }

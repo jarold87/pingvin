@@ -22,6 +22,7 @@ class OrderProductDataConverter extends ResponseDataConverter
             'productOuterId' => $data['product_id'],
             'quantity' => $data['quantity'],
             'total' => $data['total'],
+            'orderDate' => $data['date_added']
         );
         return parent::getConvertedData();
     }

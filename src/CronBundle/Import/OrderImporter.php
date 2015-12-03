@@ -22,10 +22,10 @@ class OrderImporter extends ShopImporter
     protected $responseDataConverter;
 
     /** @var OrderAllowanceValidator */
-    protected $AllowanceValidator;
+    protected $allowanceValidator;
 
     /** @var OrderEntityObjectSetter */
-    protected $EntityObjectSetter;
+    protected $entityObjectSetter;
 
     /** @var ClientAdapter */
     protected $client;
@@ -53,11 +53,11 @@ class OrderImporter extends ShopImporter
 
     protected function initAllowanceValidator()
     {
-        $this->AllowanceValidator = new OrderAllowanceValidator();
+        $this->allowanceValidator = new OrderAllowanceValidator();
     }
 
     protected function initEntityObjectSetter()
     {
-        $this->EntityObjectSetter = new OrderEntityObjectSetter();
+        $this->entityObjectSetter = new OrderEntityObjectSetter();
     }
 }

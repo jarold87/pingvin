@@ -1,0 +1,27 @@
+<?php
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="import_ga_row_process")
+ */
+class ImportGaRowProcess
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(name="row_index", type="integer", length=11)
+     */
+    protected $rowIndex = null;
+
+    /**
+     * @ORM\Column(name="dimension_key", type="string", length=255)
+     */
+    protected $dimensionKey = null;
+
+    /**
+     * @ORM\Column(name="row_values", type="text")
+     */
+    protected $rowValues = null;
+}

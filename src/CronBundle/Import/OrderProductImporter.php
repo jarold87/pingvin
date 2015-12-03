@@ -6,6 +6,7 @@ use ShoprenterBundle\Import\ResponseDataConverter\OrderProductDataConverter;
 use ShoprenterBundle\Import\RequestModel\OrderProductRequestModel;
 use ShoprenterBundle\Import\AllowanceValidator\OrderProductAllowanceValidator;
 use ShoprenterBundle\Import\EntityObjectSetter\OrderProductEntityObjectSetter;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class OrderProductImporter extends ShopImporter
 {
@@ -22,13 +23,19 @@ class OrderProductImporter extends ShopImporter
     protected $responseDataConverter;
 
     /** @var OrderProductAllowanceValidator */
-    protected $AllowanceValidator;
+    protected $allowanceValidator;
 
     /** @var OrderProductEntityObjectSetter */
-    protected $EntityObjectSetter;
+    protected $entityObjectSetter;
 
     /** @var ClientAdapter */
     protected $client;
+
+    /** @var ArrayCollection */
+    protected $orderEntityCollection;
+
+    /** @var array */
+    protected $orderEntityKeyByOuterId = array();
 
     protected function init()
     {
@@ -37,6 +44,7 @@ class OrderProductImporter extends ShopImporter
         $this->initAllowanceValidator();
         $this->initCollections();
         $this->initEntityObjectSetter();
+        $this->initOrderEntityCollection();
         $this->client->init();
     }
 
@@ -53,11 +61,27 @@ class OrderProductImporter extends ShopImporter
 
     protected function initAllowanceValidator()
     {
-        $this->AllowanceValidator = new OrderProductAllowanceValidator();
+        $this->allowanceValidator = new OrderProductAllowanceValidator();
     }
 
     protected function initEntityObjectSetter()
     {
-        $this->EntityObjectSetter = new OrderProductEntityObjectSetter();
+        $this->entityObjectSetter = new OrderProductEntityObjectSetter();
+    }
+
+    protected function initOrderEntityCollection()
+    {
+        $this->orderEntityCollection = new ArrayCollection();
+        $objects = $this->entityManager->getRepository('AppBundle:Order')->findAll();
+        if ($objects) {
+            $key = 0;
+            foreach ($objects as $object) {
+                $this->orderEntityCollection->add($object);
+                $this->orderEntityKeyByOuterId[$object->getOuterId()] = $key;
+                $key++;
+            }
+        }
+        $this->entityObjectSetter->setOrderEntityCollection($this->orderEntityCollection);
+        $this->entityObjectSetter->setOrderEntityKeyByOuterId($this->orderEntityKeyByOuterId);
     }
 }

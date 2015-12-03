@@ -18,6 +18,11 @@ class OrderProduct
     protected $orderProductId = null;
 
     /**
+     * @ORM\Column(name="order_id", type="string", length=100)
+     */
+    protected $orderId = null;
+
+    /**
      * @ORM\Column(name="outer_id", type="string", length=100)
      */
     protected $outerId = null;
@@ -43,6 +48,11 @@ class OrderProduct
     protected $total = null;
 
     /**
+     * @ORM\Column(name="order_date", type="datetime")
+     */
+    protected $orderDate = null;
+
+    /**
      * @ORM\Column(name="create_date", type="datetime")
      */
     protected $createDate = null;
@@ -51,6 +61,33 @@ class OrderProduct
      * @ORM\Column(name="update_date", type="datetime")
      */
     protected $updateDate = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Order", inversedBy="orderProducts")
+     * @ORM\JoinColumn(name="order_id", referencedColumnName="order_id")
+     */
+    protected $order;
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function setCreateDate()
+    {
+        if (!$this->createDate) {
+            $this->createDate = new \DateTime();
+        }
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function setUpdateDate()
+    {
+        $this->updateDate = new \DateTime();
+    }
+
 
     /**
      * Get orderProductId
@@ -183,23 +220,27 @@ class OrderProduct
     }
 
     /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
+     * Set orderDate
+     *
+     * @param \DateTime $orderDate
+     *
+     * @return OrderProduct
      */
-    public function setCreateDate()
+    public function setOrderDate($orderDate)
     {
-        if (!$this->createDate) {
-            $this->createDate = new \DateTime();
-        }
+        $this->orderDate = $orderDate;
+
+        return $this;
     }
 
     /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
+     * Get orderDate
+     *
+     * @return \DateTime
      */
-    public function setUpdateDate()
+    public function getOrderDate()
     {
-        $this->updateDate = new \DateTime();
+        return $this->orderDate;
     }
 
     /**
@@ -220,5 +261,29 @@ class OrderProduct
     public function getUpdateDate()
     {
         return $this->updateDate;
+    }
+
+    /**
+     * Set order
+     *
+     * @param \AppBundle\Entity\Order $order
+     *
+     * @return OrderProduct
+     */
+    public function setOrder(\AppBundle\Entity\Order $order = null)
+    {
+        $this->order = $order;
+
+        return $this;
+    }
+
+    /**
+     * Get order
+     *
+     * @return \AppBundle\Entity\Order
+     */
+    public function getOrder()
+    {
+        return $this->order;
     }
 }

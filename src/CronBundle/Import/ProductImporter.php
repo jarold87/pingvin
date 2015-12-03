@@ -22,10 +22,10 @@ class ProductImporter extends ShopImporter
     protected $responseDataConverter;
 
     /** @var ProductAllowanceValidator */
-    protected $AllowanceValidator;
+    protected $allowanceValidator;
 
     /** @var ProductEntityObjectSetter */
-    protected $EntityObjectSetter;
+    protected $entityObjectSetter;
 
     /** @var ClientAdapter */
     protected $client;
@@ -53,11 +53,11 @@ class ProductImporter extends ShopImporter
 
     protected function initAllowanceValidator()
     {
-        $this->AllowanceValidator = new ProductAllowanceValidator();
+        $this->allowanceValidator = new ProductAllowanceValidator();
     }
 
     protected function initEntityObjectSetter()
     {
-        $this->EntityObjectSetter = new ProductEntityObjectSetter();
+        $this->entityObjectSetter = new ProductEntityObjectSetter();
     }
 }

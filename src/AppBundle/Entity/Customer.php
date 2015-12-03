@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="customer")
  * @ORM\HasLifecycleCallbacks()
  */
-class Customer
+class Customer extends Shop
 {
     /**
      * @ORM\Id
@@ -61,16 +61,6 @@ class Customer
      * @ORM\Column(name="registration_date", type="datetime")
      */
     protected $registrationDate = null;
-
-    /**
-     * @ORM\Column(name="create_date", type="datetime")
-     */
-    protected $createDate = null;
-
-    /**
-     * @ORM\Column(name="update_date", type="datetime")
-     */
-    protected $updateDate = null;
 
     /**
      * Get customerId
@@ -296,45 +286,5 @@ class Customer
     public function getRegistrationDate()
     {
         return $this->registrationDate;
-    }
-
-    /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setCreateDate()
-    {
-        if (!$this->createDate) {
-            $this->createDate = new \DateTime();
-        }
-    }
-
-    /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setUpdateDate()
-    {
-        $this->updateDate = new \DateTime();
-    }
-
-    /**
-     * Get createDate
-     *
-     * @return \DateTime
-     */
-    public function getCreateDate()
-    {
-        return $this->createDate;
-    }
-
-    /**
-     * Get updateDate
-     *
-     * @return \DateTime
-     */
-    public function getUpdateDate()
-    {
-        return $this->updateDate;
     }
 }

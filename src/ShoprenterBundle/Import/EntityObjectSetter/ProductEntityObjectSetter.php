@@ -2,11 +2,11 @@
 
 namespace ShoprenterBundle\Import\EntityObjectSetter;
 
-use CronBundle\Import\EntityObjectSetter;
+use CronBundle\Import\ShopEntityObjectSetter;
 use AppBundle\Entity\Product;
 
 
-class ProductEntityObjectSetter extends EntityObjectSetter
+class ProductEntityObjectSetter extends ShopEntityObjectSetter
 {
     /** @var Product */
     protected $object;

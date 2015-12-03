@@ -12,6 +12,7 @@ class OrderAllowanceValidator extends AllowanceValidator
      */
     public function isAllowed()
     {
+        $this->isAllowed = true;
         if (!$this->existOuterId()) {
             $this->isAllowed = false;
         }

@@ -3,17 +3,12 @@
 namespace CronBundle\Import;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use AppBundle\Entity\ImportCollectionLog;
-use AppBundle\Entity\ImportItemLog;
 use AppBundle\Entity\ImportItemProcess;
 
 class ShopImporter extends Importer
 {
-    /** @var int 1000 */
-    protected $flushItemPackageNumber = 1000;
-
-    /** @var int 10000*/
-    protected $itemProcessLimit = 10000;
+    /** @var string PT1H */
+    protected $deadAfterTime = 'PT5M';
 
     /** @var string */
     protected $entity;
@@ -23,12 +18,6 @@ class ShopImporter extends Importer
 
     /** @var ArrayCollection */
     protected $itemProcessCollection;
-
-    /** @var ImportCollectionLog */
-    protected $collectionLog;
-
-    /** @var ImportItemLog */
-    protected $itemLog;
 
     /** @var ArrayCollection */
     protected $existEntityCollection;
@@ -40,10 +29,10 @@ class ShopImporter extends Importer
     protected $responseDataConverter;
 
     /** @var AllowanceValidator */
-    protected $AllowanceValidator;
+    protected $allowanceValidator;
 
     /** @var EntityObjectSetter */
-    protected $EntityObjectSetter;
+    protected $entityObjectSetter;
 
     /** @var array */
     protected $existEntityKeyByOuterId = array();
@@ -53,9 +42,6 @@ class ShopImporter extends Importer
 
     /** @var int */
     protected $processedItemCount = 0;
-
-    /** @var int */
-    protected $counterToFlush = 0;
 
     protected function initCollections()
     {
@@ -70,14 +56,35 @@ class ShopImporter extends Importer
             return;
         }
         $this->loadItemsToProcessCollection();
+        $this->loadExistEntityCollection();
         if (!$this->itemProcessCollection->count()) {
             return;
         }
-        $this->loadExistEntityCollection();
         $items = $this->itemProcessCollection->toArray();
         $this->collectByItems($items);
-        if ($this->isFinishedImport()) {
-            $this->setItemLogFinish();
+        $this->entityManager->flush();
+    }
+
+    protected function collectDeadItem()
+    {
+        $deadEntities = array();
+        $entities = $this->existEntityCollection->toArray();
+        foreach ($entities as $entity) {
+            if ($this->isDeadItem($entity)) {
+                $deadEntities[] = $entity;
+            }
+        }
+        if (!$deadEntities) {
+            return;
+        }
+        if ($this->isAllDead($deadEntities)) {
+            // Biztonsági okokból nem csinálunk semmitsem akkor,
+            // ha az összes entitásra igaz
+            return;
+        }
+        foreach ($deadEntities as $entity) {
+            $entity->setIsDead(1);
+            $this->entityManager->persist($entity);
         }
         $this->entityManager->flush();
     }
@@ -92,14 +99,16 @@ class ShopImporter extends Importer
                 $this->timeOut = 1;
                 break;
             }
-            $responseData = $this->getItemData($item, $key);
-            $this->setProcessed($item, $key);
+            $responseData = $this->getItemData($item);
             if (!$responseData) {
-                continue;
+                $this->addError($this->importName . ' -> not response item data (' . $key . ')');
+                return;
             }
             $this->responseDataConverter->setResponseData($responseData);
             $data = $this->responseDataConverter->getConvertedData();
+            $this->setProcessed($item, $key);
             if (!$this->isAllowed($data)) {
+                $this->importLog->addNotAllowed($this->importName, $item->getItemValue());
                 continue;
             }
             $this->setEntity($data);
@@ -126,9 +135,9 @@ class ShopImporter extends Importer
      */
     protected function setDataToObject($object, $data)
     {
-        $this->EntityObjectSetter->setObject($object);
-        $this->EntityObjectSetter->setData($data);
-        return $this->EntityObjectSetter->getObject();
+        $this->entityObjectSetter->setObject($object);
+        $this->entityObjectSetter->setData($data);
+        return $this->entityObjectSetter->getObject();
     }
 
     /**
@@ -151,8 +160,38 @@ class ShopImporter extends Importer
      */
     protected function isAllowed($data)
     {
-        $this->AllowanceValidator->setData($data);
-        if ($this->AllowanceValidator->isAllowed()) {
+        $this->allowanceValidator->setData($data);
+        if ($this->allowanceValidator->isAllowed()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * @param $entity
+     * @return bool
+     */
+    protected function isDeadItem($entity)
+    {
+        /** @var \DateTime $updateDate */
+        $updateDate = $entity->getUpdateDate();
+        $now = new \DateTime();
+        $calc = $updateDate;
+        $calc->add(new \DateInterval($this->deadAfterTime));
+        if ($calc < $now) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param array $deadEntities
+     * @return bool
+     */
+    protected function isAllDead(array $deadEntities)
+    {
+        if (count($deadEntities) == $this->existEntityCollection->count()) {
             return true;
         }
         return false;
@@ -163,70 +202,6 @@ class ShopImporter extends Importer
         $this->importLog->setUserLastIndex($this->getLastItemIndexFromLog());
         $this->importLog->setUnProcessItemCount($this->itemProcessCollection->count());
         parent::saveImportLog();
-    }
-
-    /**
-     * @return bool
-     */
-    protected function hasInProgressCollectionRequests()
-    {
-        $log = $this->entityManager->getRepository('AppBundle:ImportCollectionLog')->findOneBy(
-            array('importName' => $this->importName, 'finishDate' => null)
-        );
-        if (!$log) {
-            return false;
-        }
-        $this->collectionLog = $log;
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function hasInProgressItemRequests()
-    {
-        $log = $this->entityManager->getRepository('AppBundle:ImportItemLog')->findOneBy(
-            array('importName' => $this->importName, 'finishDate' => null)
-        );
-        if (!$log) {
-            return false;
-        }
-        $this->itemLog = $log;
-        return true;
-    }
-
-    /**
-     * @param $page
-     */
-    protected function setCollectionLogIndex($page)
-    {
-        if ($this->collectionLog) {
-            $this->collectionLog->setLastIndex($page);
-            return;
-        }
-        $log = new ImportCollectionLog();
-        $log->setImportName($this->importName);
-        $log->setLastIndex($page);
-        $log->setFinishDate(new \DateTime('0000-00-00'));
-        $this->entityManager->persist($log);
-        $this->collectionLog = $log;
-    }
-
-    /**
-     * @param $index
-     */
-    protected function setItemLogIndex($index)
-    {
-        if ($this->itemLog) {
-            $this->itemLog->setLastIndex($index);
-            return;
-        }
-        $log = new ImportItemLog();
-        $log->setImportName($this->importName);
-        $log->setLastIndex($index);
-        $log->setFinishDate(new \DateTime('0000-00-00'));
-        $this->entityManager->persist($log);
-        $this->itemLog = $log;
     }
 
     /**
@@ -276,11 +251,6 @@ class ShopImporter extends Importer
         }
     }
 
-    protected function setItemLogFinish()
-    {
-        $this->itemLog->setFinishDate(new \DateTime());
-    }
-
     protected function saveItemsToProcess()
     {
         $items = $this->itemProcessCollection->toArray();
@@ -298,22 +268,6 @@ class ShopImporter extends Importer
     }
 
     /**
-     * @return int
-     */
-    protected function getLastItemIndexFromLog()
-    {
-        return $this->itemLog->getLastIndex();
-    }
-
-    /**
-     * @return int
-     */
-    protected function getNextCollectionIndexFromLog()
-    {
-        return $this->collectionLog->getLastIndex() + 1;
-    }
-
-    /**
      * @param $index
      * @param $value
      * @return ImportItemProcess
@@ -324,11 +278,6 @@ class ShopImporter extends Importer
         $item->setItemIndex($index);
         $item->setItemValue($value);
         return $item;
-    }
-
-    protected function setCollectionLogFinish()
-    {
-        $this->collectionLog->setFinishDate(new \DateTime());
     }
 
     /**
@@ -399,15 +348,6 @@ class ShopImporter extends Importer
         return $this->existEntityCollection->get(
             $this->existEntityKeyByOuterId[$outerId]
         );
-    }
-
-    protected function manageFlush()
-    {
-        if ($this->counterToFlush == $this->flushItemPackageNumber) {
-            $this->entityManager->flush();
-            $this->counterToFlush = 0;
-        }
-        $this->counterToFlush++;
     }
 
     /**

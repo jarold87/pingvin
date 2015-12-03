@@ -58,6 +58,11 @@ class Order
     protected $updateDate = null;
 
     /**
+     * @ORM\OneToMany(targetEntity="OrderProduct", mappedBy="order")
+     */
+    protected $orderProducts;
+
+    /**
      * Get orderId
      *
      * @return integer
@@ -249,5 +254,46 @@ class Order
     public function getUpdateDate()
     {
         return $this->updateDate;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->orderProducts = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add orderProduct
+     *
+     * @param \AppBundle\Entity\OrderProduct $orderProduct
+     *
+     * @return Order
+     */
+    public function addOrderProduct(\AppBundle\Entity\OrderProduct $orderProduct)
+    {
+        $this->orderProducts[] = $orderProduct;
+
+        return $this;
+    }
+
+    /**
+     * Remove orderProduct
+     *
+     * @param \AppBundle\Entity\OrderProduct $orderProduct
+     */
+    public function removeOrderProduct(\AppBundle\Entity\OrderProduct $orderProduct)
+    {
+        $this->orderProducts->removeElement($orderProduct);
+    }
+
+    /**
+     * Get orderProducts
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getOrderProducts()
+    {
+        return $this->orderProducts;
     }
 }

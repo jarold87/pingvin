@@ -17,8 +17,24 @@ class ProductImporter extends MainProductImporter implements ImporterInterface
     {
         $this->init();
         $this->loadLanguageId();
+
+        if ($this->getError()) {
+            $this->saveImportLog();
+            return;
+        }
+
         $this->collectItems();
         $this->collectItemData();
+
+        if ($this->getError()) {
+            $this->saveImportLog();
+            return;
+        }
+
+        $this->collectDeadItem();
+        if ($this->isFinishedImport()) {
+            $this->setItemLogFinish();
+        }
         $this->saveImportLog();
     }
 
@@ -26,15 +42,16 @@ class ProductImporter extends MainProductImporter implements ImporterInterface
     {
         $request = $this->requestModel->getLanguageRequest();
         $data = $this->client->getRequest($request);
-        if (isset($data['language_id'])) {
-            $languageOuterId = $data['language_id'];
-            $this->requestModel->setLanguageOuterId($languageOuterId);
+        if (!isset($data['language_id'])) {
+            $this->addError($this->importName . ' -> not isset language_id');
         }
+        $languageOuterId = $data['language_id'];
+        $this->requestModel->setLanguageOuterId($languageOuterId);
     }
 
     protected function collectItems()
     {
-        if ($this->hasInProgressItemRequests()) {
+        if ($this->hasInProcessItemRequests()) {
             return;
         }
         $this->setCollectionLogIndex(1);

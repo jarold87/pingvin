@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="shop_order_product")
  * @ORM\HasLifecycleCallbacks()
  */
-class OrderProduct
+class OrderProduct extends Shop
 {
     /**
      * @ORM\Id
@@ -16,6 +16,11 @@ class OrderProduct
      * @ORM\GeneratedValue
      */
     protected $orderProductId = null;
+
+    /**
+     * @ORM\Column(name="order_id", type="string", length=100)
+     */
+    protected $orderId = null;
 
     /**
      * @ORM\Column(name="outer_id", type="string", length=100)
@@ -43,14 +48,15 @@ class OrderProduct
     protected $total = null;
 
     /**
-     * @ORM\Column(name="create_date", type="datetime")
+     * @ORM\Column(name="order_date", type="datetime")
      */
-    protected $createDate = null;
+    protected $orderDate = null;
 
     /**
-     * @ORM\Column(name="update_date", type="datetime")
+     * @ORM\ManyToOne(targetEntity="Order", inversedBy="orderProducts")
+     * @ORM\JoinColumn(name="order_id", referencedColumnName="order_id")
      */
-    protected $updateDate = null;
+    protected $order;
 
     /**
      * Get orderProductId
@@ -183,42 +189,74 @@ class OrderProduct
     }
 
     /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
+     * Set orderDate
+     *
+     * @param \DateTime $orderDate
+     *
+     * @return OrderProduct
      */
-    public function setCreateDate()
+    public function setOrderDate($orderDate)
     {
-        if (!$this->createDate) {
-            $this->createDate = new \DateTime();
-        }
+        $this->orderDate = $orderDate;
+
+        return $this;
     }
 
     /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setUpdateDate()
-    {
-        $this->updateDate = new \DateTime();
-    }
-
-    /**
-     * Get createDate
+     * Get orderDate
      *
      * @return \DateTime
      */
-    public function getCreateDate()
+    public function getOrderDate()
     {
-        return $this->createDate;
+        return $this->orderDate;
     }
 
     /**
-     * Get updateDate
+     * Set order
      *
-     * @return \DateTime
+     * @param \AppBundle\Entity\Order $order
+     *
+     * @return OrderProduct
      */
-    public function getUpdateDate()
+    public function setOrder(\AppBundle\Entity\Order $order = null)
     {
-        return $this->updateDate;
+        $this->order = $order;
+
+        return $this;
+    }
+
+    /**
+     * Get order
+     *
+     * @return \AppBundle\Entity\Order
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * Set orderId
+     *
+     * @param string $orderId
+     *
+     * @return OrderProduct
+     */
+    public function setOrderId($orderId)
+    {
+        $this->orderId = $orderId;
+
+        return $this;
+    }
+
+    /**
+     * Get orderId
+     *
+     * @return string
+     */
+    public function getOrderId()
+    {
+        return $this->orderId;
     }
 }

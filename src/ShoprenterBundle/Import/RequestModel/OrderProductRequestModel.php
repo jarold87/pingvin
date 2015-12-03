@@ -45,7 +45,8 @@ class OrderProductRequestModel extends RequestModel
                         op.order_id,
                         op.product_id,
                         op.quantity,
-                        op.total
+                        op.total,
+                        op.date_added
                     FROM
                         order_product as op
                     WHERE

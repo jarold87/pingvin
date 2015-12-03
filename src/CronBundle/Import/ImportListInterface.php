@@ -6,5 +6,9 @@ interface ImportListInterface
 {
     public function getNumberOfImports();
 
-    public function getImport($index);
+    public function setImportIndex($index);
+
+    public function getImport();
+
+    public function getImportSourceType();
 }

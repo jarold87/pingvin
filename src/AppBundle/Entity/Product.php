@@ -2,14 +2,13 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="product")
  * @ORM\HasLifecycleCallbacks()
  */
-class Product
+class Product extends Shop
 {
     /**
      * @ORM\Id
@@ -79,33 +78,16 @@ class Product
     protected $productCreateDate = null;
 
     /**
-     * @ORM\Column(name="create_date", type="datetime")
+     * @ORM\OneToMany(targetEntity="ProductStatistics", mappedBy="product")
      */
-    protected $createDate = null;
+    protected $productStatistics;
 
     /**
-     * @ORM\Column(name="update_date", type="datetime")
+     * Constructor
      */
-    protected $updateDate = null;
-
-    /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setCreateDate()
+    public function __construct()
     {
-        if (!$this->createDate) {
-            $this->createDate = new \DateTime();
-        }
-    }
-
-    /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setUpdateDate()
-    {
-        $this->updateDate = new \DateTime();
+        $this->productStatistics = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -311,50 +293,6 @@ class Product
     }
 
     /**
-     * Set productCreateDate
-     *
-     * @param \DateTime $productCreateDate
-     *
-     * @return Product
-     */
-    public function setProductCreateDate($productCreateDate)
-    {
-        $this->productCreateDate = $productCreateDate;
-
-        return $this;
-    }
-
-    /**
-     * Get productCreateDate
-     *
-     * @return \DateTime
-     */
-    public function getProductCreateDate()
-    {
-        return $this->productCreateDate;
-    }
-
-    /**
-     * Get createDate
-     *
-     * @return \DateTime
-     */
-    public function getCreateDate()
-    {
-        return $this->createDate;
-    }
-
-    /**
-     * Get updateDate
-     *
-     * @return \DateTime
-     */
-    public function getUpdateDate()
-    {
-        return $this->updateDate;
-    }
-
-    /**
      * Set isDescription
      *
      * @param integer $isDescription
@@ -424,5 +362,63 @@ class Product
     public function getAvailableDate()
     {
         return $this->availableDate;
+    }
+
+    /**
+     * Set productCreateDate
+     *
+     * @param \DateTime $productCreateDate
+     *
+     * @return Product
+     */
+    public function setProductCreateDate($productCreateDate)
+    {
+        $this->productCreateDate = $productCreateDate;
+
+        return $this;
+    }
+
+    /**
+     * Get productCreateDate
+     *
+     * @return \DateTime
+     */
+    public function getProductCreateDate()
+    {
+        return $this->productCreateDate;
+    }
+
+    /**
+     * Add productStatistic
+     *
+     * @param \AppBundle\Entity\ProductStatistics $productStatistic
+     *
+     * @return Product
+     */
+    public function addProductStatistic(\AppBundle\Entity\ProductStatistics $productStatistic)
+    {
+        $this->productStatistics[] = $productStatistic;
+
+        return $this;
+    }
+
+    /**
+     * Remove productStatistic
+     *
+     * @param \AppBundle\Entity\ProductStatistics $productStatistic
+     */
+    public function removeProductStatistic(\AppBundle\Entity\ProductStatistics $productStatistic)
+    {
+        $this->productStatistics->removeElement($productStatistic);
+    }
+
+    /**
+     * Get productStatistics
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getProductStatistics()
+    {
+        return $this->productStatistics;
     }
 }

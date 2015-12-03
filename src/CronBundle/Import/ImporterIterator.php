@@ -51,8 +51,20 @@ class ImporterIterator
         if (!$this->hasImport()) {
             return null;
         }
-        $index = $this->importList->getImport($this->actualIndex);
-        return $index;
+        $this->importList->setImportIndex($this->actualIndex);
+        return $this->importList->getImport();
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getActualImportSourceType()
+    {
+        if (!$this->hasImport()) {
+            return null;
+        }
+        $this->importList->setImportIndex($this->actualIndex);
+        return $this->importList->getImportSourceType();
     }
 
     /**

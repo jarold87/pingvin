@@ -18,12 +18,22 @@ class OrderImporter extends MainOrderImporter implements ImporterInterface
         $this->init();
         $this->collectItems();
         $this->collectItemData();
+
+        if ($this->getError()) {
+            $this->saveImportLog();
+            return;
+        }
+
+        $this->collectDeadItem();
+        if ($this->isFinishedImport()) {
+            $this->setItemLogFinish();
+        }
         $this->saveImportLog();
     }
 
     protected function collectItems()
     {
-        if ($this->hasInProgressItemRequests()) {
+        if ($this->hasInProcessItemRequests()) {
             return;
         }
         $this->setCollectionLogIndex(1);

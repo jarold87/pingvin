@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="shop_order")
  * @ORM\HasLifecycleCallbacks()
  */
-class Order
+class Order extends Shop
 {
     /**
      * @ORM\Id
@@ -48,14 +48,9 @@ class Order
     protected $orderDate = null;
 
     /**
-     * @ORM\Column(name="create_date", type="datetime")
+     * @ORM\OneToMany(targetEntity="OrderProduct", mappedBy="order")
      */
-    protected $createDate = null;
-
-    /**
-     * @ORM\Column(name="update_date", type="datetime")
-     */
-    protected $updateDate = null;
+    protected $orderProducts;
 
     /**
      * Get orderId
@@ -212,42 +207,44 @@ class Order
     }
 
     /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
+     * Constructor
      */
-    public function setCreateDate()
+    public function __construct()
     {
-        if (!$this->createDate) {
-            $this->createDate = new \DateTime();
-        }
+        $this->orderProducts = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setUpdateDate()
-    {
-        $this->updateDate = new \DateTime();
-    }
-
-    /**
-     * Get createDate
+     * Add orderProduct
      *
-     * @return \DateTime
+     * @param \AppBundle\Entity\OrderProduct $orderProduct
+     *
+     * @return Order
      */
-    public function getCreateDate()
+    public function addOrderProduct(\AppBundle\Entity\OrderProduct $orderProduct)
     {
-        return $this->createDate;
+        $this->orderProducts[] = $orderProduct;
+
+        return $this;
     }
 
     /**
-     * Get updateDate
+     * Remove orderProduct
      *
-     * @return \DateTime
+     * @param \AppBundle\Entity\OrderProduct $orderProduct
      */
-    public function getUpdateDate()
+    public function removeOrderProduct(\AppBundle\Entity\OrderProduct $orderProduct)
     {
-        return $this->updateDate;
+        $this->orderProducts->removeElement($orderProduct);
+    }
+
+    /**
+     * Get orderProducts
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getOrderProducts()
+    {
+        return $this->orderProducts;
     }
 }

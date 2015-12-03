@@ -40,6 +40,12 @@ class ImportLog
     /** @var GlobalImportLog */
     protected $globalLog;
 
+    /** @var string */
+    protected $error = '';
+
+    /** @var array */
+    protected $notAllowed = array();
+
     public function resetUserLogData()
     {
         $this->userLog = null;
@@ -101,6 +107,23 @@ class ImportLog
     }
 
     /**
+     * @param $error
+     */
+    public function setError($error)
+    {
+        $this->error = $error;
+    }
+
+    /**
+     * @param $importName
+     * @param $itemValue
+     */
+    public function addNotAllowed($importName, $itemValue)
+    {
+        $this->notAllowed[$importName][] = $itemValue;
+    }
+
+    /**
      * @return string
      */
     public function getMessage()
@@ -124,12 +147,28 @@ class ImportLog
         if (!$this->userLog) {
             $this->userLog = new UserImportLog();
         }
-        $this->userLog->setImportName('');
         $this->refreshUserRuntime();
         $this->userLog->setRunTime($this->userRuntime);
         $this->userLog->setProcessed($this->userProcessItemCount);
         $this->userLog->setUnprocessed($this->userUnProcessItemCount);
         $this->userLog->setShopRequest($this->userShopRequestCount);
+        $error = '';
+        if ($this->error) {
+            $error = $this->error;
+        }
+        $this->userLog->setError($error);
+        $warning = '';
+        if ($this->notAllowed) {
+            $warning .= '[Not Allowed]';
+            foreach ($this->notAllowed as $key => $values) {
+                $valueString = join(',', $values);
+                if (strlen($valueString) > 200) {
+                    $valueString = substr($valueString, 0, 200) . '...';
+                }
+                $warning .= ' |' . $key . '| (' . count($values) . ') => ' . $valueString;
+            }
+        }
+        $this->userLog->setWarning($warning);
         return $this->userLog;
     }
 

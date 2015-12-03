@@ -2,8 +2,9 @@
 
 namespace CronBundle\Import;
 
-use ShoprenterBundle\Import\ClientAdapter as SrClient;
 use AppBundle\Service\Setting;
+use GoogleApiBundle\Import\ClientAdapter as GoogleAnalyticsClientAdapter;
+use GoogleApiBundle\Services\AnalyticsService;
 
 class ClientAdapterFactory
 {
@@ -11,29 +12,42 @@ class ClientAdapterFactory
     protected $settingService;
 
     /** @var string */
-    protected $shoprenterId = 'SR';
+    protected $importSourceType = '';
+
+    /** @var AnalyticsService */
+    protected $analyticsService;
 
     /** @var string */
-    protected $shopifyId = 'Shopify';
+    protected $shop = 'shop';
+
+    /** @var string */
+    protected $ga = 'GA';
 
     /**
      * @param Setting $settingService
+     * @param $importSourceType
+     * @param AnalyticsService $analyticsService
      */
-    public function __construct(Setting $settingService)
+    public function __construct(Setting $settingService, $importSourceType, AnalyticsService $analyticsService)
     {
         $this->settingService = $settingService;
+        $this->importSourceType = $importSourceType;
+        $this->analyticsService = $analyticsService;
     }
 
     /**
-     * @return SrClient
+     * @return GoogleAnalyticsClientAdapter|\ShoprenterBundle\Import\ClientAdapter
      */
     public function getClientAdapter()
     {
-        switch ($this->settingService->get('shop_type')) {
-            case $this->shoprenterId:
-                return new SrClient($this->settingService);
-            case $this->shopifyId:
-                return;
+        switch ($this->importSourceType) {
+            case $this->shop:
+                $shopClientAdapterFactory = new ShopClientAdapterFactory($this->settingService);
+                return $shopClientAdapterFactory->getClientAdapter();
+            case $this->ga:
+                $gaClient = new GoogleAnalyticsClientAdapter($this->settingService);
+                $gaClient->setAnalyticsService($this->analyticsService);
+                return $gaClient;
         }
     }
 }

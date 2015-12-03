@@ -1,4 +1,6 @@
 services:
+    GuzzleHttpClient:
+        class: GuzzleHttp\Client
 
     GoogleClient:
         class: Google_Client
@@ -6,7 +8,13 @@ services:
             - [setAuthConfig, ["%googleCredentialsFile%"]]
             - [setApplicationName, ["%googleApiName%"]]
             - [setScopes, ["%googleAnalyticsAuthUrl%"]]
+            - [fetchAccessTokenWithAssertion, ["@=service('GuzzleHttpClient')"]]
 
-    GoogleAnalyticsService:
-        class: GoogleApiBundle\Services\Analytics
+    GoogleServiceAnalytics:
+        class: Google_Service_Analytics
         arguments: ["@=service('GoogleClient')"]
+
+    AnalyticsService:
+        class: GoogleApiBundle\Services\AnalyticsService
+        calls:
+            - [setService, ["@=service('GoogleServiceAnalytics')"]]

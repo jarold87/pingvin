@@ -110,10 +110,6 @@ class ImportHandler extends Controller
         $iterator = new ImporterIterator($importList);
         $iterator->setActualImportIndex($importIndex);
 
-        $clientFactory = new ClientAdapterFactory($settingService);
-        $client = $clientFactory->getClientAdapter();
-        $client->setImportLog($this->get('import_log'));
-
         while ($iterator->hasImport()) {
             if (!$this->isInTimeLimit()) {
                 $this->get('import_log')->addMessage('reached user time limit => ' . $schedule->getUserId());
@@ -127,6 +123,13 @@ class ImportHandler extends Controller
             $this->get('import_log')->addMessage('import selected => ' . $importIndex);
 
             $importer = $iterator->getActualImport();
+            $importSourceType = $iterator->getActualImportSourceType();
+
+            $analyticsService = $this->get('AnalyticsService');
+            $clientFactory = new ClientAdapterFactory($settingService, $importSourceType, $analyticsService);
+            $client = $clientFactory->getClientAdapter();
+            $client->setImportLog($this->get('import_log'));
+
             $importer->setEntityManager($entityManager);
             $importer->setClient($client);
             $importer->setStartTime($this->startTime);

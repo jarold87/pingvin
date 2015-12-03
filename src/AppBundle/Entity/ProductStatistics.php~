@@ -1,0 +1,59 @@
+<?php
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="product_statistics")
+ * @ORM\HasLifecycleCallbacks()
+ */
+class ProductStatistics
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(name="product_statistics_id", type="integer", length=11)
+     * @ORM\GeneratedValue
+     */
+    protected $productStatisticsId = null;
+
+    /**
+     * @ORM\Column(name="product_id", type="integer", length=11)
+     */
+    protected $productId = null;
+
+    /**
+     * @ORM\Column(name="time_key", type="string", length=10)
+     */
+    protected $timeKey = null;
+
+    /**
+     * @ORM\Column(name="views", type="integer", length=11)
+     */
+    protected $views = 0;
+
+    /**
+     * @ORM\Column(name="unique_views", type="integer", length=11)
+     */
+    protected $uniqueViews = 0;
+
+    /**
+     * @ORM\Column(name="update_date", type="datetime")
+     */
+    protected $updateDate = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Product", inversedBy="productStatistics")
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="product_id")
+     */
+    protected $product;
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function setUpdateDate()
+    {
+        $this->updateDate = new \DateTime();
+    }
+}

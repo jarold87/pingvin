@@ -9,12 +9,6 @@ use AppBundle\Entity\ImportItemLog;
 
 abstract class Importer
 {
-    /** @var int 1000 */
-    protected $flushItemPackageNumber = 1000;
-
-    /** @var int 10000*/
-    protected $itemProcessLimit = 10000;
-
     /** @var string */
     protected $importName;
 
@@ -33,11 +27,11 @@ abstract class Importer
     /** @var */
     protected $timeLimit;
 
-    /** @var ImportLog */
-    protected $importLog;
-
     /** @var int */
     protected $timeOut = 0;
+
+    /** @var ImportLog */
+    protected $importLog;
 
     /** @var ImportCollectionLog */
     protected $collectionLog;
@@ -186,23 +180,6 @@ abstract class Importer
         $this->collectionLog = $log;
     }
 
-    /**
-     * @param $index
-     */
-    protected function setItemLogIndex($index)
-    {
-        if ($this->itemLog) {
-            $this->itemLog->setLastIndex($index);
-            return;
-        }
-        $log = new ImportItemLog();
-        $log->setImportName($this->importName);
-        $log->setLastIndex($index);
-        $log->setFinishDate(new \DateTime('0000-00-00'));
-        $this->entityManager->persist($log);
-        $this->itemLog = $log;
-    }
-
     protected function setItemLogFinish()
     {
         $this->itemLog->setFinishDate(new \DateTime());
@@ -271,12 +248,20 @@ abstract class Importer
         $this->entityManager->flush();
     }
 
-    protected function manageFlush()
+    /**
+     * @param $index
+     */
+    protected function setItemLogIndex($index)
     {
-        if ($this->counterToFlush == $this->flushItemPackageNumber) {
-            $this->entityManager->flush();
-            $this->counterToFlush = 0;
+        if ($this->itemLog) {
+            $this->itemLog->setLastIndex($index);
+            return;
         }
-        $this->counterToFlush++;
+        $log = new ImportItemLog();
+        $log->setImportName($this->importName);
+        $log->setLastIndex($index);
+        $log->setFinishDate(new \DateTime('0000-00-00'));
+        $this->entityManager->persist($log);
+        $this->itemLog = $log;
     }
 }

@@ -12,17 +12,15 @@ class OrderProductDataConverter extends ResponseDataConverter
      */
     public function getConvertedData()
     {
-        if ($this->convertedData) {
-            return $this->convertedData;
-        }
         $data = $this->responseData;
-        $this->convertedData = array(
-            'outerId' => $data['order_product_id'],
-            'orderOuterId' => $data['order_id'],
-            'productOuterId' => $data['product_id'],
-            'quantity' => $data['quantity'],
-            'total' => $data['total'],
-            'orderDate' => $data['date_added']
+        $this->setConvertedData(
+            array(
+                'orderOuterId' => $data['order_id'],
+                'productOuterId' => $data['product_id'],
+                'quantity' => $data['quantity'],
+                'total' => $data['total'],
+                'orderDate' => $data['date_added']
+            )
         );
         return parent::getConvertedData();
     }

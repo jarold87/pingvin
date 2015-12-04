@@ -35,9 +35,8 @@ class CustomerImporter extends ShopImporter
         $this->initRequestModel();
         $this->initConverter();
         $this->initAllowanceValidator();
-        $this->initCollections();
         $this->initEntityObjectSetter();
-        $this->client->init();
+        parent::init();
     }
 
 

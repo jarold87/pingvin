@@ -14,6 +14,9 @@ abstract class RequestModel
     /** @var string */
     protected $item = '';
 
+    /** @var string */
+    protected $itemPackage = '';
+
     public function getLanguageRequest()
     {
         if (!$this->language) {
@@ -39,5 +42,16 @@ abstract class RequestModel
             throw new \Exception("Not a valid request!");
         }
         return $this->item;
+    }
+
+    public function getItemPackageRequest(array $keys)
+    {
+        if (!$keys) {
+            throw new \Exception("Not valid keys!");
+        }
+        if (!$this->itemPackage) {
+            throw new \Exception("Not a valid request!");
+        }
+        return $this->itemPackage;
     }
 }

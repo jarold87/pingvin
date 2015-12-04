@@ -17,6 +17,9 @@ abstract class ClientAdapter
     /** @var */
     protected $response;
 
+    /** @var string */
+    protected $error = '';
+
     /**
      * @param Setting $settingService
      */
@@ -31,6 +34,14 @@ abstract class ClientAdapter
     public function setImportLog(ImportLog $service)
     {
         $this->importLog = $service;
+    }
+
+    /**
+     * @return string
+     */
+    public function getError()
+    {
+        return $this->error;
     }
 
     public function init()
@@ -52,6 +63,15 @@ abstract class ClientAdapter
      * @return mixed
      */
     public function getRequest($request)
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function getPackageRequest($request)
     {
         return $this->response;
     }

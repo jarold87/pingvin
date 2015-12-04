@@ -48,6 +48,11 @@ class ImportScheduleLog
     protected $handler = null;
 
     /**
+     * @ORM\Column(name="is_lock", type="integer", length=11)
+     */
+    protected $isLock = null;
+
+    /**
      * @ORM\Column(name="create_date", type="datetime")
      */
     protected $createDate = null;
@@ -249,5 +254,29 @@ class ImportScheduleLog
     public function getUpdateDate()
     {
         return $this->updateDate;
+    }
+
+    /**
+     * Set isLock
+     *
+     * @param integer $isLock
+     *
+     * @return ImportScheduleLog
+     */
+    public function setIsLock($isLock)
+    {
+        $this->isLock = $isLock;
+
+        return $this;
+    }
+
+    /**
+     * Get isLock
+     *
+     * @return integer
+     */
+    public function getIsLock()
+    {
+        return $this->isLock;
     }
 }

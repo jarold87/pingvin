@@ -5,11 +5,22 @@ namespace CronBundle\Import;
 
 abstract class ResponseDataConverter
 {
+    /** @var string */
+    protected $outerId = '';
+
     /** @var array */
     protected $responseData = array();
 
     /** @var array */
-    protected $convertedData = array();
+    private $convertedData = array();
+
+    /**
+     * @param $id
+     */
+    public function setOuterId($id)
+    {
+        $this->outerId = $id;
+    }
 
     /**
      * @param $responseData
@@ -25,6 +36,17 @@ abstract class ResponseDataConverter
      */
     public function getConvertedData()
     {
-        return $this->convertedData;
+        return $this->convertedData = array_merge(
+            array('outerId' => $this->outerId),
+            $this->convertedData
+        );
+    }
+
+    /**
+     * @param array $array
+     */
+    protected function setConvertedData(array $array)
+    {
+        $this->convertedData = $array;
     }
 }

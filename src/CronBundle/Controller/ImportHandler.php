@@ -62,6 +62,7 @@ class ImportHandler extends Controller
             $query = $repository->createQueryBuilder('s')
                 ->where('s.lastFinishedImportDate < :time')
                 ->andWhere('s.failedCounter < :failed')
+                ->andWhere('s.isLock = 0')
                 ->setParameter('time', $time)
                 ->setParameter('failed', $this->failLimitPerUser)
                 ->addOrderBy('s.priority', 'DESC')
@@ -95,6 +96,10 @@ class ImportHandler extends Controller
      */
     protected function runOneUserImports(ImportScheduleLog $schedule)
     {
+        //$schedule->setIsLock(1);
+        //$this->globalEntityManager->persist($schedule);
+        //$this->globalEntityManager->flush();
+
         $this->get('import_log')->resetUserLogData();
         $this->get('import_log')->addMessage('user selected => ' . $schedule->getUserId());
 
@@ -168,6 +173,8 @@ class ImportHandler extends Controller
             }
             $this->get('import_log')->addMessage('all import NOT finished => ' . $schedule->getUserId());
         }
+        $schedule->setIsLock(0);
+        $this->globalEntityManager->persist($schedule);
         $this->globalEntityManager->flush();
     }
 

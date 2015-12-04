@@ -46,6 +46,9 @@ class ImportLog
     /** @var array */
     protected $notAllowed = array();
 
+    /** @var array */
+    protected $emptyResponse = array();
+
     public function resetUserLogData()
     {
         $this->userLog = null;
@@ -124,6 +127,15 @@ class ImportLog
     }
 
     /**
+     * @param $importName
+     * @param $itemValue
+     */
+    public function addEmptyResponse($importName, $itemValue)
+    {
+        $this->emptyResponse[$importName][] = $itemValue;
+    }
+
+    /**
      * @return string
      */
     public function getMessage()
@@ -158,6 +170,16 @@ class ImportLog
         }
         $this->userLog->setError($error);
         $warning = '';
+        if ($this->emptyResponse) {
+            $warning .= '[Empty Response]';
+            foreach ($this->emptyResponse as $key => $values) {
+                $valueString = join(',', $values);
+                if (strlen($valueString) > 200) {
+                    $valueString = substr($valueString, 0, 200) . '...';
+                }
+                $warning .= ' |' . $key . '| (' . count($values) . ') => ' . $valueString;
+            }
+        }
         if ($this->notAllowed) {
             $warning .= '[Not Allowed]';
             foreach ($this->notAllowed as $key => $values) {

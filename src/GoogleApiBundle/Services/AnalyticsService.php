@@ -18,6 +18,9 @@ class AnalyticsService
     /** @var string */
     protected $serviceId = '';
 
+    /** @var string */
+    protected $error = '';
+
     /**
      * @param GoogleServiceAnalytics $service
      */
@@ -28,10 +31,22 @@ class AnalyticsService
 
     /**
      * @param $id
+     * @throws \Exception
      */
     public function setProfileId($id)
     {
+        if (!$id) {
+            throw new \Exception('Missing profileId!');
+        }
         $this->profileId = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getError()
+    {
+        return $this->error;
     }
 
     /**
@@ -49,6 +64,9 @@ class AnalyticsService
     {
         if (!$this->serviceId) {
             $this->init();
+        }
+        if ($this->error) {
+            return null;
         }
         $this->validateRequest($request);
         $now = new \DateTime();
@@ -79,88 +97,73 @@ class AnalyticsService
         }
         $optParams['max-results'] = $this->maxResults;
 
-        $results = $this->analyticsService->data_ga->get(
-            'ga:' . $this->serviceId,
-            $startDate,
-            $finishDate,
-            join(',', $metrics),
-            $optParams,
-            []
-        );
+        try {
+            $results = $this->analyticsService->data_ga->get(
+                'ga:' . $this->serviceId,
+                $startDate,
+                $finishDate,
+                join(',', $metrics),
+                $optParams,
+                []
+            );
+        }
+        catch (\Exception $e) {
+            $this->error = 'Bad GA request: ' . $e->getMessage();
+            return null;
+        }
         if (count($results->getRows()) > 0) {
             return $results;
         }
         return null;
     }
 
-    public function test()
-    {
-        if (!$this->serviceId) {
-            $this->init();
-        }
-        $metrics = array(
-            'ga:entrances',
-            'ga:pageviews',
-            'ga:uniquePageviews',
-            'ga:exitRate'
-        );
-        $optParams = array(
-            'dimensions' => 'ga:pagePath,ga:pageTitle',
-            'sort' => '-ga:uniquePageviews,-ga:pageviews',
-            'max-results' => '100000'
-        );
-
-        $response = $this->analyticsService->data_ga->get(
-            'ga:' . $this->serviceId,
-            '2015-01-01',
-            '2015-11-27',
-            join(',', $metrics),
-            $optParams,
-            []
-        );
-
-        return $this->convertToDataTable($response);
-    }
-
     protected function init()
     {
-        if (!$this->profileId) {
-            throw new \Exception('Missing profileId!');
-        }
         $this->loadServiceId();
-        if (!$this->serviceId) {
-            throw new \Exception('Missing serviceId!');
-        }
     }
 
     protected function loadServiceId()
     {
         $id = $this->profileId;
         $accounts = $this->analyticsService->management_accounts->listManagementAccounts();
+        if (!count($accounts->getItems())) {
+            $this->error = 'Empty GA account list!';
+            return;
+        }
         $accountId = '';
-        if (count($accounts->getItems()) > 0) {
-            $items = $accounts->getItems();
-            foreach ($items as $item) {
-                if ($item->getId() == $id) {
-                    $accountId = $item->getId();
-                }
+        $items = $accounts->getItems();
+        if (!count($items)) {
+            $this->error = 'Missing GA account items!';
+            return;
+        }
+        foreach ($items as $item) {
+            if ($item->getId() == $id) {
+                $accountId = $item->getId();
             }
-            if ($accountId) {
-                $properties = $this->analyticsService->management_webproperties
-                    ->listManagementWebproperties($accountId);
-                //var_dump('<pre>', $properties);
-                if (count($properties->getItems()) > 0) {
-                    $items = $properties->getItems();
-                    $firstPropertyId = $items[0]->getId();
-                    $profiles = $this->analyticsService->management_profiles
-                        ->listManagementProfiles($accountId, $firstPropertyId);
-                    //var_dump('<pre>', $profiles);
-                    if (count($profiles->getItems()) > 0) {
-                        $items = $profiles->getItems();
-                        $this->serviceId = $items[0]->getId();
-                    }
-                }
-            }
+        }
+        if (!$accountId) {
+            $this->error = 'Missing GA account ID!';
+            return;
+        }
+        $properties = $this->analyticsService->management_webproperties
+            ->listManagementWebproperties($accountId);
+        if (!count($properties->getItems())) {
+            $this->error = 'Missing GA account properties!';
+            return;
+        }
+        $items = $properties->getItems();
+        $firstPropertyId = $items[0]->getId();
+        $profiles = $this->analyticsService->management_profiles
+            ->listManagementProfiles($accountId, $firstPropertyId);
+        if (!count($profiles->getItems())) {
+            $this->error = 'Missing profiles!';
+            return;
+        }
+        $items = $profiles->getItems();
+        $this->serviceId = $items[0]->getId();
+        if (!$this->serviceId) {
+            $this->error = 'Missing service ID!';
+            return;
         }
     }
 
@@ -176,37 +179,5 @@ class AnalyticsService
         if (!isset($request['metrics'])) {
             throw new \Exception('Missing metrics!');
         }
-    }
-
-    protected function convertToDataTable($results)
-    {
-        $table = '';
-        if (count($results->getRows()) > 0) {
-            $table .= '<table>';
-
-            // Print headers.
-            $table .= '<tr>';
-
-            foreach ($results->getColumnHeaders() as $header) {
-                $table .= '<th>' . $header->name . '</th>';
-            }
-            $table .= '</tr>';
-
-            // Print table rows.
-            foreach ($results->getRows() as $row) {
-                $table .= '<tr>';
-                foreach ($row as $cell) {
-                    $table .= '<td>'
-                        . htmlspecialchars($cell, ENT_NOQUOTES)
-                        . '</td>';
-                }
-                $table .= '</tr>';
-            }
-            $table .= '</table>';
-
-        } else {
-            $table .= '<p>No Results Found.</p>';
-        }
-        return $table;
     }
 }

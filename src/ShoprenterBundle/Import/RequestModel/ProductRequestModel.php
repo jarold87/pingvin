@@ -62,14 +62,14 @@ class ProductRequestModel extends RequestModel
     }
 
     /**
-     * @param string $key
+     * @param array $keys
      * @return string
      * @throws \Exception
      */
-    public function getItemRequest($key = '')
+    public function getItemPackageRequest(array $keys)
     {
         $sql = "
-                    SELECT
+                     SELECT
                         p.product_id,
                         p.sku,
                         p.image,
@@ -77,43 +77,49 @@ class ProductRequestModel extends RequestModel
                         pd.name,
                         m.name as manufacturer,
                         p.date_added,
-                        category_id,
-                        cd.name as category,
                         p.date_available,
                         IF (LENGTH(pd.short_description) > 0 OR LENGTH(pd.description) > 0,1,0) as is_description,
                         (
                             SELECT keyword
                             FROM url_alias
-                            WHERE query = 'product_id=" . $key . "' LIMIT 0,1
+                            WHERE query = CONCAT('product_id=', p.product_id) LIMIT 0,1
                         ) AS url,
                         (
                             SELECT c.category_id
                             FROM product_to_category as ptc
                             LEFT JOIN category as c
                                 ON ptc.category_id = c.category_id
+                            WHERE
+                                ptc.product_id = p.product_id
+                                AND c.status = 1
+                            ORDER BY c.sort_order ASC, c.category_id DESC
+                            LIMIT 0,1
+                        ) AS category_id,
+                        (
+                            SELECT cd.name
+                            FROM product_to_category as ptc
+                            LEFT JOIN category as c
+                                ON ptc.category_id = c.category_id
                             LEFT JOIN category_description as cd
                                 ON ptc.category_id = cd.category_id
                             WHERE
-                                ptc.product_id = " . $key . "
+                                ptc.product_id = p.product_id
                                 AND cd.language_id = " . $this->languageOuterId. "
                                 AND c.status = 1
                             ORDER BY c.sort_order ASC, c.category_id DESC
                             LIMIT 0,1
-                        ) AS category_id
+                        ) AS category
                     FROM
                         product as p
                         LEFT JOIN product_description as pd
-                            ON p.product_id = pd.product_id
+                            ON p.product_id = pd.product_id AND pd.language_id = " . $this->languageOuterId. "
                         LEFT JOIN manufacturer as m
                             ON p.manufacturer_id = m.manufacturer_id
-                        LEFT JOIN category_description as cd
-                            ON category_id = cd.category_id
                     WHERE
-                        p.product_id = " . $key . "
-                        AND pd.language_id = " . $this->languageOuterId. "
-                    LIMIT 0,1
+                        p.product_id IN (" . join(', ', $keys) . ")
+                    ORDER BY p.product_id ASC
                     ";
-        $this->item = $sql;
-        return parent::getItemRequest($key);
+        $this->itemPackage = $sql;
+        return parent::getItemPackageRequest($keys);
     }
 }

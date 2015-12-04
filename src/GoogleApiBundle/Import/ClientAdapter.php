@@ -25,6 +25,10 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
     public function init()
     {
         $id = $this->settingService->get('ga_profile_id');
+        if (!$id) {
+            $this->error = 'Missing GA profil ID!';
+            return;
+        }
         $this->analyticsService->setProfileId($id);
         parent::init();
     }
@@ -38,31 +42,25 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
         $this->resetResponse();
         $this->addRequestCount();
         $response = $this->analyticsService->getRequest($request);
-        if ($response) {
-            $this->response = $response;
+        if ($this->analyticsService->getError()) {
+            $this->error = $this->analyticsService->getError();
+            return;
         }
+        if (!$response) {
+            $this->error = 'Missing GA response!';
+            return;
+        }
+        $this->response = $response;
         return parent::getCollectionRequest($request);
     }
 
     /**
      * @param $request
-     * @return mixed
      * @throws \Exception
      */
     public function getRequest($request)
     {
-        $this->resetResponse();
-        try {
-            $this->addRequestCount();
-            $response = '';
-            if ($response) {
-                $this->response = $response;
-            }
-            return parent::getRequest($request);
-        }
-        catch ( \Exception $e ) {
-            throw new \Exception("Not a valid query!");
-        }
+        throw new \Exception("Not a valid query!");
     }
 
     protected function resetResponse()

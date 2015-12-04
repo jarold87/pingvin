@@ -56,4 +56,29 @@ class OrderProductRequestModel extends RequestModel
         $this->item = $sql;
         return parent::getItemRequest($key);
     }
+
+    /**
+     * @param array $keys
+     * @return string
+     * @throws \Exception
+     */
+    public function getItemPackageRequest(array $keys)
+    {
+        $sql = "
+                    SELECT
+                        op.order_product_id,
+                        op.order_id,
+                        op.product_id,
+                        op.quantity,
+                        op.total,
+                        op.date_added
+                    FROM
+                        order_product as op
+                    WHERE
+                        op.order_product_id IN (" . join(', ', $keys) . ")
+                    ORDER BY op.order_product_id ASC
+        ";
+        $this->itemPackage = $sql;
+        return parent::getItemPackageRequest($keys);
+    }
 }

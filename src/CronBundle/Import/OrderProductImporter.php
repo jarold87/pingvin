@@ -42,10 +42,9 @@ class OrderProductImporter extends ShopImporter
         $this->initRequestModel();
         $this->initConverter();
         $this->initAllowanceValidator();
-        $this->initCollections();
         $this->initEntityObjectSetter();
         $this->initOrderEntityCollection();
-        $this->client->init();
+        parent::init();
     }
 
 

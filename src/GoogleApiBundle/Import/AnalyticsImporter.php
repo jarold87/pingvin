@@ -59,6 +59,26 @@ class AnalyticsImporter extends Importer
         $this->entityCollection = new ArrayCollection();
     }
 
+    protected function collectItems()
+    {
+        if ($this->hasInProcessItemRequests()) {
+            return;
+        }
+        $this->setCollectionLogIndex(1);
+        $request = $this->requestModel->getCollectionRequest();
+        $listObject = $this->client->getCollectionRequest($request);
+        if ($this->client->getError()) {
+            $this->addError($this->client->getError());
+            return;
+        }
+        $this->addRowsToProcessCollection($listObject);
+        $this->saveRowsToProcess();
+        $this->setItemLogIndex(1);
+        $this->setCollectionLogFinish();
+        $this->entityManager->flush();
+        $this->clearRowsToProcessCollection();
+    }
+
     protected function collectItemData()
     {
         if (!$this->isInLimits()) {
@@ -77,13 +97,14 @@ class AnalyticsImporter extends Importer
                 break;
             }
             $entity = $this->searchEntity($item);
-            $this->setProcessed($item, $key);
             if (!$entity) {
+                $this->setProcessed($item, $key);
                 continue;
             }
             $this->responseDataConverter->setResponseData($item);
             $data = $this->responseDataConverter->getConvertedData();
             $this->setEntity($entity, $data);
+            $this->setProcessed($item, $key);
             $this->manageFlush();
         }
         if ($this->isFinishedImport()) {
@@ -176,8 +197,8 @@ class AnalyticsImporter extends Importer
         $this->entityManager->remove($item);
         $this->rowProcessCollection->remove($key);
         $this->importLog->addProcessItemCount();
-        $this->setItemLogIndex($item->getRowIndex());
         $this->processedItemCount++;
+        $this->setItemLogIndex($item->getRowIndex());
     }
 
     protected function loadRowsToProcessCollection()

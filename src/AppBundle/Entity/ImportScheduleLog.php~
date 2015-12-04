@@ -48,6 +48,11 @@ class ImportScheduleLog
     protected $handler = null;
 
     /**
+     * @ORM\Column(name="is_lock", type="integer", length=11)
+     */
+    protected $isLock = null;
+
+    /**
      * @ORM\Column(name="create_date", type="datetime")
      */
     protected $createDate = null;

@@ -31,11 +31,11 @@ class OrderRequestModel extends RequestModel
     }
 
     /**
-     * @param string $key
+     * @param array $keys
      * @return string
      * @throws \Exception
      */
-    public function getItemRequest($key = '')
+    public function getItemPackageRequest(array $keys)
     {
         $sql = "
                     SELECT
@@ -48,10 +48,10 @@ class OrderRequestModel extends RequestModel
                     FROM
                         `order` as o
                     WHERE
-                        o.order_id = " . $key . "
-                    LIMIT 0,1
+                        o.order_id IN (" . join(', ', $keys) . ")
+                    ORDER BY o.order_id ASC
         ";
-        $this->item = $sql;
-        return parent::getItemRequest($key);
+        $this->itemPackage = $sql;
+        return parent::getItemPackageRequest($keys);
     }
 }

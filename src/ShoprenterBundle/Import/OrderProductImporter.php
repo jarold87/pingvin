@@ -16,7 +16,19 @@ class OrderProductImporter extends MainOrderProductImporter implements ImporterI
     public function import()
     {
         $this->init();
+
+        if ($this->getError()) {
+            $this->saveImportLog();
+            return;
+        }
+
         $this->collectItems();
+
+        if ($this->getError()) {
+            $this->saveImportLog();
+            return;
+        }
+
         $this->collectItemData();
 
         if ($this->getError()) {
@@ -37,11 +49,15 @@ class OrderProductImporter extends MainOrderProductImporter implements ImporterI
             return;
         }
         $this->setCollectionLogIndex(1);
-        $this->setItemLogIndex(1);
         $request = $this->requestModel->getCollectionRequest();
         $list = $this->client->getCollectionRequest($request);
+        if ($this->client->getError()) {
+            $this->addError($this->client->getError());
+            return;
+        }
         $this->addItemsToProcessCollection($list);
         $this->saveItemsToProcess();
+        $this->setItemLogIndex(1);
         $this->setCollectionLogFinish();
         $this->entityManager->flush();
         $this->clearItemsToProcessCollection();

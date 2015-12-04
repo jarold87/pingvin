@@ -15,9 +15,9 @@ class ImportList implements ImportListInterface
         2 => array('Customer', 'shop'),
         3 => array('Order', 'shop'),
         4 => array('OrderProduct', 'shop'),
-        //5 => array('ProductAllTimePageView', 'GA'),
-        //6 => array('ProductActualMonthlyPageView', 'GA'),
-        //7 => array('ProductLastMonthlyPageView', 'GA'),
+        5 => array('ProductAllTimePageView', 'GA'),
+        6 => array('ProductActualMonthlyPageView', 'GA'),
+        7 => array('ProductLastMonthlyPageView', 'GA'),
     );
 
     /** @var int */

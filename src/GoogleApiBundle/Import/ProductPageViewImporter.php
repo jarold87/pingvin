@@ -26,6 +26,12 @@ class ProductPageViewImporter extends AnalyticsImporter
     public function import()
     {
         $this->collectItems();
+
+        if ($this->getError()) {
+            $this->saveImportLog();
+            return;
+        }
+
         $this->collectItemData();
         $this->saveImportLog();
     }
@@ -52,21 +58,5 @@ class ProductPageViewImporter extends AnalyticsImporter
     {
         $this->entityObjectSetter = new ProductPageViewEntityObjectSetter();
         $this->entityObjectSetter->setTimeKey($this->timeKey);
-    }
-
-    protected function collectItems()
-    {
-        if ($this->hasInProcessItemRequests()) {
-            return;
-        }
-        $this->setCollectionLogIndex(1);
-        $this->setItemLogIndex(1);
-        $request = $this->requestModel->getCollectionRequest();
-        $listObject = $this->client->getCollectionRequest($request);
-        $this->addRowsToProcessCollection($listObject);
-        $this->saveRowsToProcess();
-        $this->setCollectionLogFinish();
-        $this->entityManager->flush();
-        $this->clearRowsToProcessCollection();
     }
 }

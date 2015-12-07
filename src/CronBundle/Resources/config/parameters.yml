@@ -1,0 +1,5 @@
+parameters:
+    importerClassNameSpace: Import
+    importerComponentFactoryNameSpace: Import\Component
+    ShopRenterId: SR
+    ShopifyId: Shopify

@@ -3,21 +3,19 @@
 namespace GoogleApiBundle\Import;
 
 use CronBundle\Import\ImporterInterface;
+use GoogleApiBundle\Import\Component\RequestModel\PageViewRequestModel;
 
 class ProductActualMonthlyPageViewImporter extends ProductPageViewImporter implements ImporterInterface
 {
     /** @var string */
     protected $timeKey = 'actualMonthly';
 
-    public function import()
-    {
-        $this->init();
-        $this->requestModel->setActualMonthlyDateInterval();
-        parent::import();
-    }
+    /** @var PageViewRequestModel */
+    protected $requestModel;
 
-    protected function init()
+    public function init()
     {
         parent::init();
+        $this->requestModel->setActualMonthlyDateInterval();
     }
 }

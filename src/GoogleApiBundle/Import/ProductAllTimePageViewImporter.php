@@ -8,15 +8,4 @@ class ProductAllTimePageViewImporter extends ProductPageViewImporter implements 
 {
     /** @var string */
     protected $timeKey = 'all';
-
-    public function import()
-    {
-        $this->init();
-        parent::import();
-    }
-
-    protected function init()
-    {
-        parent::init();
-    }
 }

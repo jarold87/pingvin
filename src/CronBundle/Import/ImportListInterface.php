@@ -4,11 +4,13 @@ namespace CronBundle\Import;
 
 interface ImportListInterface
 {
-    public function getNumberOfImports();
+    public function setImporterClassNameSpace($string);
+
+    public function setImporterComponentFactoryNameSpace($string);
 
     public function setImportIndex($index);
 
-    public function getImport();
+    public function getNumberOfImports();
 
-    public function getImportSourceType();
+    public function getImport();
 }

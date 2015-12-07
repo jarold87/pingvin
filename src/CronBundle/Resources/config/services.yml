@@ -1,0 +1,13 @@
+services:
+    importLog:
+        class: CronBundle\Service\ImportLog
+
+    runtimeWatcher:
+        class: CronBundle\Service\RuntimeWatcher
+
+    ImportListFactory:
+        class: CronBundle\Service\ImportListFactory
+        calls:
+            - [setSettingService, ["@=service('Setting')"]]
+            - [setShopRenterId, ["%ShopRenterId%"]]
+            - [setShopifyId, ["%ShopifyId%"]]

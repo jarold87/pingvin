@@ -5,9 +5,12 @@ namespace CronBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use CronBundle\Import\ImportListFactory;
+use AppBundle\Service\Setting;
+use GoogleApiBundle\Service\AnalyticsService;
+use CronBundle\Service\ImportListFactory;
+use CronBundle\Service\ImportLog;
+use CronBundle\Service\RuntimeWatcher;
 use CronBundle\Import\ImporterIterator;
-use CronBundle\Import\ClientAdapterFactory;
 use Doctrine\ORM\EntityManager;
 use AppBundle\Entity\ImportScheduleLog;
 
@@ -17,7 +20,7 @@ class ImportHandler extends Controller
     protected $userLimit = 1;
 
     /** @var int 45 */
-    protected $timeLimit = 45;
+    protected $timeLimit = 10;
 
     /** @var int */
     protected $failLimit = 6;
@@ -27,15 +30,27 @@ class ImportHandler extends Controller
 
     /** @var string 86400 */
     protected $sleepInterval = 'PT1S';
+    
+    /** @var ImportLog */
+    protected $importLog;
 
-    /** @var float */
-    protected $runTime = 0.00;
-
-    /** @var */
-    protected $startTime;
+    /** @var RuntimeWatcher */
+    protected $runtimeWatcher;
 
     /** @var EntityManager */
     protected $globalEntityManager;
+
+    /** @var EntityManager */
+    protected $userEntityManager;
+
+    /** @var Setting */
+    protected $settingService;
+
+    /** @var AnalyticsService */
+    protected $AnalyticsService;
+
+    /** @var ImportListFactory */
+    protected $importListFactoryService;
 
     /** @var int */
     protected $failedCounter = 0;
@@ -45,14 +60,18 @@ class ImportHandler extends Controller
      */
     public function indexAction(Request $request)
     {
-        $this->startTime = microtime(true);
+        $this->runtimeWatcher = $this->get('runtimeWatcher');
+        $this->runtimeWatcher->setTimeLimit($this->timeLimit);
+        
+        $this->importLog = $this->get('importLog');
+
         for ($i = 0; $i < $this->userLimit; $i++) {
             if (!$this->isInTimeLimit()) {
-                $this->get('import_log')->addMessage('reached global time limit');
+                $this->importLog->addMessage('reached global time limit');
                 break;
             }
             if (!$this->isInFailLimit()) {
-                $this->get('import_log')->addMessage('reached global ERROR limit');
+                $this->importLog->addMessage('reached global ERROR limit');
                 break;
             }
             $time = new \DateTime();
@@ -78,15 +97,15 @@ class ImportHandler extends Controller
             $this->runOneUserImports($schedule);
         }
 
-        $this->get('import_log')->addMessage('run finished | ' . $this->get('import_log')->getAllProcessItemCount());
+        $this->importLog->addMessage('run finished | ' . $this->importLog->getAllProcessItemCount());
 
-        $this->get('import_log')->setRuntime($this->getRuntime());
-        $log = $this->get('import_log')->getGlobalLog();
+        $this->importLog->setRuntime($this->runtimeWatcher->getRuntime());
+        $log = $this->importLog->getGlobalLog();
         $this->globalEntityManager->persist($log);
         $this->globalEntityManager->flush();
 
         return $this->render('CronBundle::message.html.twig', array(
-            'message' => $this->get('import_log')->getMessage(),
+            'message' => $this->importLog->getMessage(),
         ));
     }
 
@@ -100,51 +119,48 @@ class ImportHandler extends Controller
         //$this->globalEntityManager->persist($schedule);
         //$this->globalEntityManager->flush();
 
-        $this->get('import_log')->resetUserLogData();
-        $this->get('import_log')->addMessage('user selected => ' . $schedule->getUserId());
+        $this->importLog->resetUserLogData();
+        $this->importLog->addMessage('user selected => ' . $schedule->getUserId());
 
         //TODO Biztosítani kell, hogy az adott user adatbázis kapcsolata legyen behúzva
-        $entityManager = $this->getDoctrine()->getManager('customer' . $schedule->getUserId());
+        $this->userEntityManager = $this->getDoctrine()->getManager('customer' . $schedule->getUserId());
 
-        $settingService = $this->container->get('setting');
-        $settingService->setEntityManager($entityManager);
+        $this->settingService = $this->get('setting');
+        $this->settingService->setEntityManager($this->userEntityManager);
+        $this->AnalyticsService = $this->get('AnalyticsService');
+        $this->importListFactoryService = $this->get('ImportListFactory');
+
         $importIndex = $schedule->getActualImportIndex();
 
-        $factory = new ImportListFactory($settingService);
-        $importList = $factory->getImportList();
+        $importList = $this->importListFactoryService->getImportList();
+        $importList->setImporterClassNameSpace($this->getParameter('importerClassNameSpace'));
+        $importList->setImporterComponentFactoryNameSpace($this->getParameter('importerComponentFactoryNameSpace'));
         $iterator = new ImporterIterator($importList);
         $iterator->setActualImportIndex($importIndex);
 
         while ($iterator->hasImport()) {
             if (!$this->isInTimeLimit()) {
-                $this->get('import_log')->addMessage('reached user time limit => ' . $schedule->getUserId());
+                $this->importLog->addMessage('reached user time limit => ' . $schedule->getUserId());
                 break;
             }
             if (!$this->isInUserFailLimit($schedule)) {
-                $this->get('import_log')->addMessage('reached user ERROR limit => ' . $schedule->getUserId());
+                $this->importLog->addMessage('reached user ERROR limit => ' . $schedule->getUserId());
                 break;
             }
 
-            $this->get('import_log')->addMessage('import selected => ' . $importIndex);
+            $this->importLog->addMessage('import selected => ' . $importIndex);
 
             $importer = $iterator->getActualImport();
-            $importSourceType = $iterator->getActualImportSourceType();
-
-            $analyticsService = $this->get('AnalyticsService');
-            $clientFactory = new ClientAdapterFactory($settingService, $importSourceType, $analyticsService);
-            $client = $clientFactory->getClientAdapter();
-            $client->setImportLog($this->get('import_log'));
-
-            $importer->setEntityManager($entityManager);
-            $importer->setClient($client);
-            $importer->setStartTime($this->startTime);
-            $importer->setRuntime($this->getRuntime());
-            $importer->setTimeLimit($this->timeLimit);
-            $importer->setImportLog($this->get('import_log'));
-            $this->get('import_log')->addMessage('import run => ' . $importIndex);
+            $importer->setSettingService($this->settingService);
+            $importer->setAnalyticsService($this->AnalyticsService);
+            $importer->setEntityManager($this->userEntityManager);
+            $importer->setImportLog($this->importLog);
+            $importer->setRuntimeWatcher($this->runtimeWatcher);
+            $this->importLog->addMessage('import run => ' . $importIndex);
+            $importer->init();
             $importer->import();
             if ($importer->getError()) {
-                $this->get('import_log')->addMessage('import ERROR in run => ' . $importIndex);
+                $this->importLog->addMessage('import ERROR in run => ' . $importIndex);
                 $importIndex = $iterator->getActualImportIndex();
                 $schedule->setActualImportIndex($importIndex);
                 $schedule->setUpdateDate();
@@ -153,13 +169,13 @@ class ImportHandler extends Controller
                 $this->failedCounter++;
                 continue;
             }
-            $this->get('import_log')->addMessage('import success run => ' . $importIndex . ' | ' . $this->get('import_log')->getAllProcessItemCount());
+            $this->importLog->addMessage('import success run => ' . $importIndex . ' | ' . $this->importLog->getAllProcessItemCount());
             if (!$importer->isFinishedImport()) {
                 $iterator->setActualImportIndex($importIndex);
-                $this->get('import_log')->addMessage('import NOT finished => ' . $importIndex);
+                $this->importLog->addMessage('import NOT finished => ' . $importIndex);
                 continue;
             }
-            $this->get('import_log')->addMessage('import finished => ' . $importIndex);
+            $this->importLog->addMessage('import finished => ' . $importIndex);
             $iterator->setNextImportIndex();
             $importIndex = $iterator->getActualImportIndex();
             $schedule->setActualImportIndex($importIndex);
@@ -168,20 +184,14 @@ class ImportHandler extends Controller
                 $schedule->setActualImportIndex(1);
                 $schedule->setLastFinishedImportDate(new \DateTime());
                 $schedule->setPriority(0);
-                $this->get('import_log')->addMessage('all import finished => ' . $schedule->getUserId());
+                $this->importLog->addMessage('all import finished => ' . $schedule->getUserId());
                 continue;
             }
-            $this->get('import_log')->addMessage('all import NOT finished => ' . $schedule->getUserId());
+            $this->importLog->addMessage('all import NOT finished => ' . $schedule->getUserId());
         }
         $schedule->setIsLock(0);
         $this->globalEntityManager->persist($schedule);
         $this->globalEntityManager->flush();
-    }
-
-    protected function getRuntime()
-    {
-        $this->runTime = round(microtime(true) - $this->startTime, 2);
-        return $this->runTime;
     }
 
     /**
@@ -189,10 +199,7 @@ class ImportHandler extends Controller
      */
     protected function isInTimeLimit()
     {
-        if ($this->getRuntime() >= round($this->timeLimit)) {
-            return false;
-        }
-        return true;
+        return $this->runtimeWatcher->isInTimeLimit();
     }
 
     /**

@@ -15,6 +15,6 @@ services:
         arguments: ["@=service('GoogleClient')"]
 
     AnalyticsService:
-        class: GoogleApiBundle\Services\AnalyticsService
+        class: GoogleApiBundle\Service\AnalyticsService
         calls:
             - [setService, ["@=service('GoogleServiceAnalytics')"]]

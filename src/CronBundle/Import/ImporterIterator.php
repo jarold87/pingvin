@@ -2,11 +2,9 @@
 
 namespace CronBundle\Import;
 
-use ShoprenterBundle\Import\ProductImporter;
-use ShoprenterBundle\Import\ImportList;
-
 class ImporterIterator
 {
+    /** @var ImportList */
     protected $importList;
 
     /** @var int */
@@ -44,7 +42,7 @@ class ImporterIterator
     }
 
     /**
-     * @return null|\ShoprenterBundle\Import\CustomerImporter|\ShoprenterBundle\Import\OrderImporter|\ShoprenterBundle\Import\OrderProductImporter|ProductImporter|void
+     * @return null|Importer
      */
     public function getActualImport()
     {
@@ -53,18 +51,6 @@ class ImporterIterator
         }
         $this->importList->setImportIndex($this->actualIndex);
         return $this->importList->getImport();
-    }
-
-    /**
-     * @return mixed|null
-     */
-    public function getActualImportSourceType()
-    {
-        if (!$this->hasImport()) {
-            return null;
-        }
-        $this->importList->setImportIndex($this->actualIndex);
-        return $this->importList->getImportSourceType();
     }
 
     /**

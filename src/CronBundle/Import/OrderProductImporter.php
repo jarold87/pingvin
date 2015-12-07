@@ -2,34 +2,16 @@
 
 namespace CronBundle\Import;
 
-use ShoprenterBundle\Import\ResponseDataConverter\OrderProductDataConverter;
-use ShoprenterBundle\Import\RequestModel\OrderProductRequestModel;
-use ShoprenterBundle\Import\AllowanceValidator\OrderProductAllowanceValidator;
-use ShoprenterBundle\Import\EntityObjectSetter\OrderProductEntityObjectSetter;
+use ShoprenterBundle\Import\Component\EntityObjectSetter\OrderProductEntityObjectSetter;
 use Doctrine\Common\Collections\ArrayCollection;
 
 class OrderProductImporter extends ShopImporter
 {
     /** @var string */
-    protected $importName = 'order_product';
-
-    /** @var string */
-    protected $entity = 'OrderProduct';
-
-    /** @var OrderProductRequestModel */
-    protected $requestModel;
-
-    /** @var OrderProductDataConverter */
-    protected $responseDataConverter;
-
-    /** @var OrderProductAllowanceValidator */
-    protected $allowanceValidator;
+    protected $entityName = 'OrderProduct';
 
     /** @var OrderProductEntityObjectSetter */
     protected $entityObjectSetter;
-
-    /** @var ClientAdapter */
-    protected $client;
 
     /** @var ArrayCollection */
     protected $orderEntityCollection;
@@ -37,35 +19,10 @@ class OrderProductImporter extends ShopImporter
     /** @var array */
     protected $orderEntityKeyByOuterId = array();
 
-    protected function init()
+    public function init()
     {
-        $this->initRequestModel();
-        $this->initConverter();
-        $this->initAllowanceValidator();
-        $this->initEntityObjectSetter();
-        $this->initOrderEntityCollection();
         parent::init();
-    }
-
-
-    protected function initRequestModel()
-    {
-        $this->requestModel = new OrderProductRequestModel();
-    }
-
-    protected function initConverter()
-    {
-        $this->responseDataConverter = new OrderProductDataConverter();
-    }
-
-    protected function initAllowanceValidator()
-    {
-        $this->allowanceValidator = new OrderProductAllowanceValidator();
-    }
-
-    protected function initEntityObjectSetter()
-    {
-        $this->entityObjectSetter = new OrderProductEntityObjectSetter();
+        $this->initOrderEntityCollection();
     }
 
     protected function initOrderEntityCollection()

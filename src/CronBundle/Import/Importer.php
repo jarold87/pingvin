@@ -2,48 +2,106 @@
 
 namespace CronBundle\Import;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
+use AppBundle\Service\Setting;
 use CronBundle\Service\ImportLog;
-use AppBundle\Entity\ImportCollectionLog;
-use AppBundle\Entity\ImportItemLog;
+use CronBundle\Service\RuntimeWatcher;
+use CronBundle\Import\Component\ComponentFactory;
+use CronBundle\Import\Component\ClientAdapter\ClientAdapter;
+use GoogleApiBundle\Service\AnalyticsService;
+use CronBundle\Import\Component\RequestModel;
+use CronBundle\Import\Component\ResponseDataConverter;
+use CronBundle\Import\Component\AllowanceValidator;
+use CronBundle\Import\Component\EntityObjectSetter;
+use CronBundle\Import\Component\ItemListCollector\ItemListCollector;
+use CronBundle\Import\Component\ItemCollector\ItemCollector;
 
 abstract class Importer
 {
     /** @var string */
     protected $importName;
 
+    /** @var string */
+    protected $entityName;
+
+    /** @var string */
+    protected $outerIdKey;
+
+    /** @var Setting */
+    protected $settingService;
+
+    /** @var AnalyticsService */
+    protected $analyticsService;
+
     /** @var EntityManager */
     protected $entityManager;
 
+    /** @var ComponentFactory */
+    protected $componentFactory;
+
     /** @var ClientAdapter */
-    protected $client;
+    protected $clientAdapter;
 
-    /** @var float */
-    protected $runtime = 0.00;
-
-    /** @var */
-    protected $startTime;
-
-    /** @var */
-    protected $timeLimit;
-
-    /** @var int */
-    protected $timeOut = 0;
+    /** @var RuntimeWatcher */
+    protected $runtimeWatcher;
 
     /** @var ImportLog */
     protected $importLog;
 
-    /** @var ImportCollectionLog */
-    protected $collectionLog;
+    /** @var RequestModel */
+    protected $requestModel;
 
-    /** @var ImportItemLog */
-    protected $itemLog;
+    /** @var ResponseDataConverter */
+    protected $responseDataConverter;
+
+    /** @var AllowanceValidator */
+    protected $allowanceValidator;
+
+    /** @var EntityObjectSetter */
+    protected $entityObjectSetter;
+
+    /** @var ArrayCollection */
+    protected $itemProcessCollection;
+
+    /** @var ItemListCollector */
+    protected $itemListCollector;
+
+    /** @var ItemCollector */
+    protected $itemCollector;
 
     /** @var int */
     protected $counterToFlush = 0;
 
+    /** @var int */
+    protected $lastItemIndex = 1;
+
     /** @var array */
     private $error = array();
+
+    /**
+     * @param $importName
+     */
+    public function setImportName($importName)
+    {
+        $this->importName = $importName;
+    }
+
+    /**
+     * @param Setting $setting
+     */
+    public function setSettingService(Setting $setting)
+    {
+        $this->settingService = $setting;
+    }
+
+    /**
+     * @param AnalyticsService $service
+     */
+    public function setAnalyticsService(AnalyticsService $service)
+    {
+        $this->analyticsService = $service;
+    }
 
     /**
      * @param EntityManager $entityManager
@@ -54,35 +112,19 @@ abstract class Importer
     }
 
     /**
-     * @param ClientAdapter $client
+     * @param ComponentFactory $factory
      */
-    public function setClient(ClientAdapter $client)
+    public function setComponentFactory(ComponentFactory $factory)
     {
-        $this->client = $client;
+        $this->componentFactory = $factory;
     }
 
     /**
-     * @param $startTime
+     * @param $runtimeWatcher
      */
-    public function setStartTime($startTime)
+    public function setRuntimeWatcher(RuntimeWatcher $runtimeWatcher)
     {
-        $this->startTime = $startTime;
-    }
-
-    /**
-     * @param $runtime
-     */
-    public function setRuntime($runtime)
-    {
-        $this->runtime = $runtime;
-    }
-
-    /**
-     * @param $timeLimit
-     */
-    public function setTimeLimit($timeLimit)
-    {
-        $this->timeLimit = $timeLimit;
+        $this->runtimeWatcher = $runtimeWatcher;
     }
 
     /**
@@ -91,11 +133,6 @@ abstract class Importer
     public function setImportLog(ImportLog $service)
     {
         $this->importLog = $service;
-    }
-
-    public function import()
-    {
-        throw new \Exception("Not a valid importer!");
     }
 
     /**
@@ -114,7 +151,10 @@ abstract class Importer
      */
     public function isFinishedImport()
     {
-        if ($this->timeOut == 1) {
+        if (!$this->itemCollector->isFinishedItemCollect()) {
+            return false;
+        }
+        if ($this->isTimeOut()) {
             return false;
         }
         if ($this->getError()) {
@@ -123,90 +163,118 @@ abstract class Importer
         return true;
     }
 
-    /**
-     * @return bool
-     */
-    protected function hasInProcessItemRequests()
+    public function init()
     {
-        $log = $this->getImportItemLog();
-        if (!$log) {
-            return false;
+        $this->initItemProcessCollection();
+        $this->initClientAdapter();
+        $this->initRequestModel();
+        $this->initResponseDataConverter();
+        $this->initEntityObjectSetter();
+        $this->initItemListCollector();
+        $this->initItemCollector();
+        if ($this->clientAdapter->getError()) {
+            $this->addError($this->clientAdapter->getError());
         }
-        $this->itemLog = $log;
-        return true;
+    }
+
+    public function import()
+    {
+        throw new \Exception("Not a valid importer!");
+    }
+
+    protected function initItemProcessCollection()
+    {
+        $this->itemProcessCollection = new ArrayCollection();
     }
 
 
-    /**
-     * @return bool
-     */
-    protected function hasInProcessCollectionRequests()
+    protected function initClientAdapter()
     {
-        $log = $this->entityManager->getRepository('AppBundle:ImportCollectionLog')->findOneBy(
-            array('importName' => $this->importName, 'finishDate' => null)
-        );
-        if (!$log) {
-            return false;
-        }
-        $this->collectionLog = $log;
-        return true;
+        $this->clientAdapter = $this->componentFactory->getClientAdapter();
+        $this->clientAdapter->setSettingService($this->settingService);
+        $this->clientAdapter->setImportLog($this->importLog);
     }
 
-    /**
-     * @return null|object
-     */
-    protected function getImportItemLog()
+    protected function initRequestModel()
     {
-        $log = $this->entityManager->getRepository('AppBundle:ImportItemLog')->findOneBy(
-            array('importName' => $this->importName, 'finishDate' => null)
-        );
-        return $log;
+        $this->requestModel = $this->componentFactory->getRequestModel();
     }
 
-    /**
-     * @param $page
-     */
-    protected function setCollectionLogIndex($page)
+    protected function initResponseDataConverter()
     {
-        if ($this->collectionLog) {
-            $this->collectionLog->setLastIndex($page);
+        $this->responseDataConverter = $this->componentFactory->getResponseDataConverter();
+    }
+
+    protected function initAllowanceValidator()
+    {
+        $this->allowanceValidator = $this->componentFactory->getAllowanceValidator();
+    }
+
+    protected function initEntityObjectSetter()
+    {
+        $this->entityObjectSetter = $this->componentFactory->getEntityObjectSetter();
+    }
+
+    protected function initItemListCollector()
+    {
+        $this->itemListCollector = $this->componentFactory->getItemListCollector();
+        $this->itemListCollector->setRequestModel($this->requestModel);
+        $this->itemListCollector->setEntityManager($this->entityManager);
+        $this->itemListCollector->setClient($this->clientAdapter);
+        $this->itemListCollector->setImportLog($this->importLog);
+        $this->itemListCollector->setRuntimeWatcher($this->runtimeWatcher);
+        $this->itemListCollector->setEntityName($this->entityName);
+        $this->itemListCollector->setImportName($this->importName);
+        $this->itemListCollector->setOuterIdKey($this->outerIdKey);
+    }
+
+    protected function initItemCollector()
+    {
+        $this->itemCollector = $this->componentFactory->getItemCollector();
+        $this->itemCollector->setRequestModel($this->requestModel);
+        $this->itemCollector->setResponseDataConverter($this->responseDataConverter);
+        $this->itemCollector->setEntityObjectSetter($this->entityObjectSetter);
+        $this->itemCollector->setEntityManager($this->entityManager);
+        $this->itemCollector->setClient($this->clientAdapter);
+        $this->itemCollector->setImportLog($this->importLog);
+        $this->itemCollector->setRuntimeWatcher($this->runtimeWatcher);
+        $this->itemCollector->setEntityName($this->entityName);
+        $this->itemCollector->setImportName($this->importName);
+        $this->itemCollector->setOuterIdKey($this->outerIdKey);
+    }
+
+    protected function collectItems()
+    {
+        if (!$this->isInLimits()) {
             return;
         }
-        $log = new ImportCollectionLog();
-        $log->setImportName($this->importName);
-        $log->setLastIndex($page);
-        $log->setFinishDate(new \DateTime('0000-00-00'));
-        $this->entityManager->persist($log);
-        $this->collectionLog = $log;
-    }
-
-    protected function setItemLogFinish()
-    {
-        $this->itemLog->setFinishDate(new \DateTime());
-    }
-
-    protected function setCollectionLogFinish()
-    {
-        $this->collectionLog->setFinishDate(new \DateTime());
-    }
-
-    /**
-     * @return int
-     */
-    protected function getLastItemIndexFromLog()
-    {
-        if (!$this->itemLog) {
-            return 0;
+        $this->itemListCollector->init();
+        $this->itemListCollector->collect();
+        if ($this->itemListCollector->getError()) {
+            $this->addError($this->itemListCollector->getError());
         }
-        return $this->itemLog->getLastIndex();
+        $this->lastItemIndex = $this->itemListCollector->getLastItemIndex();
+    }
+
+    protected function collectItemData()
+    {
+        if (!$this->isInLimits()) {
+            return;
+        }
+        $this->itemCollector->init();
+        $this->itemCollector->collect();
+        if ($this->itemCollector->getError()) {
+            $this->addError($this->itemCollector->getError());
+        }
+        $this->lastItemIndex = $this->itemCollector->getLastItemIndex();
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    protected function getNextCollectionIndexFromLog()
+    protected function isTimeOut()
     {
-        return $this->collectionLog->getLastIndex() + 1;
+        return $this->runtimeWatcher->isTimeOut();
     }
 
     /**
@@ -222,46 +290,18 @@ abstract class Importer
      */
     protected function isInLimits()
     {
-        if ($this->timeOut == 1) {
-            return false;
-        }
-        $this->refreshRunTime();
-        if ($this->runtime >= $this->timeLimit) {
-            return false;
-        }
-        return true;
-    }
-
-    protected function refreshRunTime()
-    {
-        $this->runtime = round(microtime(true) - $this->startTime, 2);
+        return $this->runtimeWatcher->isInTimeLimit();
     }
 
     protected function saveImportLog()
     {
-        $this->refreshRunTime();
-        $this->importLog->setRuntime($this->runtime);
+        $this->importLog->setUserLastIndex($this->lastItemIndex);
+        $this->importLog->setUnProcessItemCount($this->itemCollector->getUnProcessItemCount());
+        $this->importLog->setRuntime($this->runtimeWatcher->getRuntime());
         $error = $this->getError();
         $this->importLog->setError($error[0]);
         $log = $this->importLog->getUserLog();
         $this->entityManager->persist($log);
         $this->entityManager->flush();
-    }
-
-    /**
-     * @param $index
-     */
-    protected function setItemLogIndex($index)
-    {
-        if ($this->itemLog) {
-            $this->itemLog->setLastIndex($index);
-            return;
-        }
-        $log = new ImportItemLog();
-        $log->setImportName($this->importName);
-        $log->setLastIndex($index);
-        $log->setFinishDate(new \DateTime('0000-00-00'));
-        $this->entityManager->persist($log);
-        $this->itemLog = $log;
     }
 }

@@ -16,13 +16,20 @@ class OrderProductImporter extends ShopImporter
     /** @var ArrayCollection */
     protected $orderEntityCollection;
 
+    /** @var ArrayCollection */
+    protected $productEntityCollection;
+
     /** @var array */
     protected $orderEntityKeyByOuterId = array();
+
+    /** @var array */
+    protected $productEntityKeyByOuterId = array();
 
     public function init()
     {
         parent::init();
         $this->initOrderEntityCollection();
+        $this->initProductEntityCollection();
     }
 
     protected function initOrderEntityCollection()
@@ -39,5 +46,21 @@ class OrderProductImporter extends ShopImporter
         }
         $this->entityObjectSetter->setOrderEntityCollection($this->orderEntityCollection);
         $this->entityObjectSetter->setOrderEntityKeyByOuterId($this->orderEntityKeyByOuterId);
+    }
+
+    protected function initProductEntityCollection()
+    {
+        $this->productEntityCollection = new ArrayCollection();
+        $objects = $this->entityManager->getRepository('AppBundle:Product')->findAll();
+        if ($objects) {
+            $key = 0;
+            foreach ($objects as $object) {
+                $this->productEntityCollection->add($object);
+                $this->productEntityKeyByOuterId[$object->getOuterId()] = $key;
+                $key++;
+            }
+        }
+        $this->entityObjectSetter->setProductEntityCollection($this->productEntityCollection);
+        $this->entityObjectSetter->setProductEntityKeyByOuterId($this->productEntityKeyByOuterId);
     }
 }

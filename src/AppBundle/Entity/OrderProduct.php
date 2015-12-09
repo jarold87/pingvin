@@ -18,9 +18,14 @@ class OrderProduct extends Shop
     protected $orderProductId = null;
 
     /**
-     * @ORM\Column(name="order_id", type="string", length=100)
+     * @ORM\Column(name="order_id", type="integer", length=11)
      */
     protected $orderId = null;
+
+    /**
+     * @ORM\Column(name="product_id", type="integer", length=11)
+     */
+    protected $productId = null;
 
     /**
      * @ORM\Column(name="outer_id", type="string", length=100)
@@ -57,6 +62,12 @@ class OrderProduct extends Shop
      * @ORM\JoinColumn(name="order_id", referencedColumnName="order_id")
      */
     protected $order;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Product", inversedBy="orderProducts")
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="product_id")
+     */
+    protected $product;
 
     /**
      * Get orderProductId
@@ -258,5 +269,53 @@ class OrderProduct extends Shop
     public function getOrderId()
     {
         return $this->orderId;
+    }
+
+    /**
+     * Set productId
+     *
+     * @param \int $productId
+     *
+     * @return OrderProduct
+     */
+    public function setProductId(\int $productId)
+    {
+        $this->productId = $productId;
+
+        return $this;
+    }
+
+    /**
+     * Get productId
+     *
+     * @return \int
+     */
+    public function getProductId()
+    {
+        return $this->productId;
+    }
+
+    /**
+     * Set product
+     *
+     * @param \AppBundle\Entity\Product $product
+     *
+     * @return OrderProduct
+     */
+    public function setProduct(\AppBundle\Entity\Product $product = null)
+    {
+        $this->product = $product;
+
+        return $this;
+    }
+
+    /**
+     * Get product
+     *
+     * @return \AppBundle\Entity\Product
+     */
+    public function getProduct()
+    {
+        return $this->product;
     }
 }

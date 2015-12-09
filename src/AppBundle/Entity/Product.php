@@ -83,6 +83,11 @@ class Product extends Shop
     protected $productStatistics;
 
     /**
+     * @ORM\OneToMany(targetEntity="OrderProduct", mappedBy="product")
+     */
+    protected $productOrders;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -420,5 +425,39 @@ class Product extends Shop
     public function getProductStatistics()
     {
         return $this->productStatistics;
+    }
+
+    /**
+     * Add productOrder
+     *
+     * @param \AppBundle\Entity\OrderProduct $productOrder
+     *
+     * @return Product
+     */
+    public function addProductOrder(\AppBundle\Entity\OrderProduct $productOrder)
+    {
+        $this->productOrders[] = $productOrder;
+
+        return $this;
+    }
+
+    /**
+     * Remove productOrder
+     *
+     * @param \AppBundle\Entity\OrderProduct $productOrder
+     */
+    public function removeProductOrder(\AppBundle\Entity\OrderProduct $productOrder)
+    {
+        $this->productOrders->removeElement($productOrder);
+    }
+
+    /**
+     * Get productOrders
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getProductOrders()
+    {
+        return $this->productOrders;
     }
 }

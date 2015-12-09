@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="shop_order_product")
  * @ORM\HasLifecycleCallbacks()
  */
-class OrderProduct
+class OrderProduct extends Shop
 {
     /**
      * @ORM\Id
@@ -18,9 +18,14 @@ class OrderProduct
     protected $orderProductId = null;
 
     /**
-     * @ORM\Column(name="order_id", type="string", length=100)
+     * @ORM\Column(name="order_id", type="int", length=11)
      */
     protected $orderId = null;
+
+    /**
+     * @ORM\Column(name="product_id", type="int", length=11)
+     */
+    protected $productId = null;
 
     /**
      * @ORM\Column(name="outer_id", type="string", length=100)
@@ -53,41 +58,16 @@ class OrderProduct
     protected $orderDate = null;
 
     /**
-     * @ORM\Column(name="create_date", type="datetime")
-     */
-    protected $createDate = null;
-
-    /**
-     * @ORM\Column(name="update_date", type="datetime")
-     */
-    protected $updateDate = null;
-
-    /**
      * @ORM\ManyToOne(targetEntity="Order", inversedBy="orderProducts")
      * @ORM\JoinColumn(name="order_id", referencedColumnName="order_id")
      */
     protected $order;
 
     /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
+     * @ORM\ManyToOne(targetEntity="Product", inversedBy="orderProducts")
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="product_id")
      */
-    public function setCreateDate()
-    {
-        if (!$this->createDate) {
-            $this->createDate = new \DateTime();
-        }
-    }
-
-    /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setUpdateDate()
-    {
-        $this->updateDate = new \DateTime();
-    }
-
+    protected $product;
 
     /**
      * Get orderProductId
@@ -244,26 +224,6 @@ class OrderProduct
     }
 
     /**
-     * Get createDate
-     *
-     * @return \DateTime
-     */
-    public function getCreateDate()
-    {
-        return $this->createDate;
-    }
-
-    /**
-     * Get updateDate
-     *
-     * @return \DateTime
-     */
-    public function getUpdateDate()
-    {
-        return $this->updateDate;
-    }
-
-    /**
      * Set order
      *
      * @param \AppBundle\Entity\Order $order
@@ -285,5 +245,29 @@ class OrderProduct
     public function getOrder()
     {
         return $this->order;
+    }
+
+    /**
+     * Set orderId
+     *
+     * @param string $orderId
+     *
+     * @return OrderProduct
+     */
+    public function setOrderId($orderId)
+    {
+        $this->orderId = $orderId;
+
+        return $this;
+    }
+
+    /**
+     * Get orderId
+     *
+     * @return string
+     */
+    public function getOrderId()
+    {
+        return $this->orderId;
     }
 }

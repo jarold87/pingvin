@@ -83,6 +83,11 @@ class Product extends Shop
     protected $productStatistics;
 
     /**
+     * @ORM\OneToMany(targetEntity="OrderProduct", mappedBy="product")
+     */
+    protected $productOrders;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -386,26 +391,6 @@ class Product extends Shop
     public function getProductCreateDate()
     {
         return $this->productCreateDate;
-    }
-
-    /**
-     * Get createDate
-     *
-     * @return \DateTime
-     */
-    public function getCreateDate()
-    {
-        return $this->createDate;
-    }
-
-    /**
-     * Get updateDate
-     *
-     * @return \DateTime
-     */
-    public function getUpdateDate()
-    {
-        return $this->updateDate;
     }
 
     /**

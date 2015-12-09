@@ -51,6 +51,9 @@ class BlackHorses
         $this->entityManager = $entityManager;
     }
 
+    /**
+     * @return array
+     */
     public function getReport()
     {
         if ($this->rowsToReport) {
@@ -71,7 +74,7 @@ class BlackHorses
             ->where('ps.timeKey = :timeKey')
             ->andWhere('p.status = 1')
             ->andWhere('p.isDead = 0')
-            ->andWhere('ps.uniqueViews > 5')
+            ->andWhere('ps.uniqueViews > 0')
             ->setParameter('timeKey', $this->timeKey)
             ->orderBy('ps.uniqueViews', 'DESC')
             ->setMaxResults(1000);
@@ -105,6 +108,10 @@ class BlackHorses
         }
     }
 
+    /**
+     * @param array $statisticsEntities
+     * @param Product $product
+     */
     protected function loadOneProductStatistics(array $statisticsEntities, Product $product)
     {
         $productId = $product->getProductId();

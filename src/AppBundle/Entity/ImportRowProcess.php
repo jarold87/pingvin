@@ -5,9 +5,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="import_ga_row_process")
+ * @ORM\Table(name="import_row_process")
  */
-class ImportGaRowProcess
+class ImportRowProcess
 {
     /**
      * @ORM\Id
@@ -16,9 +16,9 @@ class ImportGaRowProcess
     protected $rowIndex = null;
 
     /**
-     * @ORM\Column(name="dimension_key", type="string", length=255)
+     * @ORM\Column(name="row_key", type="string", length=255)
      */
-    protected $dimensionKey = null;
+    protected $rowKey = null;
 
     /**
      * @ORM\Column(name="row_values", type="text")
@@ -30,7 +30,7 @@ class ImportGaRowProcess
      *
      * @param integer $rowIndex
      *
-     * @return ImportGaRowProcess
+     * @return ImportRowProcess
      */
     public function setRowIndex($rowIndex)
     {
@@ -50,27 +50,27 @@ class ImportGaRowProcess
     }
 
     /**
-     * Set dimensionKey
+     * Set rowKey
      *
-     * @param string $dimensionKey
+     * @param string $rowKey
      *
-     * @return ImportGaRowProcess
+     * @return ImportRowProcess
      */
-    public function setDimensionKey($dimensionKey)
+    public function setRowKey($rowKey)
     {
-        $this->dimensionKey = $dimensionKey;
+        $this->rowKey = $rowKey;
 
         return $this;
     }
 
     /**
-     * Get dimensionKey
+     * Get rowKey
      *
      * @return string
      */
-    public function getDimensionKey()
+    public function getRowKey()
     {
-        return $this->dimensionKey;
+        return $this->rowKey;
     }
 
     /**
@@ -78,7 +78,7 @@ class ImportGaRowProcess
      *
      * @param string $rowValues
      *
-     * @return ImportGaRowProcess
+     * @return ImportRowProcess
      */
     public function setRowValues($rowValues)
     {

@@ -55,6 +55,7 @@ class ProductRequestModel extends RequestModel
                 OR p.date_modified > '0000-00-00 00:00:00'
             )
             AND p.date_available <= NOW()
+            AND product_id = product_ring_id
         ORDER BY p.product_id ASC
         ";
         $this->collection = $sql;

@@ -3,15 +3,15 @@
 namespace CronBundle\Import\Component\ItemCollector;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use AppBundle\Entity\ImportGaRowProcess;
+use AppBundle\Entity\ImportRowProcess;
 
-class ItemCollectorByValuesInGaProcessList extends ItemCollector
+class ItemCollectorByValuesInRowProcessList extends ItemCollector
 {
     /** @var ArrayCollection */
     protected $entityCollection;
 
     /** @var array */
-    protected $entityKeyByDimensionKey = array();
+    protected $entityKeyByRowKey = array();
 
     public function init()
     {
@@ -42,14 +42,14 @@ class ItemCollectorByValuesInGaProcessList extends ItemCollector
             }
             $entity = $this->searchEntity($item);
             if (!$entity) {
-                $this->setProcessedGaRow($item, $key);
+                $this->setProcessedRow($item, $key);
                 continue;
             }
-            $this->responseDataConverter->setOuterId($item->getDimensionKey());
+            $this->responseDataConverter->setOuterId($item->getRowKey());
             $this->responseDataConverter->setResponseData($item);
             $data = $this->responseDataConverter->getConvertedData();
             $this->setStatisticsEntity($entity, $data);
-            $this->setProcessedGaRow($item, $key);
+            $this->setProcessedRow($item, $key);
             $this->manageFlush();
         }
     }
@@ -67,10 +67,10 @@ class ItemCollectorByValuesInGaProcessList extends ItemCollector
             $key = 0;
             foreach ($objects as $object) {
                 $get = 'get' . $this->outerIdKey;
-                $dimensionKeyValue = $object->$get();
-                if ($dimensionKeyValue) {
+                $rowKeyValue = $object->$get();
+                if ($rowKeyValue) {
                     $this->entityCollection->add($object);
-                    $this->entityKeyByDimensionKey[md5('/' . $dimensionKeyValue)] = $key;
+                    $this->entityKeyByRowKey[md5('/' . $rowKeyValue)] = $key;
                 }
                 $key++;
             }
@@ -78,17 +78,17 @@ class ItemCollectorByValuesInGaProcessList extends ItemCollector
     }
 
     /**
-     * @param ImportGaRowProcess $item
+     * @param ImportRowProcess $item
      * @return bool|mixed|null
      */
-    protected function searchEntity(ImportGaRowProcess $item)
+    protected function searchEntity(ImportRowProcess $item)
     {
-        $dimensionKey = $item->getDimensionKey();
-        if (!isset($this->entityKeyByDimensionKey[md5($dimensionKey)])) {
+        $rowKey = $item->getRowKey();
+        if (!isset($this->entityKeyByRowKey[md5($rowKey)])) {
             return false;
         }
         return $this->entityCollection->get(
-            $this->entityKeyByDimensionKey[md5($dimensionKey)]
+            $this->entityKeyByRowKey[md5($rowKey)]
         );
     }
 
@@ -96,7 +96,7 @@ class ItemCollectorByValuesInGaProcessList extends ItemCollector
      * @param $item
      * @param $key
      */
-    protected function setProcessedGaRow(ImportGaRowProcess $item, $key)
+    protected function setProcessedRow(ImportRowProcess $item, $key)
     {
         $this->entityManager->remove($item);
         $this->itemProcessCollection->remove($key);

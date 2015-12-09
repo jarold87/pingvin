@@ -2,10 +2,10 @@
 
 namespace GoogleApiBundle\Import\Component\ItemCollector;
 
-use CronBundle\Import\Component\ItemCollector\ItemCollectorByValuesInGaProcessList;
+use CronBundle\Import\Component\ItemCollector\ItemCollectorByValuesInRowProcessList;
 
-class ItemCollector extends ItemCollectorByValuesInGaProcessList
+class ItemCollector extends ItemCollectorByValuesInRowProcessList
 {
     /** @var string */
-    protected $processEntityName = 'ImportGaRowProcess';
+    protected $processEntityName = 'ImportRowProcess';
 }

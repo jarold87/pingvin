@@ -3,12 +3,12 @@
 namespace GoogleApiBundle\Import\Component\ResponseDataConverter;
 
 use CronBundle\Import\Component\ResponseDataConverter;
-use AppBundle\Entity\ImportGaRowProcess;
+use AppBundle\Entity\ImportRowProcess;
 
 
 class PageViewResponseDataConverter extends ResponseDataConverter
 {
-    /** @var ImportGaRowProcess */
+    /** @var ImportRowProcess */
     protected $responseData;
 
     /**

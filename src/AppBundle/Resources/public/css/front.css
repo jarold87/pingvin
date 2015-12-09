@@ -1,0 +1,131 @@
+.under-developing
+{
+    padding: 40px;
+    background: #faf8f8;
+    border: 1px solid #d0cece;
+    height: 500px;
+}
+
+body
+{
+    background: #ffffff;
+    color: #464646;
+    font-family: Arial, sans-serif;
+    font-size: 12pt;
+    padding: 0;
+    margin: 0;
+}
+
+.more-button,
+.report-table .header,
+h2
+{
+    font-family: "Century Gothic", sans-serif;
+}
+
+table
+{
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+h2
+{
+    color: #465771;
+    font-size: 160%;
+    text-transform: capitalize;
+}
+
+a,
+a:hover,
+a:visited
+{
+    text-decoration: none;
+}
+
+.button
+{
+    padding: 10px 20px;
+    background: #A0C5E8;
+    color: #465771;
+    cursor: pointer;
+    text-align: center;
+    font-size: 120%;
+    font-weight: bold;
+}
+
+.button:hover
+{
+    background: #b0d9ff;
+    color: #2e3b51;
+}
+
+#container
+{
+    padding: 10px 50px;
+}
+
+#navigation
+{
+    width: 100%;
+    position: fixed;
+    background: #ffffff;
+}
+
+#navigation-place
+{
+    height: 50px;
+}
+
+.container-block
+{
+    margin: 60px auto;
+    width: 1000px;
+}
+
+.report-table
+{
+    width: 100%;
+}
+
+.report-table .table-column
+{
+    margin: 0;
+    padding: 10px;
+    border: 1px solid #eeecec;
+    text-align: center;
+}
+
+.report-table .header
+{
+    background: #eeecec;
+    border: 1px solid #d0cece;
+    font-weight: bold;
+}
+
+.report-table .important
+{
+    background: #faf8f8;
+    font-weight: bold;
+}
+
+.report-table .left-align
+{
+    text-align: left;
+}
+
+.last-update
+{
+    padding: 10px 0;
+    text-align: center;
+}
+
+.last-update .value
+{
+    font-weight: bold;
+}
+
+.display-none,
+.more-display-none {
+    display: none;
+}

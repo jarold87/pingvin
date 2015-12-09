@@ -3,6 +3,7 @@ imports:
     - { resource: security.yml }
     - { resource: services.yml }
     - { resource: customer_parameters.yml }
+    - { resource: "@CronBundle/Resources/config/parameters.yml" }
     - { resource: "@GoogleApiBundle/Resources/config/parameters.yml" }
     - { resource: "@TestBundle/Resources/config/services.yml" }
     - { resource: "@CronBundle/Resources/config/services.yml" }

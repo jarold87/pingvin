@@ -11,7 +11,7 @@ use CronBundle\Import\Component\RequestModel;
 use AppBundle\Entity\ImportCollectionLog;
 use AppBundle\Entity\ImportItemLog;
 use AppBundle\Entity\ImportItemProcess;
-use AppBundle\Entity\ImportGaRowProcess;
+use AppBundle\Entity\ImportRowProcess;
 
 class ItemListCollector
 {
@@ -253,10 +253,10 @@ class ItemListCollector
             return;
         }
         foreach ($listObject->getRows() as $index => $values) {
-            $dimensionKey = $values[0];
+            $rowKey = $values[0];
             unset($values[0]);
             $valuesString = serialize($values);
-            $item = $this->setImportGaRowProcess($index + 1, $dimensionKey, $valuesString);
+            $item = $this->setImportRowProcess($index + 1, $rowKey, $valuesString);
             $this->itemProcessCollection->add($item);
         }
     }
@@ -292,15 +292,15 @@ class ItemListCollector
 
     /**
      * @param $index
-     * @param $dimensionKey
+     * @param $rowKey
      * @param $valuesString
-     * @return ImportGaRowProcess
+     * @return ImportRowProcess
      */
-    protected function setImportGaRowProcess($index, $dimensionKey, $valuesString)
+    protected function setImportRowProcess($index, $rowKey, $valuesString)
     {
-        $row = new ImportGaRowProcess();
+        $row = new ImportRowProcess();
         $row->setRowIndex($index);
-        $row->setDimensionKey($dimensionKey);
+        $row->setRowKey($rowKey);
         $row->setRowValues($valuesString);
         return $row;
     }

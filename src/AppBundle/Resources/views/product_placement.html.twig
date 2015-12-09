@@ -1,0 +1,225 @@
+{% extends 'AppBundle::base.html.twig' %}
+
+{% block header %}
+    <table id="navigation">
+        <tr>
+            <td>
+                <a href="#star-products">
+                    <div class="navigation-button button">
+                        Star Products
+                    </div>
+                </a>
+            </td>
+            <td>
+                <a href="#black-horses">
+                    <div class="navigation-button button">
+                        Black Horses
+                    </div>
+                </a>
+            </td>
+            <td>
+                <a href="#end-of-list">
+                    <div class="navigation-button button">
+                        End of List
+                    </div>
+                </a>
+            </td>
+            <td>
+                <a href="#potentials">
+                    <div class="navigation-button button">
+                        Potentials
+                    </div>
+                </a>
+            </td>
+            <td>
+                <a href="#difficult-cases">
+                    <div class="navigation-button button">
+                        Difficult Cases
+                    </div>
+                </a>
+            </td>
+            <td>
+                <a href="#star-duos">
+                    <div class="navigation-button button">
+                        Star Dous
+                    </div>
+                </a>
+            </td>
+        </tr>
+    </table>
+
+    <div id="navigation-place"></div>
+{% endblock %}
+
+{% block container %}
+
+    <div class="last-update">Last update: <span class="value">{{ lastUpdate }}</span></div>
+
+    <div class="container-block">
+        <a name="star-products"></a>
+        <table id="report-star-products" class="report-table">
+            <tr>
+                <td colspan="4">
+                    <h2>
+                        Star Products
+                    </h2>
+                </td>
+                <td class="table-column header">Available</td>
+                <td class="table-column header">Unique Orders</td>
+                <td class="table-column header">Conversion</td>
+                <td class="table-column header">Unique Views <nobr>(ALL TIME)</nobr></td>
+                <td class="table-column header">Unique Views <nobr>(30 days)</nobr></td>
+            </tr>
+            {% if StarProducts %}
+                {% for row in StarProducts %}
+                    {% if loop.index < 6 %}
+                        <tr class="report-star-products-row">
+                    {% else %}
+                        <tr class="report-star-products-row more-display-none">
+                    {% endif %}
+                    <td class="table-column value important">{{ loop.index }}</td>
+                    {% for column in row %}
+                        {%  if loop.first %}
+                            <td class="table-column value"><img src="{{ column }}"></td>
+                        {% elseif loop.index == 6 %}
+                            <td class="table-column value">{{ column }} %</td>
+                        {% elseif (loop.index == 2) or (loop.index == 3) %}
+                            <td class="table-column value left-align">{{ column }}</td>
+                        {% elseif loop.last %}
+                            <td class="table-column value important">{{ column }}</td>
+                        {% else %}
+                            <td class="table-column value">{{ column }}</td>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="9">
+                        <div id="report-star-products-show-more-button" class="more-button button">
+                            SHOW MORE
+                        </div>
+                        <div id="report-star-products-hide-more-button" class="more-button button display-none">
+                            HIDE MORE
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <div class="container-block">
+        <a name="black-horses"></a>
+        <table id="report-black-horses" class="report-table">
+            <tr>
+                <td colspan="4">
+                    <h2>
+                        Black Horses
+                    </h2>
+                </td>
+                <td class="table-column header">Available</td>
+                <td class="table-column header">Unique Orders</td>
+                <td class="table-column header">Conversion</td>
+                <td class="table-column header">Unique Views <nobr>(ALL TIME)</nobr></td>
+                <td class="table-column header">Unique Views <nobr>(30 days)</nobr></td>
+            </tr>
+            {% if BlackHorses %}
+                {% for row in BlackHorses %}
+                    {% if loop.index < 6 %}
+                        <tr class="report-black-horses-row">
+                    {% else %}
+                        <tr class="report-black-horses-row more-display-none">
+                    {% endif %}
+                    <td class="table-column value important">{{ loop.index }}</td>
+                    {% for column in row %}
+                        {%  if loop.first %}
+                            <td class="table-column value"><img src="{{ column }}"></td>
+                        {% elseif loop.index == 6 %}
+                            <td class="table-column value">{{ column }} %</td>
+                        {% elseif (loop.index == 2) or (loop.index == 3) %}
+                            <td class="table-column value left-align">{{ column }}</td>
+                        {% elseif loop.last %}
+                            <td class="table-column value important">{{ column }}</td>
+                        {% else %}
+                            <td class="table-column value">{{ column }}</td>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="9">
+                        <div id="report-black-horses-show-more-button" class="more-button button">
+                            SHOW MORE
+                        </div>
+                        <div id="report-black-horses-hide-more-button" class="more-button button display-none">
+                            HIDE MORE
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <div class="container-block">
+        <a name="end-of-list"></a>
+        <div class="under-developing">
+            <h2>
+                End of List
+            </h2>
+        </div>
+    </div>
+
+    <div class="container-block">
+        <a name="potentials"></a>
+        <div class="under-developing">
+            <h2>
+                Potentials
+            </h2>
+        </div>
+    </div>
+
+    <div class="container-block">
+        <a name="difficult-cases"></a>
+        <div class="under-developing">
+            <h2>
+                Difficult Cases
+            </h2>
+        </div>
+    </div>
+
+    <div class="container-block">
+        <a name="star-duos"></a>
+        <div class="under-developing">
+            <h2>
+                Star Duos
+            </h2>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript" language="javascript">
+    $(document).ready(function() {
+        $('#report-black-horses-show-more-button').click(function() {
+            $('#report-black-horses').find('.more-display-none').css('display', 'table-row');
+            $('#report-black-horses-show-more-button').css('display', 'none');
+            $('#report-black-horses-hide-more-button').css('display', 'block');
+        });
+        $('#report-black-horses-hide-more-button').click(function() {
+            $('#report-black-horses').find('.more-display-none').css('display', 'none');
+            $('#report-black-horses-hide-more-button').css('display', 'none');
+            $('#report-black-horses-show-more-button').css('display', 'block');
+        });
+        $('#report-star-products-show-more-button').click(function() {
+            $('#report-star-products').find('.more-display-none').css('display', 'table-row');
+            $('#report-star-products-show-more-button').css('display', 'none');
+            $('#report-star-products-hide-more-button').css('display', 'block');
+        });
+        $('#report-star-products-hide-more-button').click(function() {
+            $('#report-star-products').find('.more-display-none').css('display', 'none');
+            $('#report-star-products-hide-more-button').css('display', 'none');
+            $('#report-star-products-show-more-button').css('display', 'block');
+        });
+    });
+</script>
+{% endblock %}

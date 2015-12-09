@@ -43,12 +43,14 @@ class OrderProductRequestModel extends RequestModel
                     SELECT
                         op.order_product_id,
                         op.order_id,
-                        op.product_id,
+                        p.product_ring_id,
                         op.quantity,
                         op.total,
                         op.date_added
                     FROM
                         order_product as op
+                        LEFT JOIN product as p
+                        	ON op.product_id = p.product_id
                     WHERE
                         op.order_product_id = " . $key . "
                     LIMIT 0,1
@@ -68,12 +70,14 @@ class OrderProductRequestModel extends RequestModel
                     SELECT
                         op.order_product_id,
                         op.order_id,
-                        op.product_id,
+                        p.product_ring_id,
                         op.quantity,
                         op.total,
                         op.date_added
                     FROM
                         order_product as op
+                        LEFT JOIN product as p
+                        	ON op.product_id = p.product_id
                     WHERE
                         op.order_product_id IN (" . join(', ', $keys) . ")
                     ORDER BY op.order_product_id ASC

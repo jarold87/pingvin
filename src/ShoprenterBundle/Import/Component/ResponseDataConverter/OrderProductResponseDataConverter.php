@@ -16,7 +16,7 @@ class OrderProductResponseDataConverter extends ResponseDataConverter
         $this->setConvertedData(
             array(
                 'orderOuterId' => $data['order_id'],
-                'productOuterId' => $data['product_id'],
+                'productOuterId' => $data['product_ring_id'],
                 'quantity' => $data['quantity'],
                 'total' => $data['total'],
                 'orderDate' => $data['date_added']

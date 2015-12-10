@@ -274,11 +274,11 @@ class OrderProduct extends Shop
     /**
      * Set productId
      *
-     * @param \int $productId
+     * @param integer $productId
      *
      * @return OrderProduct
      */
-    public function setProductId(\int $productId)
+    public function setProductId($productId)
     {
         $this->productId = $productId;
 
@@ -288,7 +288,7 @@ class OrderProduct extends Shop
     /**
      * Get productId
      *
-     * @return \int
+     * @return integer
      */
     public function getProductId()
     {

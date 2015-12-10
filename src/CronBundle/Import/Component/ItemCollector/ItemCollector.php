@@ -20,7 +20,7 @@ class ItemCollector
     protected $flushItemPackageNumber = 1000;
 
     /** @var int 10000*/
-    protected $itemProcessLimit = 1000;
+    protected $itemProcessLimit = 10000;
 
     /** @var string PT1H */
     protected $deadAfterTime = 'PT1H';

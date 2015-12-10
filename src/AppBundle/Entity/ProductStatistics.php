@@ -38,6 +38,21 @@ class ProductStatistics
     protected $uniqueViews = 0;
 
     /**
+     * @ORM\Column(name="orders", type="integer", length=11)
+     */
+    protected $orders = 0;
+
+    /**
+     * @ORM\Column(name="unique_orders", type="integer", length=11)
+     */
+    protected $uniqueOrders = 0;
+
+    /**
+     * @ORM\Column(name="conversion", type="float", scale=2)
+     */
+    protected $conversion = 0;
+
+    /**
      * @ORM\Column(name="update_date", type="datetime")
      */
     protected $updateDate = null;
@@ -195,5 +210,77 @@ class ProductStatistics
     public function getProduct()
     {
         return $this->product;
+    }
+
+    /**
+     * Set orders
+     *
+     * @param integer $orders
+     *
+     * @return ProductStatistics
+     */
+    public function setOrders($orders)
+    {
+        $this->orders = $orders;
+
+        return $this;
+    }
+
+    /**
+     * Get orders
+     *
+     * @return integer
+     */
+    public function getOrders()
+    {
+        return $this->orders;
+    }
+
+    /**
+     * Set uniqueOrders
+     *
+     * @param integer $uniqueOrders
+     *
+     * @return ProductStatistics
+     */
+    public function setUniqueOrders($uniqueOrders)
+    {
+        $this->uniqueOrders = $uniqueOrders;
+
+        return $this;
+    }
+
+    /**
+     * Get uniqueOrders
+     *
+     * @return integer
+     */
+    public function getUniqueOrders()
+    {
+        return $this->uniqueOrders;
+    }
+
+    /**
+     * Set conversion
+     *
+     * @param float $conversion
+     *
+     * @return ProductStatistics
+     */
+    public function setConversion($conversion)
+    {
+        $this->conversion = $conversion;
+
+        return $this;
+    }
+
+    /**
+     * Get conversion
+     *
+     * @return float
+     */
+    public function getConversion()
+    {
+        return $this->conversion;
     }
 }

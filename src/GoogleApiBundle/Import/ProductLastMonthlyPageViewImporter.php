@@ -10,7 +10,6 @@ class ProductLastMonthlyPageViewImporter extends ProductPageViewImporter impleme
     /** @var string */
     protected $timeKey = 'lastMonthly';
 
-
     /** @var PageViewRequestModel */
     protected $requestModel;
 

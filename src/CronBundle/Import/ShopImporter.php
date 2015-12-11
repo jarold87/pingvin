@@ -6,8 +6,17 @@ class ShopImporter extends Importer
 {
     public function init()
     {
+        $this->initItemProcessCollection();
+        $this->initClientAdapter();
+        $this->initRequestModel();
+        $this->initResponseDataConverter();
         $this->initAllowanceValidator();
-        parent::init();
+        $this->initEntityObjectSetter();
+        $this->initItemListCollector();
+        $this->initItemCollector();
+        if ($this->clientAdapter->getError()) {
+            $this->addError($this->clientAdapter->getError());
+        }
     }
 
     public function import()
@@ -52,10 +61,20 @@ class ShopImporter extends Importer
         $this->clientAdapter->init();
     }
 
+    protected function initItemListCollector()
+    {
+        parent::initItemListCollector();
+        $this->itemListCollector->setRequestModel($this->requestModel);
+        $this->itemListCollector->setClient($this->clientAdapter);
+    }
+
     protected function initItemCollector()
     {
         parent::initItemCollector();
+        $this->itemCollector->setRequestModel($this->requestModel);
+        $this->itemCollector->setResponseDataConverter($this->responseDataConverter);
         $this->itemCollector->setAllowanceValidator($this->allowanceValidator);
+        $this->itemCollector->setClient($this->clientAdapter);
     }
 
     protected function collectDeadItem()

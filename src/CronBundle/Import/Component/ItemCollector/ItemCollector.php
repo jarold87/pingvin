@@ -17,10 +17,10 @@ use AppBundle\Entity\ImportItemProcess;
 class ItemCollector
 {
     /** @var int 1000 */
-    protected $flushItemPackageNumber = 1000;
+    protected $flushItemPackageNumber = 2000;
 
     /** @var int 10000*/
-    protected $itemProcessLimit = 10000;
+    protected $itemProcessLimit = 30000;
 
     /** @var string PT1H */
     protected $deadAfterTime = 'PT1H';

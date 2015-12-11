@@ -65,7 +65,7 @@ abstract class ImportList
             throw new \Exception('Missing import!');
         }
         $importName = $this->imports[$this->importIndex][0];
-        $bundleName = $this->imports[$this->importIndex][2];
+        $bundleName = $this->imports[$this->importIndex][1];
         $importerClassName = $bundleName . '\\' . $this->importerClassNameSpace . '\\' . $importName . 'Importer';
         $importerComponentFactoryClassName = $bundleName . '\\' . $this->importerComponentFactoryNameSpace . '\\' . $importName . 'ComponentFactory';
         try {

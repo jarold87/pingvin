@@ -165,16 +165,7 @@ abstract class Importer
 
     public function init()
     {
-        $this->initItemProcessCollection();
-        $this->initClientAdapter();
-        $this->initRequestModel();
-        $this->initResponseDataConverter();
-        $this->initEntityObjectSetter();
-        $this->initItemListCollector();
-        $this->initItemCollector();
-        if ($this->clientAdapter->getError()) {
-            $this->addError($this->clientAdapter->getError());
-        }
+        throw new \Exception("Not a valid importer init!");
     }
 
     public function import()
@@ -186,7 +177,6 @@ abstract class Importer
     {
         $this->itemProcessCollection = new ArrayCollection();
     }
-
 
     protected function initClientAdapter()
     {
@@ -218,9 +208,7 @@ abstract class Importer
     protected function initItemListCollector()
     {
         $this->itemListCollector = $this->componentFactory->getItemListCollector();
-        $this->itemListCollector->setRequestModel($this->requestModel);
         $this->itemListCollector->setEntityManager($this->entityManager);
-        $this->itemListCollector->setClient($this->clientAdapter);
         $this->itemListCollector->setImportLog($this->importLog);
         $this->itemListCollector->setRuntimeWatcher($this->runtimeWatcher);
         $this->itemListCollector->setEntityName($this->entityName);
@@ -231,17 +219,13 @@ abstract class Importer
     protected function initItemCollector()
     {
         $this->itemCollector = $this->componentFactory->getItemCollector();
-        $this->itemCollector->setRequestModel($this->requestModel);
-        $this->itemCollector->setResponseDataConverter($this->responseDataConverter);
-        $this->itemCollector->setEntityObjectSetter($this->entityObjectSetter);
         $this->itemCollector->setEntityManager($this->entityManager);
-        $this->itemCollector->setClient($this->clientAdapter);
         $this->itemCollector->setImportLog($this->importLog);
         $this->itemCollector->setRuntimeWatcher($this->runtimeWatcher);
         $this->itemCollector->setEntityName($this->entityName);
         $this->itemCollector->setImportName($this->importName);
         $this->itemCollector->setOuterIdKey($this->outerIdKey);
-    }
+        $this->itemCollector->setEntityObjectSetter($this->entityObjectSetter);}
 
     protected function collectItems()
     {

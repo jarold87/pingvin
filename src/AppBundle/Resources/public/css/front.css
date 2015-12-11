@@ -43,6 +43,12 @@ a:visited
     text-decoration: none;
 }
 
+p
+{
+    margin: 0;
+    padding: 10px 0;
+}
+
 .button
 {
     padding: 10px 20px;
@@ -114,13 +120,13 @@ a:visited
     text-align: left;
 }
 
-.last-update
+.info
 {
     padding: 10px 0;
     text-align: center;
 }
 
-.last-update .value
+.info .value
 {
     font-weight: bold;
 }

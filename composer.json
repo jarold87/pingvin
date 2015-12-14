@@ -20,7 +20,8 @@
         "incenteev/composer-parameter-handler": "~2.0",
         "phpoffice/phpexcel": "1.8.1",
         "guzzlehttp/guzzle": "5.2.*",
-        "google/apiclient": "^2.0.0@RC"
+        "google/apiclient": "^2.0.0@RC",
+        "symfony/var-dumper": "3.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

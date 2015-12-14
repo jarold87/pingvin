@@ -3,7 +3,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Report\ProductReport;
 
-class BlackHorses extends ProductReport
+class Potentials extends ProductReport
 {
     /**
      * @return array
@@ -21,11 +21,7 @@ class BlackHorses extends ProductReport
 
     protected function loadList()
     {
-        $minimumUniqueViews = $this->avgUniqueViews * 3;
-        $maximumConversion = 100;
-        if ($this->avgConversion > 0) {
-            $maximumConversion = $this->avgConversion;
-        }
+        $maximumUniqueViews = $this->avgUniqueViews * 3;
 
         $query = $this->entityManager->createQueryBuilder();
         $query->select(array('p', 'ps'))
@@ -34,13 +30,12 @@ class BlackHorses extends ProductReport
             ->where('ps.timeKey = :timeKey')
             ->andWhere('p.status = 1')
             ->andWhere('p.isDead = 0')
-            ->andWhere('ps.uniqueViews > :minimumUniqueViews')
-            ->andWhere('ps.conversion <= :maximumConversion')
+            ->andWhere('ps.uniqueViews > 0')
+            ->andWhere('ps.conversion > 0')
+            ->andWhere('ps.isCheat = 0')
             ->setParameter('timeKey', $this->timeKey)
-            ->setParameter('minimumUniqueViews', $minimumUniqueViews)
-            ->setParameter('maximumConversion', $maximumConversion)
+            ->addOrderBy('ps.conversion', 'DESC')
             ->addOrderBy('ps.uniqueViews', 'DESC')
-            ->addOrderBy('ps.conversion', 'ASC')
             ->setMaxResults($this->limit);
         $list = $query->getQuery()->getResult();
         if (!$list) {
@@ -58,8 +53,10 @@ class BlackHorses extends ProductReport
             ->leftJoin('p.productStatistics', 'ps')
             ->add('where', $where)
             ->andWhere('ps.timeKey = :timeKey')
+            ->andWhere('ps.uniqueViews <= :maximumUniqueViews')
             ->setParameter('timeKey', $this->timeKey)
-            ->addOrderBy('ps.conversion', 'ASC')
+            ->setParameter('maximumUniqueViews', $maximumUniqueViews)
+            ->addOrderBy('ps.conversion', 'DESC')
             ->addOrderBy('ps.uniqueViews', 'DESC');
         $this->list = $query->getQuery()->getResult();
     }

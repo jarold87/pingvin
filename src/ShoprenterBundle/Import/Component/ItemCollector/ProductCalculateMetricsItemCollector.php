@@ -12,6 +12,9 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
     /** @var string */
     protected $processEntityName = 'ImportItemProcess';
 
+    /** @var array */
+    protected $timeKeys = array('all', 'actualMonthly', 'lastMonthly');
+
     /** @var string */
     protected $sourceEntityName;
 
@@ -43,30 +46,45 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
             $productId = $this->getProductId($product);
             $statisticsCollection = $this->getProductStatisticsCollection($product);
             $statisticsArray = $statisticsCollection->toArray();
-            if ($statisticsArray) {
-                foreach ($statisticsArray as $statistics) {
-                    $timeKey = $this->getTimeKey($statistics);
-                    $views = $this->getViews($statistics);
-                    $uniqueViews = $this->getUniqueViews($statistics);
-                    $orders = $this->getOrderCount($product, $timeKey);
-                    $uniqueOrders = $this->getUniqueOrderCount($product, $timeKey);
-                    if ($uniqueOrders > $uniqueViews) {
-                        $uniqueViews = $uniqueOrders;
-                    }
-                    if ($orders > $views) {
-                        $views = $orders;
-                    }
-                    $conversion = $this->getConversion($uniqueOrders, $uniqueViews);
-                    $statisticsArray = array(
-                        'object' => $statistics,
-                        'views' => $views,
-                        'uniqueViews' => $uniqueViews,
-                        'orders' => $orders,
-                        'uniqueOrders' => $uniqueOrders,
-                        'conversion' => $conversion,
-                    );
-                    $collectData[$productId][$timeKey] = $statisticsArray;
+            if (!$statisticsArray) {
+                foreach ($this->timeKeys as $timeKey) {
+                    $statisticsArray[] = $this->newProductStatistics($product, $timeKey);
                 }
+            }
+            $existTimeKey = array();
+            foreach ($statisticsArray as $statistics) {
+                $existTimeKey[] = $this->getTimeKey($statistics);
+            }
+            foreach ($this->timeKeys as $timeKey) {
+                if (!in_array($timeKey, $existTimeKey)) {
+                    $statisticsArray[] = $this->newProductStatistics($product, $timeKey);
+                }
+            }
+            foreach ($statisticsArray as $statistics) {
+                $isCheat = 0;
+                $timeKey = $this->getTimeKey($statistics);
+                $views = $this->getViews($statistics);
+                $uniqueViews = $this->getUniqueViews($statistics);
+                $orders = $this->getOrderCount($product, $timeKey);
+                $uniqueOrders = $this->getUniqueOrderCount($product, $timeKey);
+                if ($uniqueOrders > $uniqueViews) {
+                    $uniqueViews = $uniqueOrders;
+                    $isCheat = 1;
+                }
+                if ($orders > $views) {
+                    $views = $orders;
+                    $isCheat = 1;
+                }
+                $conversion = $this->getConversion($uniqueOrders, $uniqueViews);
+                $collectData[$productId][$timeKey] = array(
+                    'object' => $statistics,
+                    'views' => $views,
+                    'uniqueViews' => $uniqueViews,
+                    'orders' => $orders,
+                    'uniqueOrders' => $uniqueOrders,
+                    'conversion' => $conversion,
+                    'isCheat' => $isCheat,
+                );
             }
             if ($collectData) {
                 $productIds = array_keys($collectData);
@@ -80,6 +98,14 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
             $this->setProcessed($item, $key);
             $this->manageFlush();
         }
+    }
+
+    protected function newProductStatistics(Product $product, $timeKey)
+    {
+        $object = new ProductStatistics();
+        $object->setProduct($product);
+        $object->setTimeKey($timeKey);
+        return $object;
     }
 
     /**

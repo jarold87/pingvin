@@ -21,6 +21,12 @@ class StarProducts extends ProductReport
 
     protected function loadList()
     {
+        $minimumUniqueViews = $this->avgUniqueViews * 3;
+        $minimumConversion = 0;
+        if ($this->avgConversion > 0) {
+            $minimumConversion = $this->avgConversion * 3;
+        }
+
         $query = $this->entityManager->createQueryBuilder();
         $query->select(array('p', 'ps'))
             ->from('AppBundle:Product', 'p')
@@ -28,33 +34,34 @@ class StarProducts extends ProductReport
             ->where('ps.timeKey = :timeKey')
             ->andWhere('p.status = 1')
             ->andWhere('p.isDead = 0')
+            ->andWhere('ps.isCheat = 0')
             ->andWhere('ps.uniqueViews > :minimumUniqueViews')
             ->andWhere('ps.conversion > :minimumConversion')
             ->setParameter('timeKey', $this->timeKey)
-            ->setParameter('minimumUniqueViews', $this->minimumUniqueViews)
-            ->setParameter('minimumConversion', $this->minimumConversion)
+            ->setParameter('minimumUniqueViews', $minimumUniqueViews)
+            ->setParameter('minimumConversion', $minimumConversion)
             ->addOrderBy('ps.uniqueViews', 'DESC')
             ->addOrderBy('ps.conversion', 'DESC')
             ->setMaxResults($this->limit);
-        $this->list = $query->getQuery()->getResult();
-    }
-
-    protected function loadStatistics()
-    {
-        foreach ($this->list as $product) {
-            $statisticsEntities = $this->getProductStatistics($product);
-            $this->loadOneProductStatistics($statisticsEntities, $product);
-        }
-    }
-
-    protected function setRowsToReport()
-    {
-        if (!$this->collectedData) {
+        $list = $query->getQuery()->getResult();
+        if (!$list) {
             return;
         }
-        arsort($this->keysByConversion);
-        foreach ($this->keysByConversion as $key => $conversion) {
-            $this->rowsToReport[] = $this->collectedData[$key];
+        $ids = array();
+        foreach ($list as $item) {
+            $ids[] = $item->getProductId();
         }
+
+        $query = $this->entityManager->createQueryBuilder();
+        $where = $query->expr()->in('p.productId', $ids);
+        $query->select(array('p', 'ps'))
+            ->from('AppBundle:Product', 'p')
+            ->leftJoin('p.productStatistics', 'ps')
+            ->add('where', $where)
+            ->andWhere('ps.timeKey = :timeKey')
+            ->setParameter('timeKey', $this->timeKey)
+            ->addOrderBy('ps.conversion', 'DESC')
+            ->addOrderBy('ps.uniqueViews', 'DESC');
+        $this->list = $query->getQuery()->getResult();
     }
 }

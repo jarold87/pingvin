@@ -3,7 +3,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Report\ProductReport;
 
-class BlackHorses extends ProductReport
+class DifficultCases extends ProductReport
 {
     /**
      * @return array
@@ -21,12 +21,6 @@ class BlackHorses extends ProductReport
 
     protected function loadList()
     {
-        $minimumUniqueViews = $this->avgUniqueViews * 3;
-        $maximumConversion = 100;
-        if ($this->avgConversion > 0) {
-            $maximumConversion = $this->avgConversion;
-        }
-
         $query = $this->entityManager->createQueryBuilder();
         $query->select(array('p', 'ps'))
             ->from('AppBundle:Product', 'p')
@@ -34,12 +28,9 @@ class BlackHorses extends ProductReport
             ->where('ps.timeKey = :timeKey')
             ->andWhere('p.status = 1')
             ->andWhere('p.isDead = 0')
-            ->andWhere('ps.uniqueViews > :minimumUniqueViews')
-            ->andWhere('ps.conversion <= :maximumConversion')
+            ->andWhere('ps.uniqueViews > 0')
             ->setParameter('timeKey', $this->timeKey)
-            ->setParameter('minimumUniqueViews', $minimumUniqueViews)
-            ->setParameter('maximumConversion', $maximumConversion)
-            ->addOrderBy('ps.uniqueViews', 'DESC')
+            ->addOrderBy('ps.uniqueViews', 'ASC')
             ->addOrderBy('ps.conversion', 'ASC')
             ->setMaxResults($this->limit);
         $list = $query->getQuery()->getResult();
@@ -60,7 +51,8 @@ class BlackHorses extends ProductReport
             ->andWhere('ps.timeKey = :timeKey')
             ->setParameter('timeKey', $this->timeKey)
             ->addOrderBy('ps.conversion', 'ASC')
-            ->addOrderBy('ps.uniqueViews', 'DESC');
+            ->addOrderBy('ps.uniqueViews', 'ASC')
+            ->addOrderBy('p.availableDate', 'ASC');
         $this->list = $query->getQuery()->getResult();
     }
 }

@@ -10,10 +10,10 @@ class ProductReport extends Report
     protected $limit = 100;
 
     /** @var int */
-    protected $minimumUniqueViews;
+    protected $avgUniqueViews;
 
     /** @var int */
-    protected $minimumConversion;
+    protected $avgConversion;
 
     /** @var array */
     protected $keysByConversion = array();
@@ -27,17 +27,34 @@ class ProductReport extends Report
     /**
      * @param $value
      */
-    public function setMinimumUniqueViews($value)
+    public function setAvgUniqueViews($value)
     {
-        $this->minimumUniqueViews = $value;
+        $this->avgUniqueViews = $value;
     }
 
     /**
      * @param $value
      */
-    public function setMinimumConversion($value)
+    public function setAvgConversion($value)
     {
-        $this->minimumConversion = $value;
+        $this->avgConversion = $value;
+    }
+
+
+    protected function loadStatistics()
+    {
+        foreach ($this->list as $product) {
+            $statisticsEntities = $this->getProductStatistics($product);
+            $this->loadOneProductStatistics($statisticsEntities, $product);
+        }
+    }
+
+    protected function setRowsToReport()
+    {
+        if (!$this->collectedData) {
+            return;
+        }
+        $this->rowsToReport = $this->collectedData;
     }
 
     /**
@@ -69,6 +86,7 @@ class ProductReport extends Report
         $sku = $product->getSku();
         $availableDateTime = $product->getAvailableDate();
         $availableDate = $availableDateTime->format('d.m.Y.');
+        $isCheat = $this->getIsCheat($actualStatisticsData);
 
         $this->collectedData[] = array(
             'picture' => $picture,
@@ -79,6 +97,7 @@ class ProductReport extends Report
             'conversion' => $conversion,
             'allTimeViews'=> $allViews,
             'views' => $views,
+            'isCheat' => $isCheat,
         );
         $this->keysByConversion[] = $conversion;
         $this->keysByView[] = $views;
@@ -136,5 +155,14 @@ class ProductReport extends Report
     protected function getConversion(ProductStatistics $statistics)
     {
         return $statistics->getConversion();
+    }
+
+    /**
+     * @param ProductStatistics $statistics
+     * @return int
+     */
+    protected function getIsCheat(ProductStatistics $statistics)
+    {
+        return $statistics->getIsCheat();
     }
 }

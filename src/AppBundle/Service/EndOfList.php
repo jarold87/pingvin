@@ -3,7 +3,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Report\ProductReport;
 
-class BlackHorses extends ProductReport
+class EndOfList extends ProductReport
 {
     /**
      * @return array
@@ -21,12 +21,11 @@ class BlackHorses extends ProductReport
 
     protected function loadList()
     {
-        $minimumUniqueViews = $this->avgUniqueViews * 3;
+        $maximumUniqueViews = $this->avgUniqueViews;
         $maximumConversion = 100;
         if ($this->avgConversion > 0) {
             $maximumConversion = $this->avgConversion;
         }
-
         $query = $this->entityManager->createQueryBuilder();
         $query->select(array('p', 'ps'))
             ->from('AppBundle:Product', 'p')
@@ -34,33 +33,16 @@ class BlackHorses extends ProductReport
             ->where('ps.timeKey = :timeKey')
             ->andWhere('p.status = 1')
             ->andWhere('p.isDead = 0')
-            ->andWhere('ps.uniqueViews > :minimumUniqueViews')
-            ->andWhere('ps.conversion <= :maximumConversion')
+            ->andWhere('ps.uniqueViews < :maximumUniqueViews')
+            ->andWhere('ps.conversion < :maximumConversion')
             ->setParameter('timeKey', $this->timeKey)
-            ->setParameter('minimumUniqueViews', $minimumUniqueViews)
+            ->setParameter('maximumUniqueViews', $maximumUniqueViews)
             ->setParameter('maximumConversion', $maximumConversion)
-            ->addOrderBy('ps.uniqueViews', 'DESC')
             ->addOrderBy('ps.conversion', 'ASC')
+            ->addOrderBy('ps.uniqueViews', 'ASC')
+            ->addOrderBy('ps.views', 'ASC')
+            ->addOrderBy('p.availableDate', 'ASC')
             ->setMaxResults($this->limit);
-        $list = $query->getQuery()->getResult();
-        if (!$list) {
-            return;
-        }
-        $ids = array();
-        foreach ($list as $item) {
-            $ids[] = $item->getProductId();
-        }
-
-        $query = $this->entityManager->createQueryBuilder();
-        $where = $query->expr()->in('p.productId', $ids);
-        $query->select(array('p', 'ps'))
-            ->from('AppBundle:Product', 'p')
-            ->leftJoin('p.productStatistics', 'ps')
-            ->add('where', $where)
-            ->andWhere('ps.timeKey = :timeKey')
-            ->setParameter('timeKey', $this->timeKey)
-            ->addOrderBy('ps.conversion', 'ASC')
-            ->addOrderBy('ps.uniqueViews', 'DESC');
         $this->list = $query->getQuery()->getResult();
     }
 }

@@ -35,10 +35,16 @@ class ProductPlacement extends Controller
     protected $BlackHorses;
 
     /** @var int */
-    protected $minimumUniqueViews;
+    protected $avgUniqueViews;
 
     /** @var int */
-    protected $minimumConversion;
+    protected $avgConversion;
+
+    /** @var int */
+    protected $cheatCount;
+
+    /** @var int */
+    protected $productCount;
 
     /**
      * @Route("/product_placement", name="Product Placement")
@@ -54,12 +60,23 @@ class ProductPlacement extends Controller
 
         $this->loadGlobalData();
 
+        $accuracy = 100;
+        if ($this->cheatCount) {
+            $accuracy = round(100 - ($this->cheatCount / $this->productCount * 100));
+        }
+
         return $this->render('AppBundle::product_placement.html.twig', array(
             'StarProducts' => $this->getReportBlockRows('StarProducts'),
             'BlackHorses' => $this->getReportBlockRows('BlackHorses'),
+            'EndOfList' => $this->getReportBlockRows('EndOfList'),
+            'Potentials' => $this->getReportBlockRows('Potentials'),
+            //'DifficultCases' => $this->getReportBlockRows('DifficultCases'),
             'lastUpdate' => $this->getLastUpdateTime(),
-            'minimumUniqueViews' => $this->minimumUniqueViews,
-            'minimumConversion' => $this->minimumConversion,
+            'avgUniqueViews' => $this->avgUniqueViews,
+            'avgConversion' => $this->avgConversion,
+            'cheatCount' => $this->cheatCount,
+            'productCount' => $this->productCount,
+            'accuracy' => $accuracy
         ));
     }
 
@@ -70,21 +87,44 @@ class ProductPlacement extends Controller
         $query->select('avg(ps.uniqueViews)')
             ->from('AppBundle:ProductStatistics', 'ps')
             ->where('ps.timeKey = :timeKey')
+            ->andWhere('ps.isCheat = 0')
             ->setParameter('timeKey', $this->timeKey)
             ->getQuery();
         $avgScore = $query->getQuery()->getResult();
         $value = round($avgScore[0][1], 0);
-        $this->minimumUniqueViews = $value;
+        $this->avgUniqueViews = $value;
 
         $query = $this->entityManager->createQueryBuilder();
         $query->select('avg(ps.conversion)')
             ->from('AppBundle:ProductStatistics', 'ps')
             ->where('ps.timeKey = :timeKey')
+            ->andWhere('ps.isCheat = 0')
             ->setParameter('timeKey', $this->timeKey)
             ->getQuery();
         $avgScore = $query->getQuery()->getResult();
         $value = round($avgScore[0][1], 2);
-        $this->minimumConversion = $value;
+        $this->avgConversion = $value;
+
+        $query = $this->entityManager->createQueryBuilder();
+        $query->select('count(ps.productStatisticsId)')
+            ->from('AppBundle:ProductStatistics', 'ps')
+            ->where('ps.timeKey = :timeKey')
+            ->andWhere('ps.isCheat = 1')
+            ->setParameter('timeKey', $this->timeKey)
+            ->getQuery();
+        $countScore = $query->getQuery()->getResult();
+        $value = round($countScore[0][1], 2);
+        $this->cheatCount = $value;
+
+        $query = $this->entityManager->createQueryBuilder();
+        $query->select('count(p.productId)')
+            ->from('AppBundle:Product', 'p')
+            ->where('p.status = 1')
+            ->andWhere('p.isDead = 0')
+            ->getQuery();
+        $countScore = $query->getQuery()->getResult();
+        $value = round($countScore[0][1], 2);
+        $this->productCount = $value;
     }
 
     protected function getReportBlockRows($reportName)
@@ -92,8 +132,8 @@ class ProductPlacement extends Controller
         $this->$reportName = $this->get('Report_' . $reportName);
         $this->$reportName->setSettingService($this->settingService);
         $this->$reportName->setEntityManager($this->entityManager);
-        $this->$reportName->setMinimumUniqueViews($this->minimumUniqueViews);
-        $this->$reportName->setMinimumConversion($this->minimumConversion);
+        $this->$reportName->setAvgUniqueViews($this->avgUniqueViews);
+        $this->$reportName->setAvgConversion($this->avgConversion);
         $this->$reportName->setTimeKey($this->timeKey);
         return $this->$reportName->getReport();
     }

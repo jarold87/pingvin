@@ -53,6 +53,11 @@ class ProductStatistics
     protected $conversion = 0;
 
     /**
+     * @ORM\Column(name="is_cheat", type="integer", length=11)
+     */
+    protected $isCheat = 0;
+
+    /**
      * @ORM\Column(name="update_date", type="datetime")
      */
     protected $updateDate = null;
@@ -282,5 +287,29 @@ class ProductStatistics
     public function getConversion()
     {
         return $this->conversion;
+    }
+
+    /**
+     * Set isCheat
+     *
+     * @param integer $isCheat
+     *
+     * @return ProductStatistics
+     */
+    public function setIsCheat($isCheat)
+    {
+        $this->isCheat = $isCheat;
+
+        return $this;
+    }
+
+    /**
+     * Get isCheat
+     *
+     * @return integer
+     */
+    public function getIsCheat()
+    {
+        return $this->isCheat;
     }
 }

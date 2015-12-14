@@ -40,7 +40,7 @@ class ItemListCollectorByLoadFromUserDatabase extends ItemListCollector
     protected function loadSourceEntities()
     {
         $list = array();
-        $products = $this->entityManager->getRepository('AppBundle:Product')->findAll();
+        $products = $this->entityManager->getRepository('AppBundle:' . $this->sourceEntityName)->findAll();
         if ($products) {
             foreach ($products as $product) {
                 $get = 'get' . $this->outerIdKey;

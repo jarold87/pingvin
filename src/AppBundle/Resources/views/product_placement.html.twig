@@ -55,8 +55,9 @@
 
     <div class="info">
         <p>Last update: <span class="value">{{ lastUpdate }}</span></p>
-        <p>Minimum unique views: <span class="value">{{ minimumUniqueViews }}</span></p>
-        <p>Minimum conversion: <span class="value">{{ minimumConversion }} %</span></p>
+        <p>Avg unique views: <span class="value">{{ avgUniqueViews }}</span></p>
+        <p>Avg conversion: <span class="value">{{ avgConversion }} %</span></p>
+        <p>Relative accuracy: <span class="value">{{ accuracy }} %</span></p>
     </div>
 
     <div class="container-block">
@@ -73,6 +74,7 @@
                 <td class="table-column header">Conversion</td>
                 <td class="table-column header">Unique Views <nobr>(ALL TIME)</nobr></td>
                 <td class="table-column header">Unique Views <nobr>(30 days)</nobr></td>
+                <td></td>
             </tr>
             {% if StarProducts %}
                 {% for row in StarProducts %}
@@ -89,8 +91,14 @@
                             <td class="table-column value">{{ column }} %</td>
                         {% elseif (loop.index == 2) or (loop.index == 3) %}
                             <td class="table-column value left-align">{{ column }}</td>
-                        {% elseif loop.last %}
+                        {% elseif loop.index == 8 %}
                             <td class="table-column value important">{{ column }}</td>
+                        {% elseif loop.last %}
+                            {%  if column == 1 %}
+                                <td class="table-column value"><nobr>( ? )</nobr></td>
+                            {% else %}
+                                <td class="table-column value"></td>
+                            {% endif %}
                         {% else %}
                             <td class="table-column value">{{ column }}</td>
                         {% endif %}
@@ -98,7 +106,7 @@
                     </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan="9">
+                    <td colspan="10">
                         <div id="report-star-products-show-more-button" class="more-button button">
                             SHOW MORE
                         </div>
@@ -111,6 +119,10 @@
                 </tr>
             {% endif %}
         </table>
+    </div>
+    <div class="info">
+        <p>- Unique Views > Avg Unique Views * 3</p>
+        <p>- Conversion > Avg Conversion * 3</p>
     </div>
 
     <div class="container-block">
@@ -127,6 +139,7 @@
                 <td class="table-column header">Conversion</td>
                 <td class="table-column header">Unique Views <nobr>(ALL TIME)</nobr></td>
                 <td class="table-column header">Unique Views <nobr>(30 days)</nobr></td>
+                <td></td>
             </tr>
             {% if BlackHorses %}
                 {% for row in BlackHorses %}
@@ -143,8 +156,14 @@
                             <td class="table-column value">{{ column }} %</td>
                         {% elseif (loop.index == 2) or (loop.index == 3) %}
                             <td class="table-column value left-align">{{ column }}</td>
-                        {% elseif loop.last %}
+                        {% elseif loop.index == 8 %}
                             <td class="table-column value important">{{ column }}</td>
+                        {% elseif loop.last %}
+                            {%  if column == 1 %}
+                                <td class="table-column value"><nobr>( ? )</nobr></td>
+                            {% else %}
+                                <td class="table-column value"></td>
+                            {% endif %}
                         {% else %}
                             <td class="table-column value">{{ column }}</td>
                         {% endif %}
@@ -152,7 +171,7 @@
                     </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan="9">
+                    <td colspan="10">
                         <div id="report-black-horses-show-more-button" class="more-button button">
                             SHOW MORE
                         </div>
@@ -166,27 +185,143 @@
             {% endif %}
         </table>
     </div>
+    <div class="info">
+        <p>- Unique Views > Avg Unique Views * 3</p>
+        <p>- Conversion < Avg Conversion</p>
+    </div>
 
     <div class="container-block">
         <a name="end-of-list"></a>
-        <div class="under-developing">
-            <h2>
-                End of List
-            </h2>
-        </div>
+        <table id="report-end-of-list" class="report-table">
+            <tr>
+                <td colspan="4">
+                    <h2>
+                        End of List
+                    </h2>
+                </td>
+                <td class="table-column header">Available</td>
+                <td class="table-column header">Unique Orders</td>
+                <td class="table-column header">Conversion</td>
+                <td class="table-column header">Unique Views <nobr>(ALL TIME)</nobr></td>
+                <td class="table-column header">Unique Views <nobr>(30 days)</nobr></td>
+                <td></td>
+            </tr>
+            {% if EndOfList %}
+                {% for row in EndOfList %}
+                    {% if loop.index < 6 %}
+                        <tr class="report-end-of-list-row">
+                    {% else %}
+                        <tr class="report-end-of-list-row more-display-none">
+                    {% endif %}
+                    <td class="table-column value important">{{ loop.index }}</td>
+                    {% for column in row %}
+                        {%  if loop.first %}
+                            <td class="table-column value"><img src="{{ column }}"></td>
+                        {% elseif loop.index == 6 %}
+                            <td class="table-column value">{{ column }} %</td>
+                        {% elseif (loop.index == 2) or (loop.index == 3) %}
+                            <td class="table-column value left-align">{{ column }}</td>
+                        {% elseif loop.index == 8 %}
+                            <td class="table-column value important">{{ column }}</td>
+                        {% elseif loop.last %}
+                            {%  if column == 1 %}
+                                <td class="table-column value"><nobr>( ? )</nobr></td>
+                            {% else %}
+                                <td class="table-column value"></td>
+                            {% endif %}
+                        {% else %}
+                            <td class="table-column value">{{ column }}</td>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="10">
+                        <div id="report-end-of-list-show-more-button" class="more-button button">
+                            SHOW MORE
+                        </div>
+                        <a href="#end-of-list">
+                            <div id="report-end-of-list-hide-more-button" class="more-button button display-none">
+                                HIDE MORE
+                            </div>
+                        </a>
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+    <div class="info">
+        <p>- Unique Views < Avg Unique Views</p>
+        <p>- Conversion < Avg Conversion</p>
     </div>
 
     <div class="container-block">
         <a name="potentials"></a>
-        <div class="under-developing">
-            <h2>
-                Potentials
-            </h2>
-        </div>
+        <table id="report-potentials" class="report-table">
+            <tr>
+                <td colspan="4">
+                    <h2>
+                        Potentials
+                    </h2>
+                </td>
+                <td class="table-column header">Available</td>
+                <td class="table-column header">Unique Orders</td>
+                <td class="table-column header">Conversion</td>
+                <td class="table-column header">Unique Views <nobr>(ALL TIME)</nobr></td>
+                <td class="table-column header">Unique Views <nobr>(30 days)</nobr></td>
+                <td></td>
+            </tr>
+            {% if Potentials %}
+                {% for row in Potentials %}
+                    {% if loop.index < 6 %}
+                        <tr class="report-potentials-row">
+                    {% else %}
+                        <tr class="report-potentials-row more-display-none">
+                    {% endif %}
+                    <td class="table-column value important">{{ loop.index }}</td>
+                    {% for column in row %}
+                        {%  if loop.first %}
+                            <td class="table-column value"><img src="{{ column }}"></td>
+                        {% elseif loop.index == 6 %}
+                            <td class="table-column value">{{ column }} %</td>
+                        {% elseif (loop.index == 2) or (loop.index == 3) %}
+                            <td class="table-column value left-align">{{ column }}</td>
+                        {% elseif loop.index == 8 %}
+                            <td class="table-column value important">{{ column }}</td>
+                        {% elseif loop.last %}
+                            {%  if column == 1 %}
+                                <td class="table-column value"><nobr>( ? )</nobr></td>
+                            {% else %}
+                                <td class="table-column value"></td>
+                            {% endif %}
+                        {% else %}
+                            <td class="table-column value">{{ column }}</td>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="10">
+                        <div id="report-potentials-show-more-button" class="more-button button">
+                            SHOW MORE
+                        </div>
+                        <a href="#potentials">
+                            <div id="report-potentials-hide-more-button" class="more-button button display-none">
+                                HIDE MORE
+                            </div>
+                        </a>
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+    <div class="info">
+        <p>- Unique Views > 0</p>
+        <p>- Conversion > 0</p>
     </div>
 
     <div class="container-block">
-        <a name="difficult-cases"></a>
+        <a name="star-duos"></a>
         <div class="under-developing">
             <h2>
                 Difficult Cases
@@ -208,6 +343,7 @@
 {% block javascripts %}
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
+
         $('#report-black-horses-show-more-button').click(function() {
             $('#report-black-horses').find('.more-display-none').css('display', 'table-row');
             $('#report-black-horses-show-more-button').css('display', 'none');
@@ -218,6 +354,7 @@
             $('#report-black-horses-hide-more-button').css('display', 'none');
             $('#report-black-horses-show-more-button').css('display', 'block');
         });
+
         $('#report-star-products-show-more-button').click(function() {
             $('#report-star-products').find('.more-display-none').css('display', 'table-row');
             $('#report-star-products-show-more-button').css('display', 'none');
@@ -227,6 +364,39 @@
             $('#report-star-products').find('.more-display-none').css('display', 'none');
             $('#report-star-products-hide-more-button').css('display', 'none');
             $('#report-star-products-show-more-button').css('display', 'block');
+        });
+
+        $('#report-end-of-list-show-more-button').click(function() {
+            $('#report-end-of-list').find('.more-display-none').css('display', 'table-row');
+            $('#report-end-of-list-show-more-button').css('display', 'none');
+            $('#report-end-of-list-hide-more-button').css('display', 'block');
+        });
+        $('#report-end-of-list-hide-more-button').click(function() {
+            $('#report-end-of-list').find('.more-display-none').css('display', 'none');
+            $('#report-end-of-list-hide-more-button').css('display', 'none');
+            $('#report-end-of-list-show-more-button').css('display', 'block');
+        });
+
+        $('#report-potentials-show-more-button').click(function() {
+            $('#report-potentials').find('.more-display-none').css('display', 'table-row');
+            $('#report-potentials-show-more-button').css('display', 'none');
+            $('#report-potentials-hide-more-button').css('display', 'block');
+        });
+        $('#report-potentials-hide-more-button').click(function() {
+            $('#report-potentials').find('.more-display-none').css('display', 'none');
+            $('#report-potentials-hide-more-button').css('display', 'none');
+            $('#report-potentials-show-more-button').css('display', 'block');
+        });
+
+        $('#report-difficult-cases-show-more-button').click(function() {
+            $('#report-difficult-cases').find('.more-display-none').css('display', 'table-row');
+            $('#report-difficult-cases-show-more-button').css('display', 'none');
+            $('#report-difficult-cases-hide-more-button').css('display', 'block');
+        });
+        $('#report-difficult-cases-hide-more-button').click(function() {
+            $('#report-difficult-cases').find('.more-display-none').css('display', 'none');
+            $('#report-difficult-cases-hide-more-button').css('display', 'none');
+            $('#report-difficult-cases-show-more-button').css('display', 'block');
         });
     });
 </script>

@@ -5,3 +5,9 @@ services:
         class: AppBundle\Service\BlackHorses
     Report_StarProducts:
         class: AppBundle\Service\StarProducts
+    Report_EndOfList:
+        class: AppBundle\Service\EndOfList
+    Report_Potentials:
+        class: AppBundle\Service\Potentials
+    Report_DifficultCases:
+        class: AppBundle\Service\DifficultCases

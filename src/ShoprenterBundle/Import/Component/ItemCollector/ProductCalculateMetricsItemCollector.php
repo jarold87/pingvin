@@ -118,6 +118,9 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
     protected function getOrderCount(Product $product, $timeKey)
     {
         $productOrders = $product->getProductOrders();
+        if (!$productOrders) {
+            return 0;
+        }
         if (!$productOrders->count()) {
             return 0;
         }
@@ -146,6 +149,9 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
     protected function getUniqueOrderCount(Product $product, $timeKey)
     {
         $productOrders = $product->getProductOrders();
+        if (!$productOrders) {
+            return 0;
+        }
         if (!$productOrders->count()) {
             return 0;
         }

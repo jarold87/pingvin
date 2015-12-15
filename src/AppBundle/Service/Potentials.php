@@ -14,6 +14,7 @@ class Potentials extends ProductReport
         if ($this->rowsToReport) {
             return $this->rowsToReport;
         }
+        $this->calculateLimit();
         $this->loadList($version);
         $this->loadStatistics();
         $this->setRowsToReport();
@@ -31,8 +32,6 @@ class Potentials extends ProductReport
 
     protected function loadListA()
     {
-        $maximumUniqueViews = $this->avgUniqueViews * 3;
-
         $query = $this->entityManager->createQueryBuilder();
         $query->select(array('p', 'ps'))
             ->from('AppBundle:Product', 'p')

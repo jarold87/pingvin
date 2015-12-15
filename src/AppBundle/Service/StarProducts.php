@@ -14,6 +14,7 @@ class StarProducts extends ProductReport
         if ($this->rowsToReport) {
             return $this->rowsToReport;
         }
+        $this->calculateLimit();
         $this->loadList($version);
         $this->loadStatistics();
         $this->setRowsToReport();

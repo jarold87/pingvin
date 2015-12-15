@@ -7,13 +7,19 @@ use AppBundle\Entity\ProductStatistics;
 class ProductReport extends Report
 {
     /** @var int */
-    protected $limit = 100;
+    protected $maxLimit = 100;
+
+    /** @var int */
+    protected $limit;
 
     /** @var int */
     protected $avgUniqueViews;
 
     /** @var int */
     protected $avgConversion;
+
+    /** @var int */
+    protected $productCount;
 
     /** @var array */
     protected $keysByConversion = array();
@@ -35,6 +41,22 @@ class ProductReport extends Report
     public function setAvgConversion($value)
     {
         $this->avgConversion = $value;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setProductCount($value)
+    {
+        $this->productCount = $value;
+    }
+
+    protected function calculateLimit()
+    {
+        $this->limit = $this->maxLimit;
+        if (($this->productCount * 0.1) < $this->maxLimit) {
+            $this->limit = round($this->productCount * 0.1);
+        }
     }
 
 

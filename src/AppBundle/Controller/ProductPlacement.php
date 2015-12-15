@@ -206,6 +206,7 @@ class ProductPlacement extends Controller
         $this->$reportName->setEntityManager($this->entityManager);
         $this->$reportName->setAvgUniqueViews($this->avgUniqueViews);
         $this->$reportName->setAvgConversion($this->avgConversion);
+        $this->$reportName->setProductCount($this->productCount);
         $this->$reportName->setTimeKey($this->timeKey);
         return $this->$reportName->getReport($version);
     }

@@ -188,6 +188,7 @@ class ImportHandler extends Controller
                 continue;
             }
             $this->importLog->addMessage('all import NOT finished => ' . $schedule->getUserId());
+            $this->globalEntityManager->flush();
         }
         $schedule->setIsLock(0);
         $this->globalEntityManager->persist($schedule);

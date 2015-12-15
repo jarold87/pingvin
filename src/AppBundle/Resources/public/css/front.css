@@ -94,6 +94,10 @@ li {
     height: 50px;
 }
 
+.navigation-button.shop {
+    color: #ffffff;
+}
+
 .container-block,
 .info-block,
 .report-a-version-container-block {

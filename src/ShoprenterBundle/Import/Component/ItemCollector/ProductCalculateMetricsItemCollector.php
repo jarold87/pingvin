@@ -76,13 +76,15 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
                     $isCheat = 1;
                 }
                 $conversion = $this->getConversion($uniqueOrders, $uniqueViews);
+                $score = ($conversion * 100) + ($uniqueOrders * 5) + ($uniqueViews * 2);
                 $collectData[$productId][$timeKey] = array(
                     'object' => $statistics,
-                    'views' => $views,
-                    'uniqueViews' => $uniqueViews,
-                    'orders' => $orders,
-                    'uniqueOrders' => $uniqueOrders,
-                    'conversion' => $conversion,
+                    'calculatedViews' => $views,
+                    'calculatedUniqueViews' => $uniqueViews,
+                    'calculatedOrders' => $orders,
+                    'calculatedUniqueOrders' => $uniqueOrders,
+                    'calculatedConversion' => $conversion,
+                    'calculatedScore' => $score,
                     'isCheat' => $isCheat,
                 );
             }

@@ -16,11 +16,12 @@ class ProductCalculateMetricsEntityObjectSetter extends CalculateMetricsEntityOb
      */
     public function getObject()
     {
-        $this->object->setViews($this->getFormattedData('views', 'integer'));
-        $this->object->setUniqueViews($this->getFormattedData('uniqueViews', 'integer'));
-        $this->object->setOrders($this->getFormattedData('orders', 'integer'));
-        $this->object->setUniqueOrders($this->getFormattedData('uniqueOrders', 'integer'));
-        $this->object->setConversion($this->getFormattedData('conversion', 'integer'));
+        $this->object->setCalculatedViews($this->getFormattedData('calculatedViews', 'integer'));
+        $this->object->setCalculatedUniqueViews($this->getFormattedData('calculatedUniqueViews', 'integer'));
+        $this->object->setCalculatedOrders($this->getFormattedData('calculatedOrders', 'integer'));
+        $this->object->setCalculatedUniqueOrders($this->getFormattedData('calculatedUniqueOrders', 'integer'));
+        $this->object->setCalculatedConversion($this->getFormattedData('calculatedConversion', 'integer'));
+        $this->object->setCalculatedScore($this->getFormattedData('calculatedScore', 'integer'));
         $this->object->setIsCheat($this->getFormattedData('isCheat', 'integer'));
         return parent::getObject();
     }

@@ -21,9 +21,6 @@ class ProductReport extends Report
     /** @var array */
     protected $keysByView = array();
 
-    /** @var array */
-    protected $collectedData = array();
-
     /**
      * @param $value
      */
@@ -47,14 +44,6 @@ class ProductReport extends Report
             $statisticsEntities = $this->getProductStatistics($product);
             $this->loadOneProductStatistics($statisticsEntities, $product);
         }
-    }
-
-    protected function setRowsToReport()
-    {
-        if (!$this->collectedData) {
-            return;
-        }
-        $this->rowsToReport = $this->collectedData;
     }
 
     /**
@@ -86,18 +75,18 @@ class ProductReport extends Report
         $sku = $product->getSku();
         $availableDateTime = $product->getAvailableDate();
         $availableDate = $availableDateTime->format('d.m.Y.');
-        $isCheat = $this->getIsCheat($actualStatisticsData);
+        $score = $this->getScore($actualStatisticsData);
 
         $this->collectedData[] = array(
             'picture' => $picture,
             'name' => $name,
             'sku' => $sku,
             'availableDate' => $availableDate,
+            'score' => $score,
             'orderCount' => $orderCount,
             'conversion' => $conversion,
             'allTimeViews'=> $allViews,
             'views' => $views,
-            'isCheat' => $isCheat,
         );
         $this->keysByConversion[] = $conversion;
         $this->keysByView[] = $views;
@@ -136,7 +125,7 @@ class ProductReport extends Report
      */
     protected function getUniqueViews(ProductStatistics $statistics)
     {
-        return $statistics->getUniqueViews();
+        return $statistics->getCalculatedUniqueViews();
     }
 
     /**
@@ -145,7 +134,7 @@ class ProductReport extends Report
      */
     protected function getUniqueOrders(ProductStatistics $statistics)
     {
-        return $statistics->getUniqueOrders();
+        return $statistics->getCalculatedUniqueOrders();
     }
 
     /**
@@ -154,15 +143,15 @@ class ProductReport extends Report
      */
     protected function getConversion(ProductStatistics $statistics)
     {
-        return $statistics->getConversion();
+        return $statistics->getCalculatedConversion();
     }
 
     /**
      * @param ProductStatistics $statistics
      * @return int
      */
-    protected function getIsCheat(ProductStatistics $statistics)
+    protected function getScore(ProductStatistics $statistics)
     {
-        return $statistics->getIsCheat();
+        return $statistics->getCalculatedScore();
     }
 }

@@ -1,6 +1,8 @@
 services:
     setting:
         class: AppBundle\Service\Setting
+    XlsExport:
+        class: AppBundle\Service\XlsExport
     Report_BlackHorses:
         class: AppBundle\Service\BlackHorses
     Report_StarProducts:

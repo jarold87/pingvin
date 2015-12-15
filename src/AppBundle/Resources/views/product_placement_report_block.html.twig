@@ -1,0 +1,93 @@
+<div class="container-block">
+    <table class="report-{{ reportId }} report-table">
+        <tr>
+            <td colspan="4">
+                <h2>
+                    {{ reportName }} ( {{ version }} )
+                </h2>
+            </td>
+            <td class="table-column header">Available</td>
+            <td class="table-column header">Score</td>
+            <td class="table-column header">Unique Orders</td>
+            <td class="table-column header">Conversion</td>
+            <td class="table-column header">Unique Views <nobr>(ALL TIME)</nobr></td>
+            <td class="table-column header">Unique Views <nobr>(30 days)</nobr></td>
+        </tr>
+        {% if reportArray %}
+            {% for row in reportArray %}
+                {% if loop.index < 6 %}
+                <tr class="report-{{ reportId }}-row">
+                {% else %}
+                    <tr class="report-{{ reportId }}-row more-display-none">
+                {% endif %}
+                <td class="table-column value important">{{ loop.index }}</td>
+                {% for column in row %}
+                    {%  if loop.first %}
+                        <td class="table-column value"><img src="{{ column }}"></td>
+                    {% elseif loop.index == 7 %}
+                        <td class="table-column value">{{ column }} %</td>
+                    {% elseif (loop.index == 2) or (loop.index == 3) %}
+                        <td class="table-column value left-align">{{ column }}</td>
+                    {% elseif loop.index == 8 %}
+                        <td class="table-column value">{{ column }}</td>
+                    {% elseif loop.index == 5 %}
+                        <td class="table-column value important">{{ column }}</td>
+                    {% else %}
+                        <td class="table-column value">{{ column }}</td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="10">
+                    <div class="report-{{ reportId }}-show-more-button show-more-button more-button button">
+                        SHOW MORE
+                    </div>
+                    <a href="#{{ reportId }}">
+                        <div class="report-hide-more-button more-button button display-none">
+                            HIDE MORE
+                        </div>
+                    </a>
+                </td>
+            </tr>
+        {% endif %}
+    </table>
+</div>
+<div class="info">
+    <div class="info-block">
+        <div class="name">Conditions:</div>
+        <ul>
+            {% for row in reportConditions %}
+                <li>{{ row }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="info-block">
+        <div class="name">Order:</div>
+        <ul>
+            {% for row in reportOrders %}
+                <li>{{ row }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+
+{% block javascripts %}
+    <script type="text/javascript" language="javascript">
+        $(document).ready(function() {
+
+            $('.report-{{ reportId }}-show-more-button').click(function() {
+                $('.report-{{ reportId }}').find('.more-display-none').css('display', 'table-row');
+                $('.report-{{ reportId }}-show-more-button').css('display', 'none');
+                $('.report-hide-more-button').css('display', 'block');
+            });
+            $('.report-hide-more-button').click(function() {
+                $('.more-display-none').css('display', 'none');
+                $('.report-hide-more-button').css('display', 'none');
+                $('.show-more-button').css('display', 'block');
+            });
+
+        });
+    </script>
+{% endblock %}

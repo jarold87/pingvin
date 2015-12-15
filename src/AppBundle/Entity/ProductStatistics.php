@@ -38,19 +38,34 @@ class ProductStatistics
     protected $uniqueViews = 0;
 
     /**
-     * @ORM\Column(name="orders", type="integer", length=11)
+     * @ORM\Column(name="calculated_views", type="integer", length=11)
      */
-    protected $orders = 0;
+    protected $calculatedViews = 0;
 
     /**
-     * @ORM\Column(name="unique_orders", type="integer", length=11)
+     * @ORM\Column(name="calculated_unique_views", type="integer", length=11)
      */
-    protected $uniqueOrders = 0;
+    protected $calculatedUniqueViews = 0;
 
     /**
-     * @ORM\Column(name="conversion", type="float", scale=2)
+     * @ORM\Column(name="calculated_orders", type="integer", length=11)
      */
-    protected $conversion = 0;
+    protected $calculatedOrders = 0;
+
+    /**
+     * @ORM\Column(name="calculated_unique_orders", type="integer", length=11)
+     */
+    protected $calculatedUniqueOrders = 0;
+
+    /**
+     * @ORM\Column(name="calculated_conversion", type="float", scale=2)
+     */
+    protected $calculatedConversion = 0;
+
+    /**
+     * @ORM\Column(name="calculated_score", type="integer", length=11)
+     */
+    protected $calculatedScore = 0;
 
     /**
      * @ORM\Column(name="is_cheat", type="integer", length=11)
@@ -184,6 +199,150 @@ class ProductStatistics
     }
 
     /**
+     * Set calculatedViews
+     *
+     * @param integer $calculatedViews
+     *
+     * @return ProductStatistics
+     */
+    public function setCalculatedViews($calculatedViews)
+    {
+        $this->calculatedViews = $calculatedViews;
+
+        return $this;
+    }
+
+    /**
+     * Get calculatedViews
+     *
+     * @return integer
+     */
+    public function getCalculatedViews()
+    {
+        return $this->calculatedViews;
+    }
+
+    /**
+     * Set calculatedUniqueViews
+     *
+     * @param integer $calculatedUniqueViews
+     *
+     * @return ProductStatistics
+     */
+    public function setCalculatedUniqueViews($calculatedUniqueViews)
+    {
+        $this->calculatedUniqueViews = $calculatedUniqueViews;
+
+        return $this;
+    }
+
+    /**
+     * Get calculatedUniqueViews
+     *
+     * @return integer
+     */
+    public function getCalculatedUniqueViews()
+    {
+        return $this->calculatedUniqueViews;
+    }
+
+    /**
+     * Set calculatedOrders
+     *
+     * @param integer $calculatedOrders
+     *
+     * @return ProductStatistics
+     */
+    public function setCalculatedOrders($calculatedOrders)
+    {
+        $this->calculatedOrders = $calculatedOrders;
+
+        return $this;
+    }
+
+    /**
+     * Get calculatedOrders
+     *
+     * @return integer
+     */
+    public function getCalculatedOrders()
+    {
+        return $this->calculatedOrders;
+    }
+
+    /**
+     * Set calculatedUniqueOrders
+     *
+     * @param integer $calculatedUniqueOrders
+     *
+     * @return ProductStatistics
+     */
+    public function setCalculatedUniqueOrders($calculatedUniqueOrders)
+    {
+        $this->calculatedUniqueOrders = $calculatedUniqueOrders;
+
+        return $this;
+    }
+
+    /**
+     * Get calculatedUniqueOrders
+     *
+     * @return integer
+     */
+    public function getCalculatedUniqueOrders()
+    {
+        return $this->calculatedUniqueOrders;
+    }
+
+    /**
+     * Set calculatedConversion
+     *
+     * @param float $calculatedConversion
+     *
+     * @return ProductStatistics
+     */
+    public function setCalculatedConversion($calculatedConversion)
+    {
+        $this->calculatedConversion = $calculatedConversion;
+
+        return $this;
+    }
+
+    /**
+     * Get calculatedConversion
+     *
+     * @return float
+     */
+    public function getCalculatedConversion()
+    {
+        return $this->calculatedConversion;
+    }
+
+    /**
+     * Set isCheat
+     *
+     * @param integer $isCheat
+     *
+     * @return ProductStatistics
+     */
+    public function setIsCheat($isCheat)
+    {
+        $this->isCheat = $isCheat;
+
+        return $this;
+    }
+
+    /**
+     * Get isCheat
+     *
+     * @return integer
+     */
+    public function getIsCheat()
+    {
+        return $this->isCheat;
+    }
+
+    /**
      * Get updateDate
      *
      * @return \DateTime
@@ -218,98 +377,26 @@ class ProductStatistics
     }
 
     /**
-     * Set orders
+     * Set calculatedScore
      *
-     * @param integer $orders
+     * @param integer $calculatedScore
      *
      * @return ProductStatistics
      */
-    public function setOrders($orders)
+    public function setCalculatedScore($calculatedScore)
     {
-        $this->orders = $orders;
+        $this->calculatedScore = $calculatedScore;
 
         return $this;
     }
 
     /**
-     * Get orders
+     * Get calculatedScore
      *
      * @return integer
      */
-    public function getOrders()
+    public function getCalculatedScore()
     {
-        return $this->orders;
-    }
-
-    /**
-     * Set uniqueOrders
-     *
-     * @param integer $uniqueOrders
-     *
-     * @return ProductStatistics
-     */
-    public function setUniqueOrders($uniqueOrders)
-    {
-        $this->uniqueOrders = $uniqueOrders;
-
-        return $this;
-    }
-
-    /**
-     * Get uniqueOrders
-     *
-     * @return integer
-     */
-    public function getUniqueOrders()
-    {
-        return $this->uniqueOrders;
-    }
-
-    /**
-     * Set conversion
-     *
-     * @param float $conversion
-     *
-     * @return ProductStatistics
-     */
-    public function setConversion($conversion)
-    {
-        $this->conversion = $conversion;
-
-        return $this;
-    }
-
-    /**
-     * Get conversion
-     *
-     * @return float
-     */
-    public function getConversion()
-    {
-        return $this->conversion;
-    }
-
-    /**
-     * Set isCheat
-     *
-     * @param integer $isCheat
-     *
-     * @return ProductStatistics
-     */
-    public function setIsCheat($isCheat)
-    {
-        $this->isCheat = $isCheat;
-
-        return $this;
-    }
-
-    /**
-     * Get isCheat
-     *
-     * @return integer
-     */
-    public function getIsCheat()
-    {
-        return $this->isCheat;
+        return $this->calculatedScore;
     }
 }

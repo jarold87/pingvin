@@ -19,6 +19,9 @@ class Report
     protected $rowsToReport = array();
 
     /** @var array */
+    protected $collectedData = array();
+
+    /** @var array */
     protected $list = array();
 
     /**
@@ -50,5 +53,14 @@ class Report
     {
         $this->list = array();
         $this->rowsToReport = array();
+        $this->collectedData = array();
+    }
+
+    protected function setRowsToReport()
+    {
+        if (!$this->collectedData) {
+            return;
+        }
+        $this->rowsToReport = $this->collectedData;
     }
 }

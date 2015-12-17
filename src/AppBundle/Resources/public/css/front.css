@@ -16,7 +16,7 @@ body
     margin: 0;
 }
 
-.more-button,
+.button,
 .report-table .header,
 h2
 {
@@ -60,7 +60,9 @@ li {
     padding: 7px;
 }
 
-.button
+.button,
+a .button,
+a:visited .button
 {
     padding: 10px 20px;
     background: #A0C5E8;
@@ -71,7 +73,10 @@ li {
     font-weight: bold;
 }
 
-.button:hover
+.button:hover,
+a .button:hover,
+a:hover .button:hover,
+a:visited:hover .button:hover
 {
     background: #b0d9ff;
     color: #2e3b51;
@@ -91,27 +96,42 @@ li {
 
 #navigation-place
 {
-    height: 50px;
+    height: 42px;
 }
 
-.navigation-button.shop {
-    color: #ffffff;
+#navigation .info-navigation-button,
+#navigation .shop-navigation-button,
+#navigation .export-navigation-button,
+#shop .button {
+    background: #8db0d5;
+    color: #FFFFFF;
 }
 
-.container-block,
-.info-block,
+#shop .button {
+    width: 200px;
+}
+
+#shop .block {
+    float: left;
+    padding-right: 10px;
+}
+
+.container-block {
+    width: 100%;
+}
+
 .report-a-version-container-block {
-    width: 900px;
+    width: 48%;
 }
 
 .report-a-version-container-block {
-    padding: 0 20px;
+    padding: 0 1%;
 }
 
 .container-block
 {
     margin: 0 auto;
-    margin-top: 100px;
+    margin-top: 50px;
 }
 
 .report-table
@@ -134,10 +154,13 @@ li {
     font-weight: bold;
 }
 
+.report-table .value {
+    line-height: 140%;
+}
+
 .report-table .important
 {
     background: #faf8f8;
-    font-weight: bold;
 }
 
 .report-table .left-align
@@ -145,13 +168,29 @@ li {
     text-align: left;
 }
 
-.info
-{
-    padding: 10px 0;
-    text-align: center;
+.report-table img {
+    width: 50px;
 }
 
-.info .value
+.report-table .second-value,
+#info .value.last {
+    color: #B9B9B9;
+    font-style: italic;
+}
+
+#info,
+#shop
+{
+    padding: 50px;
+    display: none;
+    position: fixed;
+    background: #FAF8F8;
+    border: 1px solid #B9B9B9;
+    border-top: none;
+    width: 100%;
+}
+
+#info .value
 {
     font-weight: bold;
 }
@@ -161,14 +200,16 @@ li {
     display: none;
 }
 
-.info-block .name {
+.info .name {
     font-weight: bold;
     padding: 10px 0;
 }
 
-.info-block {
-    margin: 0 auto;
-    text-align: left;
+.info {
+    display: none;
+    padding: 20px;
+    border: 1px solid #8db0d5;
+    border-bottom: 0;
 }
 
 .report-a-version-container-block {
@@ -177,4 +218,27 @@ li {
 
 .clearfix {
     clear: both;
+}
+
+.button-block .button {
+    margin-top: 0px;
+}
+
+.info-button {
+    background: #FFFFFF;
+    border: 1px solid #8db0d5;
+    border-top: none;
+    color: #8db0d5;
+}
+
+.export-url {
+    padding: 30px;
+    border: 2px solid green;
+    font-weight: bold;
+}
+
+.export-url a,
+.export-url a:hover,
+.export-url a:visited {
+    color: #000000;
 }

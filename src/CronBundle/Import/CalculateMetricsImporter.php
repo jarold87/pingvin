@@ -26,6 +26,9 @@ class CalculateMetricsImporter extends Importer
 
     public function import()
     {
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
         if ($this->getError()) {
             $this->saveImportLog();
             return;

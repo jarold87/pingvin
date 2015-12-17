@@ -32,11 +32,6 @@ class EndOfList extends ProductReport
 
     protected function loadListA()
     {
-        $maximumUniqueViews = $this->avgUniqueViews * 3;
-        $maximumConversion = 100;
-        if ($this->avgConversion > 0) {
-            $maximumConversion = $this->avgConversion;
-        }
         $query = $this->entityManager->createQueryBuilder();
         $query->select(array('p', 'ps'))
             ->from('AppBundle:Product', 'p')
@@ -60,6 +55,7 @@ class EndOfList extends ProductReport
         if ($this->avgConversion > 0) {
             $maximumConversion = $this->avgConversion;
         }
+
         $query = $this->entityManager->createQueryBuilder();
         $query->select(array('p', 'ps'))
             ->from('AppBundle:Product', 'p')
@@ -67,17 +63,38 @@ class EndOfList extends ProductReport
             ->where('ps.timeKey = :timeKey')
             ->andWhere('p.status = 1')
             ->andWhere('p.isDead = 0')
+            ->andWhere('ps.isCheat = 0')
             ->andWhere('ps.calculatedUniqueViews > 0')
             ->andWhere('ps.calculatedUniqueViews <= :maximumUniqueViews')
             ->andWhere('ps.calculatedConversion <= :maximumConversion')
-            ->setParameter('timeKey', $this->timeKey)
             ->setParameter('maximumUniqueViews', $maximumUniqueViews)
             ->setParameter('maximumConversion', $maximumConversion)
+            ->setParameter('timeKey', 'all')
             ->addOrderBy('ps.calculatedConversion', 'ASC')
-            ->addOrderBy('ps.calculatedUniqueViews', 'DESC')
-            ->addOrderBy('ps.calculatedViews', 'DESC')
+            ->addOrderBy('ps.calculatedUniqueViews', 'ASC')
+            ->addOrderBy('ps.calculatedViews', 'ASC')
             ->addOrderBy('p.availableDate', 'ASC')
             ->setMaxResults($this->limit);
+        $list = $query->getQuery()->getResult();
+        if (!$list) {
+            return;
+        }
+        $ids = array();
+        foreach ($list as $item) {
+            $ids[] = $item->getProductId();
+        }
+
+        $query = $this->entityManager->createQueryBuilder();
+        $where = $query->expr()->in('p.productId', $ids);
+        $query->select(array('p', 'ps'))
+            ->from('AppBundle:Product', 'p')
+            ->leftJoin('p.productStatistics', 'ps')
+            ->add('where', $where)
+            ->andWhere('ps.timeKey = :timeKey')
+            ->setParameter('timeKey', $this->timeKey)
+            ->addOrderBy('ps.calculatedConversion', 'ASC')
+            ->addOrderBy('ps.calculatedUniqueViews', 'ASC')
+            ->addOrderBy('ps.calculatedViews', 'ASC');
         $this->list = $query->getQuery()->getResult();
     }
 }

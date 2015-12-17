@@ -78,16 +78,26 @@ class ProductReport extends Report
         $actualStatisticsData = $statisticsEntities[0];
         $allTimeStatisticsData = $this->getAllTimeProductsStatisticsByProductId($productId);
 
-        $views = 0;
         $allViews = 0;
-        if ($actualStatisticsData) {
-            $views = $this->getUniqueViews($actualStatisticsData);
-        }
+        $allOrders = 0;
+        $allConversion = 0;
+        $allTotal = 0;
+        $views = $this->getUniqueViews($actualStatisticsData);
         if ($allTimeStatisticsData) {
             $allViews = $this->getUniqueViews($allTimeStatisticsData);
         }
         $orderCount = $this->getUniqueOrders($actualStatisticsData);
+        if ($allTimeStatisticsData) {
+            $allOrders = $this->getUniqueViews($allTimeStatisticsData);
+        }
         $conversion = $this->getConversion($actualStatisticsData);
+        if ($allTimeStatisticsData) {
+            $allConversion = $this->getConversion($allTimeStatisticsData);
+        }
+        $total = $this->getTotal($actualStatisticsData);
+        if ($allTimeStatisticsData) {
+            $allTotal = $this->getTotal($allTimeStatisticsData);
+        }
 
         $picture = '';
         if ($product->getPicture()) {
@@ -96,7 +106,7 @@ class ProductReport extends Report
         $name = $product->getName();
         $sku = $product->getSku();
         $availableDateTime = $product->getAvailableDate();
-        $availableDate = $availableDateTime->format('d.m.Y.');
+        $availableDate = $availableDateTime->format('m.Y.');
         $score = $this->getScore($actualStatisticsData);
 
         $this->collectedData[] = array(
@@ -107,8 +117,12 @@ class ProductReport extends Report
             'score' => $score,
             'orderCount' => $orderCount,
             'conversion' => $conversion,
-            'allTimeViews'=> $allViews,
+            'total' => $total,
             'views' => $views,
+            'allTimeViews'=> $allViews,
+            'allTimeOrderCount'=> $allOrders,
+            'allTimeConversion'=> $allConversion,
+            'allTimeTotal' => $allTotal,
         );
         $this->keysByConversion[] = $conversion;
         $this->keysByView[] = $views;
@@ -175,5 +189,14 @@ class ProductReport extends Report
     protected function getScore(ProductStatistics $statistics)
     {
         return $statistics->getCalculatedScore();
+    }
+
+    /**
+     * @param ProductStatistics $statistics
+     * @return int
+     */
+    protected function getTotal(ProductStatistics $statistics)
+    {
+        return $statistics->getCalculatedTotal();
     }
 }

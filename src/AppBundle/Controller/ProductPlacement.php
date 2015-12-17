@@ -9,8 +9,7 @@ use AppBundle\Entity\ImportScheduleLog;
 use AppBundle\Entity\Product;
 use AppBundle\Entity\ProductStatistics;
 use AppBundle\Service\Setting;
-use AppBundle\Service\StarProducts;
-use AppBundle\Service\BlackHorses;
+use AppBundle\Service\BaseStatistics;
 use AppBundle\Service\XlsExport;
 
 
@@ -31,23 +30,14 @@ class ProductPlacement extends Controller
     /** @var Setting */
     protected $settingService;
 
-    /** @var StarProducts */
-    protected $StarProducts;
+    /** @var BaseStatistics */
+    protected $baseStatistics;
 
-    /** @var BlackHorses */
-    protected $BlackHorses;
+    /** @var string */
+    protected $exportFileName = '';
 
-    /** @var int */
-    protected $avgUniqueViews;
-
-    /** @var int */
-    protected $avgConversion;
-
-    /** @var int */
-    protected $cheatCount;
-
-    /** @var int */
-    protected $productCount;
+    /** @var string */
+    protected $exportUrl = '';
 
     /**
      * @Route("/product_placement", name="Product Placement")
@@ -61,25 +51,33 @@ class ProductPlacement extends Controller
         $this->settingService = $this->get('setting');
         $this->settingService->setEntityManager($this->entityManager);
 
-        $this->loadGlobalData();
+        $this->baseStatistics = $this->get('BaseStatistics');
+        $this->baseStatistics->setUserId($this->userId);
+        $this->baseStatistics->setEntityManager($this->entityManager);
+        $this->baseStatistics->setTimeKey($this->timeKey);
 
-        $accuracy = 100;
-        if ($this->cheatCount) {
-            $accuracy = round(100 - ($this->cheatCount / $this->productCount * 100));
+        $accuracy = round(100 - (($this->baseStatistics->get('CheatCount') + ($this->baseStatistics->get('NullStatisticsCount') / 2)) / $this->baseStatistics->get('ProductCount') * 100));
+
+        if ($request->query->get('export')) {
+            $time = new \DateTime();
+            $timestamp = $time->format('YmdHis');
+            $this->exportFileName = 'export-' . $this->userId . '-' . $timestamp;
+            $this->exportUrl = 'downloads/' . $this->exportFileName . '.xlsx';
+            $this->export();
         }
 
-        //$this->export();
+        $i = 0;
 
-        $reports[0]['A'] = array(
+        $reports[$i]['A'] = array(
             'version' => 'A',
             'reportId' => 'star-products',
             'reportName' => 'Star Products',
             'reportArray' => $this->getReportBlockRows('StarProducts', 'A'),
-            'reportConditions' => array('TOP 100 Unique Views'),
+            'reportConditions' => array('Conversion > 0', 'TOP 100 Unique Views'),
             'reportOrders' => array('Conversion decreasing', 'Unique Views decreasing'),
         );
 
-        $reports[0]['B'] = array(
+        $reports[$i]['B'] = array(
             'version' => 'B',
             'reportId' => 'star-products',
             'reportName' => 'Star Products',
@@ -87,8 +85,30 @@ class ProductPlacement extends Controller
             'reportConditions' => array('Unique Views > {Avg Unique Views * 3}', 'Conversion > {Avg Conversion * 3}'),
             'reportOrders' => array('Score ( {Conversion * 10} + {Unique Orders * 5} + {Unique Views * 2} ) decreasing', 'Conversion decreasing', 'Unique Views decreasing'),
         );
+        $i++;
 
-        $reports[1]['A'] = array(
+
+        $reports[$i]['A'] = array(
+            'version' => 'A',
+            'reportId' => 'potentials',
+            'reportName' => 'Potentials',
+            'reportArray' => $this->getReportBlockRows('Potentials', 'A'),
+            'reportConditions' => array('Conversion > 0', 'LAST 100 Unique Views'),
+            'reportOrders' => array('Conversion decreasing', 'Unique Views ascending'),
+        );
+
+        $reports[$i]['B'] = array(
+            'version' => 'B',
+            'reportId' => 'potentials',
+            'reportName' => 'Potentials',
+            'reportArray' => $this->getReportBlockRows('Potentials', 'B'),
+            'reportConditions' => array('Unique Views <= {Avg Unique Views * 3}', 'Conversion > 0'),
+            'reportOrders' => array('Conversion decreasing', 'Unique Views decreasing'),
+        );
+        $i++;
+
+
+        $reports[$i]['A'] = array(
             'version' => 'A',
             'reportId' => 'black-horses',
             'reportName' => 'Black Horses',
@@ -97,7 +117,7 @@ class ProductPlacement extends Controller
             'reportOrders' => array('Conversion ascending', 'Unique Views decreasing'),
         );
 
-        $reports[1]['B'] = array(
+        $reports[$i]['B'] = array(
             'version' => 'B',
             'reportId' => 'black-horses',
             'reportName' => 'Black Horses',
@@ -105,8 +125,10 @@ class ProductPlacement extends Controller
             'reportConditions' => array('Unique Views > {Avg Unique Views * 3}', 'Conversion <= Avg Conversion'),
             'reportOrders' => array('Conversion ascending', 'Unique Views decreasing'),
         );
+        $i++;
 
-        $reports[2]['A'] = array(
+
+        $reports[$i]['A'] = array(
             'version' => 'A',
             'reportId' => 'end-of-list',
             'reportName' => 'End Of List',
@@ -115,88 +137,54 @@ class ProductPlacement extends Controller
             'reportOrders' => array('Unique Views ascending', 'Views ascending', 'Available Date ascending'),
         );
 
-        $reports[2]['B'] = array(
+        $reports[$i]['B'] = array(
             'version' => 'B',
             'reportId' => 'end-of-list',
             'reportName' => 'End Of List',
             'reportArray' => $this->getReportBlockRows('EndOfList', 'B'),
-            'reportConditions' => array('Unique Views > 0', 'Unique Views <= {Avg Unique Views * 3}', 'Conversion <= Avg Conversion'),
-            'reportOrders' => array('Conversion ascending', 'Unique Views decreasing', 'Views decreasing', 'Available Date ascending'),
+            'reportConditions' => array('LAST 100 Unique Views at all times', 'Unique Views at all times > 0', 'Unique Views at all times <= {Avg Unique Views * 3}', 'Conversion at all times <= Avg Conversion'),
+            'reportOrders' => array('Conversion ascending', 'Unique Views ascending', 'Views ascending', 'Available Date ascending'),
         );
+        $i++;
 
-        $reports[3]['A'] = array(
+
+        $reports[$i]['A'] = array(
             'version' => 'A',
-            'reportId' => 'potentials',
-            'reportName' => 'Potentials',
-            'reportArray' => $this->getReportBlockRows('Potentials', 'A'),
-            'reportConditions' => array('Conversion > 0', 'LAST 100 Unique Views'),
-            'reportOrders' => array('Conversion decreasing', 'Unique Views ascending', 'TOP 100 Unique Views'),
+            'reportId' => 'difficult-cases',
+            'reportName' => 'Difficult Cases',
+            'reportArray' => $this->getReportBlockRows('DifficultCases', 'A'),
+            'reportConditions' => array('LAST 100 Unique Views'),
+            'reportOrders' => array('Conversion ascending', 'Unique Views ascending'),
         );
 
-        $reports[3]['B'] = array(
+        $reports[$i]['B'] = array(
             'version' => 'B',
-            'reportId' => 'potentials',
-            'reportName' => 'Potentials',
-            'reportArray' => $this->getReportBlockRows('Potentials', 'B'),
-            'reportConditions' => array('Unique Views <= {Avg Unique Views * 3}', 'Conversion > 0'),
-            'reportOrders' => array('Conversion decreasing', 'Unique Views decreasing'),
+            'reportId' => 'difficult-cases',
+            'reportName' => 'Difficult Cases',
+            'reportArray' => $this->getReportBlockRows('DifficultCases', 'B'),
+            'reportConditions' => array('Unique Views > Avg Unique Views', 'Unique Views <= {Avg Unique Views * 3}', 'Conversion <= Avg Conversion'),
+            'reportOrders' => array('Conversion ascending', 'Unique Views ascending'),
         );
+        $i++;
+
 
         return $this->render('AppBundle::product_placement.html.twig', array(
             'reportList' => $reports,
             'lastUpdate' => $this->getLastUpdateTime(),
-            'avgUniqueViews' => $this->avgUniqueViews,
-            'avgConversion' => $this->avgConversion,
-            'cheatCount' => $this->cheatCount,
-            'productCount' => $this->productCount,
-            'accuracy' => $accuracy
+            'avgUniqueViews' => $this->baseStatistics->get('AvgUniqueViews'),
+            'avgConversion' => $this->baseStatistics->get('AvgConversion'),
+            'avgUniqueViewsAtInteractiveProducts' => $this->baseStatistics->get('AvgUniqueViewsAtInteractiveProducts'),
+            'avgConversionAtInteractiveProducts' => $this->baseStatistics->get('AvgConversionAtInteractiveProducts'),
+            'lastAvgUniqueViews' => $this->baseStatistics->get('AvgUniqueViews', 'lastMonthly'),
+            'lastAvgConversion' => $this->baseStatistics->get('AvgConversion', 'lastMonthly'),
+            'lastAvgUniqueViewsAtInteractiveProducts' => $this->baseStatistics->get('AvgUniqueViewsAtInteractiveProducts', 'lastMonthly'),
+            'lastAvgConversionAtInteractiveProducts' => $this->baseStatistics->get('AvgConversionAtInteractiveProducts', 'lastMonthly'),
+            'cheatCount' => $this->baseStatistics->get('CheatCount'),
+            'productCount' => $this->baseStatistics->get('ProductCount'),
+            'nullStatisticsCount' => $this->baseStatistics->get('NullStatisticsCount'),
+            'accuracy' => $accuracy,
+            'exportUrl' => $this->exportUrl,
         ));
-    }
-
-
-    protected function loadGlobalData()
-    {
-        $query = $this->entityManager->createQueryBuilder();
-        $query->select('avg(ps.calculatedUniqueViews)')
-            ->from('AppBundle:ProductStatistics', 'ps')
-            ->where('ps.timeKey = :timeKey')
-            ->setParameter('timeKey', $this->timeKey)
-            ->getQuery();
-        $avgScore = $query->getQuery()->getResult();
-        $value = round($avgScore[0][1], 2);
-        $this->avgUniqueViews = $value;
-
-        $query = $this->entityManager->createQueryBuilder();
-        $query->select('avg(ps.calculatedConversion)')
-            ->from('AppBundle:ProductStatistics', 'ps')
-            ->where('ps.timeKey = :timeKey')
-            ->andWhere('ps.isCheat = 0')
-            ->setParameter('timeKey', $this->timeKey)
-            ->getQuery();
-        $avgScore = $query->getQuery()->getResult();
-        $value = round($avgScore[0][1], 2);
-        $this->avgConversion = $value;
-
-        $query = $this->entityManager->createQueryBuilder();
-        $query->select('count(ps.productStatisticsId)')
-            ->from('AppBundle:ProductStatistics', 'ps')
-            ->where('ps.timeKey = :timeKey')
-            ->andWhere('ps.isCheat = 1')
-            ->setParameter('timeKey', $this->timeKey)
-            ->getQuery();
-        $countScore = $query->getQuery()->getResult();
-        $value = round($countScore[0][1]);
-        $this->cheatCount = $value;
-
-        $query = $this->entityManager->createQueryBuilder();
-        $query->select('count(p.productId)')
-            ->from('AppBundle:Product', 'p')
-            ->where('p.status = 1')
-            ->andWhere('p.isDead = 0')
-            ->getQuery();
-        $countScore = $query->getQuery()->getResult();
-        $value = round($countScore[0][1]);
-        $this->productCount = $value;
     }
 
     protected function getReportBlockRows($reportName, $version)
@@ -204,9 +192,9 @@ class ProductPlacement extends Controller
         $this->$reportName = $this->get('Report_' . $reportName);
         $this->$reportName->setSettingService($this->settingService);
         $this->$reportName->setEntityManager($this->entityManager);
-        $this->$reportName->setAvgUniqueViews($this->avgUniqueViews);
-        $this->$reportName->setAvgConversion($this->avgConversion);
-        $this->$reportName->setProductCount($this->productCount);
+        $this->$reportName->setAvgUniqueViews($this->baseStatistics->get('AvgUniqueViews'));
+        $this->$reportName->setAvgConversion($this->baseStatistics->get('AvgConversion'));
+        $this->$reportName->setProductCount($this->baseStatistics->get('ProductCount'));
         $this->$reportName->setTimeKey($this->timeKey);
         return $this->$reportName->getReport($version);
     }
@@ -277,6 +265,6 @@ class ProductPlacement extends Controller
 
         /** @var XlsExport $XlsExport */
         $XlsExport = $this->get('XlsExport');
-        $XlsExport->export('export', $head, $data);
+        $XlsExport->export($this->exportFileName, $head, $data);
     }
 }

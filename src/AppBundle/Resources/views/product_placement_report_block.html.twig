@@ -1,17 +1,17 @@
 <div class="container-block">
     <table class="report-{{ reportId }} report-table">
         <tr>
-            <td colspan="4">
+            <td colspan="3">
                 <h2>
                     {{ reportName }} ( {{ version }} )
                 </h2>
             </td>
             <td class="table-column header">Available</td>
             <td class="table-column header">Score</td>
+            <td class="table-column header">Unique Views</td>
             <td class="table-column header">Unique Orders</td>
+            <td class="table-column header">Total</td>
             <td class="table-column header">Conversion</td>
-            <td class="table-column header">Unique Views <nobr>(ALL TIME)</nobr></td>
-            <td class="table-column header">Unique Views <nobr>(30 days)</nobr></td>
         </tr>
         {% if reportArray %}
             {% for row in reportArray %}
@@ -20,55 +20,75 @@
                 {% else %}
                     <tr class="report-{{ reportId }}-row more-display-none">
                 {% endif %}
-                <td class="table-column value important">{{ loop.index }}</td>
-                {% for column in row %}
-                    {%  if loop.first %}
-                        <td class="table-column value"><img src="{{ column }}"></td>
-                    {% elseif loop.index == 7 %}
-                        <td class="table-column value">{{ column }} %</td>
-                    {% elseif (loop.index == 2) or (loop.index == 3) %}
-                        <td class="table-column value left-align">{{ column }}</td>
-                    {% elseif loop.index == 8 %}
-                        <td class="table-column value">{{ column }}</td>
-                    {% elseif loop.index == 5 %}
-                        <td class="table-column value important">{{ column }}</td>
-                    {% else %}
-                        <td class="table-column value">{{ column }}</td>
-                    {% endif %}
-                {% endfor %}
+                <td class="table-column value important">
+                    {{ loop.index }}
+                </td>
+                <td class="table-column value">
+                    <img src="{{ row.picture }}">
+                </td>
+                <td class="table-column value left-align">
+                    {{ row.name }}<br>
+                    <span class="second-value"><nobr>({{ row.sku }})</nobr></span>
+                </td>
+                <td class="table-column value left-align">
+                    {{ row.availableDate }}
+                </td>
+                <td class="table-column value important">
+                    {{ row.score }}
+                </td>
+                <td class="table-column value">
+                    {{ row.views }}<br>
+                    <span class="second-value"><nobr>({{ row.allTimeViews }})</nobr></span>
+                </td>
+                <td class="table-column value">
+                    {{ row.orderCount }}<br>
+                    <span class="second-value"><nobr>({{ row.allTimeOrderCount }})</nobr></span>
+                </td>
+                <td class="table-column value">
+                    <nobr>{{ row.total|number_format(0, '.') }},-</nobr><br>
+                    <span class="second-value"><nobr>({{ row.allTimeTotal|number_format(0, '.') }},- )</nobr></span>
+                </td>
+                <td class="table-column value">
+                    <nobr>{{ row.conversion }} %</nobr><br>
+                    <span class="second-value"><nobr>({{ row.allTimeConversion }} % )</nobr></span>
+                </td>
                 </tr>
             {% endfor %}
-            <tr>
-                <td colspan="10">
-                    <div class="report-{{ reportId }}-show-more-button show-more-button more-button button">
-                        SHOW MORE
-                    </div>
-                    <a href="#{{ reportId }}">
-                        <div class="report-hide-more-button more-button button display-none">
-                            HIDE MORE
-                        </div>
-                    </a>
-                </td>
-            </tr>
         {% endif %}
     </table>
 </div>
-<div class="info">
-    <div class="info-block">
-        <div class="name">Conditions:</div>
-        <ul>
-            {% for row in reportConditions %}
-                <li>{{ row }}</li>
-            {% endfor %}
-        </ul>
+<div class="button-block">
+    <div class="report-{{ reportId }}-show-more-button show-more-button more-button button">
+        SHOW MORE
     </div>
-    <div class="info-block">
-        <div class="name">Order:</div>
-        <ul>
-            {% for row in reportOrders %}
-                <li>{{ row }}</li>
-            {% endfor %}
-        </ul>
+    <a href="#{{ reportId }}">
+        <div class="report-{{ reportId }}-hide-more-button report-hide-more-button more-button button display-none">
+            HIDE MORE
+        </div>
+    </a>
+    <div class="info-{{ reportId }}-show-button show-info-button info-button button">
+        show info
+    </div>
+    <div class="info-{{ reportId }} info">
+        <div class="info-block">
+            <div class="name">Conditions:</div>
+            <ul>
+                {% for row in reportConditions %}
+                    <li>{{ row }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="info-block">
+            <div class="name">Order:</div>
+            <ul>
+                {% for row in reportOrders %}
+                    <li>{{ row }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="info-{{ reportId }}-hide-button info-hide-button info-button button display-none">
+        hide info
     </div>
 </div>
 
@@ -78,14 +98,25 @@
         $(document).ready(function() {
 
             $('.report-{{ reportId }}-show-more-button').click(function() {
-                $('.report-{{ reportId }}').find('.more-display-none').css('display', 'table-row');
-                $('.report-{{ reportId }}-show-more-button').css('display', 'none');
-                $('.report-hide-more-button').css('display', 'block');
+                $('.report-{{ reportId }}').find('.more-display-none').show(1500);
+                $('.report-{{ reportId }}-show-more-button').hide();
+                $('.report-{{ reportId }}-hide-more-button').show(1500);
             });
             $('.report-hide-more-button').click(function() {
-                $('.more-display-none').css('display', 'none');
-                $('.report-hide-more-button').css('display', 'none');
-                $('.show-more-button').css('display', 'block');
+                $('.more-display-none').hide(500);
+                $('.report-hide-more-button').hide();
+                $('.show-more-button').show(1500);
+            });
+
+            $('.info-{{ reportId }}-show-button').click(function() {
+                $('.info-{{ reportId }}').show(500);
+                $('.info-{{ reportId }}-show-button').hide();
+                $('.info-{{ reportId }}-hide-button').show(0);
+            });
+            $('.info-hide-button').click(function() {
+                $('.info').hide(500);
+                $('.info-hide-button').hide();
+                $('.show-info-button').show(500);
             });
 
         });

@@ -63,6 +63,11 @@ class ProductStatistics
     protected $calculatedConversion = 0;
 
     /**
+     * @ORM\Column(name="calculated_total", type="integer", length=11)
+     */
+    protected $calculatedTotal = 0;
+
+    /**
      * @ORM\Column(name="calculated_score", type="integer", length=11)
      */
     protected $calculatedScore = 0;
@@ -374,5 +379,29 @@ class ProductStatistics
     public function getProduct()
     {
         return $this->product;
+    }
+
+    /**
+     * Set calculatedScore
+     *
+     * @param integer $calculatedScore
+     *
+     * @return ProductStatistics
+     */
+    public function setCalculatedScore($calculatedScore)
+    {
+        $this->calculatedScore = $calculatedScore;
+
+        return $this;
+    }
+
+    /**
+     * Get calculatedScore
+     *
+     * @return integer
+     */
+    public function getCalculatedScore()
+    {
+        return $this->calculatedScore;
     }
 }

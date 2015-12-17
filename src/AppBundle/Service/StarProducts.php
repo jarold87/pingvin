@@ -40,6 +40,7 @@ class StarProducts extends ProductReport
             ->andWhere('p.status = 1')
             ->andWhere('p.isDead = 0')
             ->andWhere('ps.isCheat = 0')
+            ->andWhere('ps.calculatedConversion > 0')
             ->setParameter('timeKey', $this->timeKey)
             ->addOrderBy('ps.calculatedUniqueViews', 'DESC')
             ->addOrderBy('ps.calculatedViews', 'DESC')

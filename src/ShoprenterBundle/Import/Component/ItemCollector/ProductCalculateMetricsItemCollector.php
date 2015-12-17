@@ -43,7 +43,6 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
                 $this->addError('Missing entity!');
                 return;
             }
-            $productId = $this->getProductId($product);
             $statisticsCollection = $this->getProductStatisticsCollection($product);
             $statisticsArray = $statisticsCollection->toArray();
             if (!$statisticsArray) {
@@ -76,30 +75,33 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
                     $isCheat = 1;
                 }
                 $conversion = $this->getConversion($uniqueOrders, $uniqueViews);
+                $total = $this->getOrderTotal($product, $timeKey);
                 $score = ($conversion * 100) + ($uniqueOrders * 5) + ($uniqueViews * 2);
-                $collectData[$productId][$timeKey] = array(
+                $collectData[$timeKey] = array(
                     'object' => $statistics,
                     'calculatedViews' => $views,
                     'calculatedUniqueViews' => $uniqueViews,
                     'calculatedOrders' => $orders,
                     'calculatedUniqueOrders' => $uniqueOrders,
                     'calculatedConversion' => $conversion,
+                    'calculatedTotal' => $total,
                     'calculatedScore' => $score,
                     'isCheat' => $isCheat,
                 );
             }
             if ($collectData) {
-                $productIds = array_keys($collectData);
-                foreach ($productIds as $productId) {
-                    foreach ($collectData[$productId] as $timeKey => $values) {
-                        $object = $values['object'];
-                        $this->setCalculateMetricsObject($object, $values);
-                    }
+                if (count($collectData) > 3) {
+                    dump($collectData); die('HIBA');
+                }
+                foreach ($collectData as $timeKey => $values) {
+                    $object = $values['object'];
+                    $this->setCalculateMetricsObject($object, $values);
                 }
             }
             $this->setProcessed($item, $key);
             $this->manageFlush();
         }
+        $this->entityManager->flush();
     }
 
     protected function newProductStatistics(Product $product, $timeKey)
@@ -169,6 +171,37 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
             }
         }
         return $counter;
+    }
+
+    /**
+     * @param Product $product
+     * @param $timeKey
+     * @return int
+     */
+    protected function getOrderTotal(Product $product, $timeKey)
+    {
+        $productOrders = $product->getProductOrders();
+        if (!$productOrders) {
+            return 0;
+        }
+        if (!$productOrders->count()) {
+            return 0;
+        }
+        $startDate = $this->getStartDateByTimeKey($timeKey);
+        $finishDate = $this->getFinishDateByTimeKey($timeKey);
+        $counter = 0;
+        foreach ($productOrders->toArray() as $orderProduct)
+        {
+            if (!$startDate || !$finishDate) {
+                $counter += $this->getTotal($orderProduct);
+                continue;
+            }
+            $orderDate = $this->getOrderProductOrderDate($orderProduct);
+            if ($orderDate >= $startDate && $orderDate <= $finishDate) {
+                $counter += $this->getTotal($orderProduct);
+            }
+        }
+        return round($counter);
     }
 
     /**
@@ -287,6 +320,15 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
     protected function getQuantity(OrderProduct $orderProduct)
     {
         return $orderProduct->getQuantity();
+    }
+
+    /**
+     * @param OrderProduct $orderProduct
+     * @return int
+     */
+    protected function getTotal(OrderProduct $orderProduct)
+    {
+        return $orderProduct->getTotal();
     }
 
 }

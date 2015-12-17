@@ -21,6 +21,9 @@ class AnalyticsService
     /** @var string */
     protected $error = '';
 
+    /** @var */
+    protected $profileInfo;
+
     /**
      * @param GoogleServiceAnalytics $service
      */
@@ -47,6 +50,12 @@ class AnalyticsService
     public function getError()
     {
         return $this->error;
+    }
+
+    public function checkProfile()
+    {
+        $this->loadServiceId();
+        dump($this->profileInfo); die();
     }
 
     /**
@@ -152,6 +161,7 @@ class AnalyticsService
             return;
         }
         $items = $properties->getItems();
+        $this->profileInfo = $items;
         $firstPropertyId = $items[0]->getId();
         $profiles = $this->analyticsService->management_profiles
             ->listManagementProfiles($accountId, $firstPropertyId);

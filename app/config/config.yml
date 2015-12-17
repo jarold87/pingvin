@@ -76,6 +76,14 @@ doctrine:
                 user:     "%database_user_customer%"
                 password: "%database_password_customer%"
                 charset:  UTF8
+            customer3:
+                driver:   pdo_mysql
+                host:     "%database_host_customer%"
+                port:     "%database_port_customer%"
+                dbname:   "%database_name_customer3%"
+                user:     "%database_user_customer%"
+                password: "%database_password_customer%"
+                charset:  UTF8
             global:
                 driver:   pdo_mysql
                 host:     "%database_host%"
@@ -103,6 +111,12 @@ doctrine:
                     TestBundle:  ~
             customer2:
                 connection: customer2
+                mappings:
+                    AppBundle: ~
+                    CronBundle:  ~
+                    TestBundle:  ~
+            customer3:
+                connection: customer3
                 mappings:
                     AppBundle: ~
                     CronBundle:  ~

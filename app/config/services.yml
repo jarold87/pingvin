@@ -3,6 +3,8 @@ services:
         class: AppBundle\Service\Setting
     XlsExport:
         class: AppBundle\Service\XlsExport
+    BaseStatistics:
+        class: AppBundle\Service\BaseStatistics
     Report_BlackHorses:
         class: AppBundle\Service\BlackHorses
     Report_StarProducts:

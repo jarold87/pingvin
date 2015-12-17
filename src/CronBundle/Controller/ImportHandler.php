@@ -20,7 +20,7 @@ class ImportHandler extends Controller
     protected $userLimit = 1;
 
     /** @var int 45 */
-    protected $timeLimit = 120;
+    protected $timeLimit = 240;
 
     /** @var int */
     protected $failLimit = 6;

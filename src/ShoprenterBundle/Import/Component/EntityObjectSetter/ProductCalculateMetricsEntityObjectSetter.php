@@ -21,6 +21,7 @@ class ProductCalculateMetricsEntityObjectSetter extends CalculateMetricsEntityOb
         $this->object->setCalculatedOrders($this->getFormattedData('calculatedOrders', 'integer'));
         $this->object->setCalculatedUniqueOrders($this->getFormattedData('calculatedUniqueOrders', 'integer'));
         $this->object->setCalculatedConversion($this->getFormattedData('calculatedConversion', 'integer'));
+        $this->object->setCalculatedTotal($this->getFormattedData('calculatedTotal', 'integer'));
         $this->object->setCalculatedScore($this->getFormattedData('calculatedScore', 'integer'));
         $this->object->setIsCheat($this->getFormattedData('isCheat', 'integer'));
         return parent::getObject();

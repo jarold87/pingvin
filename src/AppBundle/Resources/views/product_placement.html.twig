@@ -4,9 +4,31 @@
     <table id="navigation">
         <tr>
             <td>
+                <div class="navigation-button button info-navigation-button info-over">
+                    INFO
+                </div>
+            </td>
+            <td>
+                <div class="navigation-button button shop-navigation-button shop-over">
+                    SHOP
+                </div>
+            </td>
+            <td>
+                <div class="navigation-button button export-navigation-button">
+                    EXPORT
+                </div>
+            </td>
+            <td>
                 <a href="#star-products">
                     <div class="navigation-button button">
                         Star Products
+                    </div>
+                </a>
+            </td>
+            <td>
+                <a href="#potentials">
+                    <div class="navigation-button button">
+                        Potentials
                     </div>
                 </a>
             </td>
@@ -25,23 +47,9 @@
                 </a>
             </td>
             <td>
-                <a href="#potentials">
+                <a href="#difficult-cases">
                     <div class="navigation-button button">
-                        Potentials
-                    </div>
-                </a>
-            </td>
-            <td>
-                <a href="?user_id=1">
-                    <div class="navigation-button button shop">
-                        Sexshopcetner
-                    </div>
-                </a>
-            </td>
-            <td>
-                <a href="?user_id=2">
-                    <div class="navigation-button button shop">
-                        MbKandallo
+                        Difficult Cases
                     </div>
                 </a>
             </td>
@@ -49,16 +57,91 @@
     </table>
 
     <div id="navigation-place"></div>
+
+    <div id="info" class="info-over">
+        <p>Last update: <span class="value">{{ lastUpdate }}</span></p>
+
+        <p>
+            Avg unique views:
+            <span class="value">{{ avgUniqueViews }}</span>
+            <span class="value last">
+                {% if (avgUniqueViews - lastAvgUniqueViews) > 0 %}
+                    +
+                {% endif %}
+                {{ avgUniqueViews - lastAvgUniqueViews }}
+            </span>
+        </p>
+        <p>
+            Avg conversion:
+            <span class="value">{{ avgConversion }} %</span>
+            <span class="value last">
+                {% if (avgConversion - lastAvgConversion) > 0 %}
+                    +
+                {% endif %}
+                {{ avgConversion - lastAvgConversion }}
+            </span>
+        </p>
+        <p>
+            Avg unique views at interactive products:
+            <span class="value">{{ avgUniqueViewsAtInteractiveProducts }}</span>
+            <span class="value last">
+                {% if (avgUniqueViewsAtInteractiveProducts - lastAvgUniqueViewsAtInteractiveProducts) > 0 %}
+                    +
+                {% endif %}
+                {{ avgUniqueViewsAtInteractiveProducts - lastAvgUniqueViewsAtInteractiveProducts }}
+            </span>
+        </p>
+        <p>
+            Avg conversion at interactive products:
+            <span class="value">{{ avgConversionAtInteractiveProducts }} %</span>
+            <span class="value last">
+                {% if (avgConversionAtInteractiveProducts - lastAvgConversionAtInteractiveProducts) > 0 %}
+                    +
+                {% endif %}
+                {{ avgConversionAtInteractiveProducts - lastAvgConversionAtInteractiveProducts }}
+            </span>
+        </p>
+
+        <p>Number of active products: <span class="value">{{ productCount }}</span></p>
+        <p>Products without interaction at all times: <span class="value">{{ nullStatisticsCount }}</span></p>
+        <p>Products with statistics conflict: <span class="value">{{ cheatCount }}</span></p>
+        <p>Relative accuracy: <span class="value">{{ accuracy }} %</span></p>
+    </div>
+
+    <div id="shop" class="shop-over">
+        <div class="block">
+            <a href="?user_id=1">
+                <div class="button">
+                    Sexshopcenter
+                </div>
+            </a>
+        </div>
+        <div class="block">
+            <a href="?user_id=2">
+                <div class="button">
+                    MbKandallo
+                </div>
+            </a>
+        </div>
+        <div class="block">
+            <a href="?user_id=3">
+                <div class="button">
+                    Tolnai Szerszám
+                </div>
+            </a>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
 {% endblock %}
 
 {% block container %}
 
-    <div class="info">
-        <p>Last update: <span class="value">{{ lastUpdate }}</span></p>
-        <p>Avg unique views: <span class="value">{{ avgUniqueViews }}</span></p>
-        <p>Avg conversion: <span class="value">{{ avgConversion }} %</span></p>
-        <p>Relative accuracy: <span class="value">{{ accuracy }} %</span></p>
-    </div>
+    {% if exportUrl %}
+        <div class="export-url">
+            <a href="{{ exportUrl }}">> Download Export File</a>
+        </div>
+    {% endif %}
 
     {% for reportVersions in reportList %}
         {% for reportItem in reportVersions %}
@@ -87,4 +170,25 @@
         {% endfor %}
     {% endfor %}
 
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" language="javascript">
+        $(document).ready(function() {
+
+            $('.info-over').mouseover(function() {
+                $('#info').show();
+            });
+            $('.info-over').mouseout(function() {
+                $('#info').hide();
+            });
+            $('.shop-over').mouseover(function() {
+                $('#shop').show();
+            });
+            $('.shop-over').mouseout(function() {
+                $('#shop').hide();
+            });
+
+        });
+    </script>
 {% endblock %}

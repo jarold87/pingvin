@@ -29,6 +29,9 @@ class ImportLog
     protected $userShopRequestCount = 0;
 
     /** @var int */
+    protected $userGaRequestCount = 0;
+
+    /** @var int */
     protected $allProcessItemCount = 0;
 
     /** @var string */
@@ -58,6 +61,7 @@ class ImportLog
         $this->userProcessItemCount = 0;
         $this->userUnProcessItemCount = 0;
         $this->userShopRequestCount = 0;
+        $this->userGaRequestCount = 0;
     }
 
     /**
@@ -107,6 +111,14 @@ class ImportLog
     public function addShopRequestCount($value = 1)
     {
         $this->userShopRequestCount += $value;
+    }
+
+    /**
+     * @param int $value
+     */
+    public function addGaRequestCount($value = 1)
+    {
+        $this->userGaRequestCount += $value;
     }
 
     /**
@@ -164,6 +176,7 @@ class ImportLog
         $this->userLog->setProcessed($this->userProcessItemCount);
         $this->userLog->setUnprocessed($this->userUnProcessItemCount);
         $this->userLog->setShopRequest($this->userShopRequestCount);
+        $this->userLog->setGaRequest($this->userGaRequestCount);
         $error = '';
         if ($this->error) {
             $error = $this->error;

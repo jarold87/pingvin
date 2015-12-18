@@ -14,13 +14,13 @@ class OrderEntityObjectSetter extends ShopEntityObjectSetter
     /**
      * @return Order
      */
-    public function getObject()
+    public function setDataToObject()
     {
         $this->object->setCustomerOuterId($this->getFormattedData('customerOuterId', 'integer'));
         $this->object->setShippingMethod($this->getFormattedData('shippingMethod', 'string'));
         $this->object->setPaymentMethod($this->getFormattedData('paymentMethod', 'string'));
         $this->object->setCurrency($this->getFormattedData('currency', 'string'));
         $this->object->setOrderDate($this->getFormattedData('orderDate', 'date'));
-        return parent::getObject();
+        parent::setDataToObject();
     }
 }

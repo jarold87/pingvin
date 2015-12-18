@@ -3,6 +3,8 @@
 namespace ShoprenterBundle\Import\Component\EntityObjectSetter;
 
 use CronBundle\Import\Component\ShopEntityObjectSetter;
+use AppBundle\Entity\Order;
+use AppBundle\Entity\Product;
 use AppBundle\Entity\OrderProduct;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -60,7 +62,7 @@ class OrderProductEntityObjectSetter extends ShopEntityObjectSetter
      * @return mixed
      * @throws \Exception
      */
-    public function getObject()
+    public function setDataToObject()
     {
         if (!$this->isExistOrderEntityObject($this->data['orderOuterId'])) {
             throw new \Exception('Missing orderOuterId!');
@@ -68,7 +70,9 @@ class OrderProductEntityObjectSetter extends ShopEntityObjectSetter
         if (!$this->isExistProductEntityObject($this->data['productOuterId'])) {
             throw new \Exception('Missing productOuterId!');
         }
+        /** @var Order $order */
         $order = $this->getObjectFromOrderEntityCollectionByOuterId($this->data['orderOuterId']);
+        /** @var Product $product */
         $product = $this->getObjectFromProductEntityCollectionByOuterId($this->data['productOuterId']);
         $this->object->setOrderOuterId($this->getFormattedData('orderOuterId', 'string'));
         $this->object->setProductOuterId($this->getFormattedData('productOuterId', 'string'));
@@ -77,7 +81,11 @@ class OrderProductEntityObjectSetter extends ShopEntityObjectSetter
         $this->object->setOrderDate($this->getFormattedData('orderDate', 'date'));
         $this->object->setOrder($order);
         $this->object->setProduct($product);
-        return parent::getObject();
+        $order->addOrderProduct($this->object);
+        $product->addProductOrder($this->object);
+        $this->entityManager->persist($order);
+        $this->entityManager->persist($product);
+        parent::setDataToObject();
     }
 
     /**

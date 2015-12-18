@@ -9,7 +9,6 @@ class ImportList extends MainImportList implements ImportListInterface
 {
     /** @var array */
     protected $imports = array(
-        //1 => array('ProductCalculateMetrics', 'ShoprenterBundle'),
         1 => array('Product', 'ShoprenterBundle'),
         2 => array('Customer', 'ShoprenterBundle'),
         3 => array('Order', 'ShoprenterBundle'),

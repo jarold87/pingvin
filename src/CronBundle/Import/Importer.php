@@ -170,7 +170,7 @@ abstract class Importer
 
     public function import()
     {
-        throw new \Exception("Not a valid importer!");
+
     }
 
     protected function initItemProcessCollection()
@@ -203,6 +203,7 @@ abstract class Importer
     protected function initEntityObjectSetter()
     {
         $this->entityObjectSetter = $this->componentFactory->getEntityObjectSetter();
+        $this->entityObjectSetter->setEntityManager($this->entityManager);
     }
 
     protected function initItemListCollector()

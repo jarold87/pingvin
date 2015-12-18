@@ -43,7 +43,7 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
     public function getCollectionRequest($request)
     {
         $this->resetResponse();
-        $this->addRequestCount();
+        $this->addShopRequestCount();
         $query = $this->db->query($request);
         if (!$query) {
             $errorInfo = $this->db->errorInfo();
@@ -65,7 +65,7 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
     public function getRequest($request)
     {
         $this->resetResponse();
-        $this->addRequestCount();
+        $this->addShopRequestCount();
         $query = $this->db->query($request);
         if (!$query) {
             $errorInfo = $this->db->errorInfo();
@@ -86,7 +86,7 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
     public function getPackageRequest($request)
     {
         $this->resetResponse();
-        $this->addRequestCount();
+        $this->addShopRequestCount();
         $query = $this->db->query($request);
         if (!$query) {
             $errorInfo = $this->db->errorInfo();

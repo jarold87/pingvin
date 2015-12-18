@@ -38,6 +38,11 @@ class UserImportLog
     protected $shopRequest = null;
 
     /**
+     * @ORM\Column(name="ga_request", type="integer", length=11)
+     */
+    protected $gaRequest = null;
+
+    /**
      * @ORM\Column(name="error", type="string", length=100)
      */
     protected $error = null;
@@ -56,88 +61,6 @@ class UserImportLog
      * @ORM\Column(name="finish_date", type="datetime")
      */
     protected $finishDate = null;
-
-    /**
-     * Get logId
-     *
-     * @return integer
-     */
-    public function getLogId()
-    {
-        return $this->logId;
-    }
-
-    /**
-     * Set runTime
-     *
-     * @param float $runTime
-     *
-     * @return UserImportLog
-     */
-    public function setRunTime($runTime)
-    {
-        $this->runTime = $runTime;
-
-        return $this;
-    }
-
-    /**
-     * Get runTime
-     *
-     * @return float
-     */
-    public function getRunTime()
-    {
-        return $this->runTime;
-    }
-
-    /**
-     * Set processed
-     *
-     * @param integer $processed
-     *
-     * @return UserImportLog
-     */
-    public function setProcessed($processed)
-    {
-        $this->processed = $processed;
-
-        return $this;
-    }
-
-    /**
-     * Get processed
-     *
-     * @return integer
-     */
-    public function getProcessed()
-    {
-        return $this->processed;
-    }
-
-    /**
-     * Set unprocessed
-     *
-     * @param integer $unprocessed
-     *
-     * @return UserImportLog
-     */
-    public function setUnprocessed($unprocessed)
-    {
-        $this->unprocessed = $unprocessed;
-
-        return $this;
-    }
-
-    /**
-     * Get unprocessed
-     *
-     * @return integer
-     */
-    public function getUnprocessed()
-    {
-        return $this->unprocessed;
-    }
 
     /**
      * @ORM\PrePersist
@@ -159,71 +82,4 @@ class UserImportLog
         $this->finishDate = new \DateTime();
     }
 
-    /**
-     * Get finishDate
-     *
-     * @return \DateTime
-     */
-    public function getFinishDate()
-    {
-        return $this->finishDate;
-    }
-
-    /**
-     * Set shopRequest
-     *
-     * @param integer $shopRequest
-     *
-     * @return UserImportLog
-     */
-    public function setShopRequest($shopRequest)
-    {
-        $this->shopRequest = $shopRequest;
-
-        return $this;
-    }
-
-    /**
-     * Get shopRequest
-     *
-     * @return integer
-     */
-    public function getShopRequest()
-    {
-        return $this->shopRequest;
-    }
-
-    /**
-     * Get startDate
-     *
-     * @return \DateTime
-     */
-    public function getStartDate()
-    {
-        return $this->startDate;
-    }
-
-    /**
-     * Set error
-     *
-     * @param string $error
-     *
-     * @return UserImportLog
-     */
-    public function setError($error)
-    {
-        $this->error = $error;
-
-        return $this;
-    }
-
-    /**
-     * Get error
-     *
-     * @return string
-     */
-    public function getError()
-    {
-        return $this->error;
-    }
 }

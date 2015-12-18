@@ -79,10 +79,20 @@ abstract class ClientAdapter
     /**
      * @param int $value
      */
-    protected function addRequestCount($value = 1)
+    protected function addShopRequestCount($value = 1)
     {
         if ($this->importLog) {
             $this->importLog->addShopRequestCount($value);
+        }
+    }
+
+    /**
+     * @param int $value
+     */
+    protected function addGaRequestCount($value = 1)
+    {
+        if ($this->importLog) {
+            $this->importLog->addGaRequestCount($value);
         }
     }
 }

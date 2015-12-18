@@ -111,9 +111,6 @@ class ItemCollectorByValuesInRowProcessList extends ItemCollector
      */
     protected function setStatisticsEntity($object, $data)
     {
-        $this->entityObjectSetter->setObject($object);
-        $this->entityObjectSetter->setData($data);
-        $object = $this->entityObjectSetter->getObject();
-        $this->entityManager->persist($object);
+        $this->setDataToObject($object, $data);
     }
 }

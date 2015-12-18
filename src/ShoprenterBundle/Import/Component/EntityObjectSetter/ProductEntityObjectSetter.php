@@ -14,7 +14,7 @@ class ProductEntityObjectSetter extends ShopEntityObjectSetter
     /**
      * @return Product
      */
-    public function getObject()
+    public function setDataToObject()
     {
         $this->object->setSku($this->getFormattedData('sku', 'string'));
         $this->object->setName($this->getFormattedData('name', 'string'));
@@ -27,6 +27,6 @@ class ProductEntityObjectSetter extends ShopEntityObjectSetter
         $this->object->setStatus($this->getFormattedData('status', 'integer'));
         $this->object->setAvailableDate($this->getFormattedData('availableDate', 'date'));
         $this->object->setProductCreateDate($this->getFormattedData('productCreateDate', 'date'));
-        return parent::getObject();
+        parent::setDataToObject();
     }
 }

@@ -38,6 +38,11 @@ class UserImportLog
     protected $shopRequest = null;
 
     /**
+     * @ORM\Column(name="ga_request", type="integer", length=11)
+     */
+    protected $gaRequest = null;
+
+    /**
      * @ORM\Column(name="error", type="string", length=100)
      */
     protected $error = null;
@@ -56,6 +61,27 @@ class UserImportLog
      * @ORM\Column(name="finish_date", type="datetime")
      */
     protected $finishDate = null;
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function setStartDate()
+    {
+        if (!$this->startDate) {
+            $this->startDate = new \DateTime();
+        }
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function setFinishDate()
+    {
+        $this->finishDate = new \DateTime();
+    }
+
 
     /**
      * Get logId
@@ -140,36 +166,6 @@ class UserImportLog
     }
 
     /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setStartDate()
-    {
-        if (!$this->startDate) {
-            $this->startDate = new \DateTime();
-        }
-    }
-
-    /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function setFinishDate()
-    {
-        $this->finishDate = new \DateTime();
-    }
-
-    /**
-     * Get finishDate
-     *
-     * @return \DateTime
-     */
-    public function getFinishDate()
-    {
-        return $this->finishDate;
-    }
-
-    /**
      * Set shopRequest
      *
      * @param integer $shopRequest
@@ -194,13 +190,27 @@ class UserImportLog
     }
 
     /**
-     * Get startDate
+     * Set gaRequest
      *
-     * @return \DateTime
+     * @param integer $gaRequest
+     *
+     * @return UserImportLog
      */
-    public function getStartDate()
+    public function setGaRequest($gaRequest)
     {
-        return $this->startDate;
+        $this->gaRequest = $gaRequest;
+
+        return $this;
+    }
+
+    /**
+     * Get gaRequest
+     *
+     * @return integer
+     */
+    public function getGaRequest()
+    {
+        return $this->gaRequest;
     }
 
     /**
@@ -249,5 +259,25 @@ class UserImportLog
     public function getWarning()
     {
         return $this->warning;
+    }
+
+    /**
+     * Get startDate
+     *
+     * @return \DateTime
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * Get finishDate
+     *
+     * @return \DateTime
+     */
+    public function getFinishDate()
+    {
+        return $this->finishDate;
     }
 }

@@ -14,7 +14,7 @@ class CustomerEntityObjectSetter extends ShopEntityObjectSetter
     /**
      * @return Customer
      */
-    public function getObject()
+    public function setDataToObject()
     {
         $this->object->setLastname($this->getFormattedData('lastname', 'string'));
         $this->object->setFirstname($this->getFormattedData('firstname', 'string'));
@@ -24,6 +24,6 @@ class CustomerEntityObjectSetter extends ShopEntityObjectSetter
         $this->object->setCity($this->getFormattedData('city', 'string'));
         $this->object->setCountry($this->getFormattedData('country', 'string'));
         $this->object->setRegistrationDate($this->getFormattedData('registrationDate', 'date'));
-        return parent::getObject();
+        parent::setDataToObject();
     }
 }

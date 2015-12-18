@@ -1,4 +1,4 @@
-{% extends 'AppBundle::base.html.twig' %}
+{% extends 'AppBundle:tester:base.html.twig' %}
 
 {% block header %}
     <table id="navigation">
@@ -159,7 +159,7 @@
             {% set vars = vars|merge({'reportArray': reportItem.reportArray}) %}
             {% set vars = vars|merge({'reportConditions': reportItem.reportConditions}) %}
             {% set vars = vars|merge({'reportOrders': reportItem.reportOrders}) %}
-            {% include 'AppBundle::product_placement_report_block.html.twig' with vars %}
+            {% include 'AppBundle:tester:product_placement_report_block.html.twig' with vars %}
 
             </div>
 
@@ -173,22 +173,20 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script type="text/javascript" language="javascript">
-        $(document).ready(function() {
+    $(document).ready(function() {
 
-            $('.info-over').mouseover(function() {
-                $('#info').show();
-            });
-            $('.info-over').mouseout(function() {
-                $('#info').hide();
-            });
-            $('.shop-over').mouseover(function() {
-                $('#shop').show();
-            });
-            $('.shop-over').mouseout(function() {
-                $('#shop').hide();
-            });
+    $('.info-over').mouseover(function() {
+    $('#info').show();
+    });
+    $('.info-over').mouseout(function() {
+    $('#info').hide();
+    });
+    $('.shop-over').mouseover(function() {
+    $('#shop').show();
+    });
+    $('.shop-over').mouseout(function() {
+    $('#shop').hide();
+    });
 
-        });
-    </script>
+    });
 {% endblock %}

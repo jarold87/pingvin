@@ -40,7 +40,7 @@ class ClientAdapter extends ClientAdapterAbstract implements ClientAdapterInterf
     public function getCollectionRequest($request)
     {
         $this->resetResponse();
-        $this->addRequestCount();
+        $this->addGaRequestCount();
         $response = $this->analyticsService->getRequest($request);
         if ($this->analyticsService->getError()) {
             $this->error = $this->analyticsService->getError();

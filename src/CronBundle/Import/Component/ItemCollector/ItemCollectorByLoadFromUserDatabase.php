@@ -66,16 +66,4 @@ class ItemCollectorByLoadFromUserDatabase extends ItemCollector
             $this->entityKeyByOuterId[$outerId]
         );
     }
-
-    /**
-     * @param $object
-     * @param $values
-     */
-    protected function setCalculateMetricsObject($object, $values)
-    {
-        $this->entityObjectSetter->setObject($object);
-        $this->entityObjectSetter->setData($values);
-        $object = $this->entityObjectSetter->getObject();
-        $this->entityManager->persist($object);
-    }
 }

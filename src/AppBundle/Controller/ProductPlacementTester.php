@@ -12,8 +12,17 @@ use AppBundle\Service\Setting;
 use AppBundle\Service\BaseStatistics;
 use AppBundle\Service\XlsExport;
 
-
-class ProductPlacement extends Controller
+/**
+ * Ez jelenleg csak arra szolgál, hogy elérhessük a belőtt boltok termék riportjait,
+ * a riportok algoritmusanainak finomítása végett.
+ *
+ * Ha ez élesre felkerül, elérését jelszóval kell védeni.
+ *
+ * Több boltot (user-t) kezel (jelenleg tpl-ben manuálisan kell felvenne egy-egy új boltot)
+ * A/B verziót kezel riportonként
+ * Kiexportálhatóak XLS-be azon adatok, amelyeket használnak a riportok.
+ */
+class ProductPlacementTester extends Controller
 {
     /** @var int */
     protected $userId = 1;
@@ -40,7 +49,7 @@ class ProductPlacement extends Controller
     protected $exportUrl = '';
 
     /**
-     * @Route("/product_placement", name="Product Placement")
+     * @Route("/product_placement_tester", name="Product Placement Tester")
      */
     public function indexAction(Request $request)
     {
@@ -168,7 +177,7 @@ class ProductPlacement extends Controller
         $i++;
 
 
-        return $this->render('AppBundle::product_placement.html.twig', array(
+        return $this->render('AppBundle:tester:product_placement.html.twig', array(
             'reportList' => $reports,
             'lastUpdate' => $this->getLastUpdateTime(),
             'avgUniqueViews' => $this->baseStatistics->get('AvgUniqueViews'),

@@ -16,7 +16,7 @@ class ProductPageViewEntityObjectSetter extends GaEntityObjectSetter
     /**
      * @return Product
      */
-    public function getObject()
+    public function setDataToObject()
     {
         $this->statisticsObject = null;
         $objects = $this->object->getProductStatistics();
@@ -34,6 +34,7 @@ class ProductPageViewEntityObjectSetter extends GaEntityObjectSetter
         $this->statisticsObject->setViews($this->getFormattedData('views', 'integer'));
         $this->statisticsObject->setUniqueViews($this->getFormattedData('uniqueViews', 'integer'));
         $this->statisticsObject->setProduct($this->object);
-        return $this->statisticsObject;
+        $this->entityManager->persist($this->statisticsObject);
+        parent::setDataToObject();
     }
 }

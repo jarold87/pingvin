@@ -1,13 +1,4 @@
-.under-developing
-{
-    padding: 40px;
-    background: #faf8f8;
-    border: 1px solid #d0cece;
-    height: 500px;
-}
-
-body
-{
+body {
     background: #ffffff;
     color: #464646;
     font-family: Arial, sans-serif;
@@ -18,19 +9,16 @@ body
 
 .button,
 .report-table .header,
-h2
-{
+h2 {
     font-family: "Century Gothic", sans-serif;
 }
 
-table
-{
+table {
     border-collapse: collapse;
     border-spacing: 0;
 }
 
-h2
-{
+h2 {
     color: #465771;
     font-size: 160%;
     text-transform: capitalize;
@@ -38,13 +26,11 @@ h2
 
 a,
 a:hover,
-a:visited
-{
+a:visited {
     text-decoration: none;
 }
 
-p
-{
+p {
     margin: 0;
     padding: 10px 0;
 }
@@ -62,8 +48,7 @@ li {
 
 .button,
 a .button,
-a:visited .button
-{
+a:visited .button {
     padding: 10px 20px;
     background: #A0C5E8;
     color: #465771;
@@ -76,26 +61,22 @@ a:visited .button
 .button:hover,
 a .button:hover,
 a:hover .button:hover,
-a:visited:hover .button:hover
-{
+a:visited:hover .button:hover {
     background: #b0d9ff;
     color: #2e3b51;
 }
 
-#container
-{
+#container {
     padding: 10px 10px;
 }
 
-#navigation
-{
+#navigation {
     width: 100%;
     position: fixed;
     background: #ffffff;
 }
 
-#navigation-place
-{
+#navigation-place {
     height: 42px;
 }
 
@@ -128,27 +109,23 @@ a:visited:hover .button:hover
     padding: 0 1%;
 }
 
-.container-block
-{
+.container-block {
     margin: 0 auto;
     margin-top: 50px;
 }
 
-.report-table
-{
+.report-table {
     width: 100%;
 }
 
-.report-table .table-column
-{
+.report-table .table-column {
     margin: 0;
     padding: 10px;
     border: 1px solid #eeecec;
     text-align: center;
 }
 
-.report-table .header
-{
+.report-table .header {
     background: #eeecec;
     border: 1px solid #d0cece;
     font-weight: bold;
@@ -158,13 +135,11 @@ a:visited:hover .button:hover
     line-height: 140%;
 }
 
-.report-table .important
-{
+.report-table .important {
     background: #faf8f8;
 }
 
-.report-table .left-align
-{
+.report-table .left-align {
     text-align: left;
 }
 
@@ -179,8 +154,7 @@ a:visited:hover .button:hover
 }
 
 #info,
-#shop
-{
+#shop {
     padding: 50px;
     display: none;
     position: fixed;
@@ -190,8 +164,7 @@ a:visited:hover .button:hover
     width: 100%;
 }
 
-#info .value
-{
+#info .value {
     font-weight: bold;
 }
 

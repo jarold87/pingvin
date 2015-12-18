@@ -18,10 +18,10 @@ abstract class ImportList
     protected $importIndex = 0;
 
     /** @var string */
-    protected $importerClassNameSpace = '';
+    protected $importerClassNameSpace;
 
     /** @var string */
-    protected $importerComponentFactoryNameSpace = '';
+    protected $importerComponentFactoryNameSpace;
 
     /**
      * @param $string

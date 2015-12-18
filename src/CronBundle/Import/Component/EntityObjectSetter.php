@@ -2,13 +2,26 @@
 
 namespace CronBundle\Import\Component;
 
+use Doctrine\ORM\EntityManager;
 
 abstract class EntityObjectSetter
 {
+    /** @var EntityManager */
+    protected $entityManager;
+
+    /** @var */
     protected $object;
     
     /** @var array */
     protected $data = array();
+
+    /**
+     * @param $entityManager
+     */
+    public function setEntityManager($entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
 
     /**
      * @param $object
@@ -29,11 +42,12 @@ abstract class EntityObjectSetter
     /**
      * @return mixed
      */
-    public function getObject()
+    public function setDataToObject()
     {
-        return $this->object;
+        if ($this->object) {
+            $this->entityManager->persist($this->object);
+        }
     }
-
     
     /**
      * @param $key

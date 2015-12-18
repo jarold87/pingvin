@@ -4,6 +4,7 @@ namespace ShoprenterBundle\Import\Component\EntityObjectSetter;
 
 use CronBundle\Import\Component\CalculateMetricsEntityObjectSetter;
 use AppBundle\Entity\ProductStatistics;
+use AppBundle\Entity\Product;
 
 
 class ProductCalculateMetricsEntityObjectSetter extends CalculateMetricsEntityObjectSetter
@@ -14,7 +15,7 @@ class ProductCalculateMetricsEntityObjectSetter extends CalculateMetricsEntityOb
     /**
      * @return ProductStatistics
      */
-    public function getObject()
+    public function setDataToObject()
     {
         $this->object->setCalculatedViews($this->getFormattedData('calculatedViews', 'integer'));
         $this->object->setCalculatedUniqueViews($this->getFormattedData('calculatedUniqueViews', 'integer'));
@@ -24,6 +25,6 @@ class ProductCalculateMetricsEntityObjectSetter extends CalculateMetricsEntityOb
         $this->object->setCalculatedTotal($this->getFormattedData('calculatedTotal', 'integer'));
         $this->object->setCalculatedScore($this->getFormattedData('calculatedScore', 'integer'));
         $this->object->setIsCheat($this->getFormattedData('isCheat', 'integer'));
-        return parent::getObject();
+        parent::setDataToObject();
     }
 }

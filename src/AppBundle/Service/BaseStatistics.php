@@ -5,7 +5,10 @@ use Doctrine\ORM\EntityManager;
 
 class BaseStatistics
 {
-    /** @var array */
+    /**
+     * Definiálni kell a kikérhető statokat
+     * @var array
+     */
     protected $existKey = array(
         'AvgUniqueViews',
         'AvgConversion',
@@ -49,6 +52,7 @@ class BaseStatistics
      */
     public function setEntityManager(EntityManager $manager)
     {
+        $this->reset();
         $this->entityManager = $manager;
     }
 
@@ -75,6 +79,10 @@ class BaseStatistics
         return $value;
     }
 
+    /**
+     * @param $timeKey
+     * @return float
+     */
     protected function getAvgUniqueViews($timeKey)
     {
         $query = $this->entityManager->createQueryBuilder();
@@ -88,6 +96,10 @@ class BaseStatistics
         return round($avgScore[0][1], 2);
     }
 
+    /**
+     * @param $timeKey
+     * @return float
+     */
     protected function getAvgConversion($timeKey)
     {
         $query = $this->entityManager->createQueryBuilder();
@@ -101,6 +113,10 @@ class BaseStatistics
         return round($avgScore[0][1], 2);
     }
 
+    /**
+     * @param $timeKey
+     * @return float
+     */
     protected function getAvgUniqueViewsAtInteractiveProducts($timeKey)
     {
         $query = $this->entityManager->createQueryBuilder();
@@ -115,6 +131,10 @@ class BaseStatistics
         return round($avgScore[0][1], 2);
     }
 
+    /**
+     * @param $timeKey
+     * @return float
+     */
     protected function getAvgConversionAtInteractiveProducts($timeKey)
     {
         $query = $this->entityManager->createQueryBuilder();
@@ -129,6 +149,10 @@ class BaseStatistics
         return round($avgScore[0][1], 2);
     }
 
+    /**
+     * @param $timeKey
+     * @return float
+     */
     protected function getCheatCount($timeKey)
     {
         $query = $this->entityManager->createQueryBuilder();
@@ -142,6 +166,10 @@ class BaseStatistics
         return round($countScore[0][1]);
     }
 
+    /**
+     * @param $timeKey
+     * @return float
+     */
     protected function getNullStatisticsCount($timeKey)
     {
         $query = $this->entityManager->createQueryBuilder();
@@ -156,6 +184,10 @@ class BaseStatistics
         return round($countScore[0][1]);
     }
 
+    /**
+     * @param $timeKey
+     * @return float
+     */
     protected function getProductCount($timeKey)
     {
         $query = $this->entityManager->createQueryBuilder();

@@ -48,8 +48,6 @@ class ImportListFactory
         switch ($this->settingService->get('shop_type')) {
             case $this->ShopRenterId:
                 return new SrImportList();
-            case $this->ShopifyId:
-                return;
         }
     }
 }

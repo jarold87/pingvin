@@ -21,12 +21,6 @@ class ProductReport extends Report
     /** @var int */
     protected $productCount;
 
-    /** @var array */
-    protected $keysByConversion = array();
-
-    /** @var array */
-    protected $keysByView = array();
-
     /**
      * @param $value
      */
@@ -58,7 +52,6 @@ class ProductReport extends Report
             $this->limit = round($this->productCount * 0.1);
         }
     }
-
 
     protected function loadStatistics()
     {
@@ -124,8 +117,6 @@ class ProductReport extends Report
             'allTimeConversion'=> $allConversion,
             'allTimeTotal' => $allTotal,
         );
-        $this->keysByConversion[] = $conversion;
-        $this->keysByView[] = $views;
     }
 
     /**

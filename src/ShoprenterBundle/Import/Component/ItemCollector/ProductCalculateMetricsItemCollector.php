@@ -3,6 +3,7 @@
 namespace ShoprenterBundle\Import\Component\ItemCollector;
 
 use CronBundle\Import\Component\ItemCollector\ItemCollectorByLoadFromUserDatabase;
+use ShoprenterBundle\Import\Component\EntityObjectSetter\ProductCalculateMetricsEntityObjectSetter;
 use AppBundle\Entity\Product;
 use AppBundle\Entity\ProductStatistics;
 use AppBundle\Entity\OrderProduct;
@@ -17,6 +18,9 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
 
     /** @var string */
     protected $sourceEntityName;
+
+    /** @var ProductCalculateMetricsEntityObjectSetter */
+    protected $entityObjectSetter;
 
     public function collect()
     {
@@ -104,12 +108,28 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
         $this->entityManager->flush();
     }
 
+    /**
+     * @param Product $product
+     * @param $timeKey
+     * @return ProductStatistics
+     */
     protected function newProductStatistics(Product $product, $timeKey)
     {
         $object = new ProductStatistics();
         $object->setProduct($product);
         $object->setTimeKey($timeKey);
+        $product->addProductStatistic($object);
+        $this->entityManager->persist($product);
         return $object;
+    }
+
+    /**
+     * @param $object
+     * @param $values
+     */
+    protected function setCalculateMetricsObject($object, $values)
+    {
+        $this->setDataToObject($object, $values);
     }
 
     /**
@@ -330,5 +350,4 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
     {
         return $orderProduct->getTotal();
     }
-
 }

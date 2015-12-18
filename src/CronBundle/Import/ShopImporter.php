@@ -53,6 +53,7 @@ class ShopImporter extends Importer
             $this->itemCollector->setItemLogFinish();
         }
         $this->saveImportLog();
+        parent::import();
     }
 
     protected function initClientAdapter()

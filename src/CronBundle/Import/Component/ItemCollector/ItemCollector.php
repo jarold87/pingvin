@@ -16,11 +16,11 @@ use AppBundle\Entity\ImportItemProcess;
 
 class ItemCollector
 {
-    /** @var int 1000 */
-    protected $flushItemPackageNumber = 2000;
+    /** @var int */
+    protected $flushItemPackageNumber;
 
-    /** @var int 10000*/
-    protected $itemProcessLimit = 30000;
+    /** @var int */
+    protected $itemProcessLimit;
 
     /** @var string PT1H */
     protected $deadAfterTime = 'PT1H';
@@ -115,6 +115,22 @@ class ItemCollector
     public function setRuntimeWatcher(RuntimeWatcher $runtimeWatcher)
     {
         $this->runtimeWatcher = $runtimeWatcher;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setFlushItemPackageNumber($value)
+    {
+        $this->flushItemPackageNumber = $value;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setItemProcessLimit($value)
+    {
+        $this->itemProcessLimit = $value;
     }
 
     /**
@@ -270,20 +286,18 @@ class ItemCollector
         $this->validateOuterIdInData($data);
         $outerId = $data['outerId'];
         $object = $this->getEntityObject($outerId);
-        $object = $this->setDataToObject($object, $data);
-        $this->entityManager->persist($object);
+        $this->setDataToObject($object, $data);
     }
 
     /**
      * @param $object
      * @param $data
-     * @return \AppBundle\Entity\Product
      */
     protected function setDataToObject($object, $data)
     {
         $this->entityObjectSetter->setObject($object);
         $this->entityObjectSetter->setData($data);
-        return $this->entityObjectSetter->getObject();
+        $this->entityObjectSetter->setDataToObject();
     }
 
     /**

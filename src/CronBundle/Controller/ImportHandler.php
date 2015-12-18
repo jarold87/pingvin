@@ -16,19 +16,35 @@ use AppBundle\Entity\ImportScheduleLog;
 
 class ImportHandler extends Controller
 {
-    /** @var int */
+    /**
+     * Egy futás alkalmával hány user importjai futhatnak
+     * @var int
+     */
     protected $userLimit = 1;
 
-    /** @var int 45 */
-    protected $timeLimit = 240;
+    /**
+     * Egy futás alkalmával hány mp.-ig futhatnak az importok
+     * @var int
+     */
+    protected $timeLimit = 45;
 
-    /** @var int */
+    /**
+     * Hány hibás import futás kell ahhoz, hogy a futás leálljon
+     * @var int
+     */
     protected $failLimit = 6;
 
-    /** @var int */
+    /**
+     * Egy usernél hány hibás import futás kell ahhoz, hogy figyelmen kívül hagyjuk a user imporjait
+     * @var int
+     */
     protected $failLimitPerUser = 3;
 
-    /** @var string 86400 */
+    /**
+     * Milyen időközönként futhat le egy user importjai
+     * 1 nap => 86400
+     * @var string
+     */
     protected $sleepInterval = 'PT1S';
     
     /** @var ImportLog */
@@ -56,6 +72,8 @@ class ImportHandler extends Controller
     protected $failedCounter = 0;
 
     /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/", name="cron")
      */
     public function indexAction(Request $request)
@@ -72,6 +90,9 @@ class ImportHandler extends Controller
             }
             if (!$this->isInFailLimit()) {
                 $this->importLog->addMessage('reached global ERROR limit');
+                //TODO e-mail küldés
+                //valami globális hiba lehet az importban
+                //célszerű lehet ilyenkor az összes importot lock-olni
                 break;
             }
             $time = new \DateTime();
@@ -115,15 +136,17 @@ class ImportHandler extends Controller
      */
     protected function runOneUserImports(ImportScheduleLog $schedule)
     {
-        //$schedule->setIsLock(1);
-        //$this->globalEntityManager->persist($schedule);
-        //$this->globalEntityManager->flush();
+        $schedule->setIsLock(1);
+        $this->globalEntityManager->persist($schedule);
+        $this->globalEntityManager->flush();
 
         $this->importLog->resetUserLogData();
         $this->importLog->addMessage('user selected => ' . $schedule->getUserId());
 
         //TODO Biztosítani kell, hogy az adott user adatbázis kapcsolata legyen behúzva
+        //Ezt most configból veszi
         $this->userEntityManager = $this->getDoctrine()->getManager('customer' . $schedule->getUserId());
+        $this->userEntityManager->clear();
 
         $this->settingService = $this->get('setting');
         $this->settingService->setEntityManager($this->userEntityManager);
@@ -145,6 +168,7 @@ class ImportHandler extends Controller
             }
             if (!$this->isInUserFailLimit($schedule)) {
                 $this->importLog->addMessage('reached user ERROR limit => ' . $schedule->getUserId());
+                //TODO e-mail küldés
                 break;
             }
 

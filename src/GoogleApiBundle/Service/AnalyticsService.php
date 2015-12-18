@@ -38,6 +38,7 @@ class AnalyticsService
      */
     public function setProfileId($id)
     {
+        $this->reset();
         if (!$id) {
             throw new \Exception('Missing profileId!');
         }
@@ -189,5 +190,11 @@ class AnalyticsService
         if (!isset($request['metrics'])) {
             throw new \Exception('Missing metrics!');
         }
+    }
+
+    protected function reset()
+    {
+        $this->profileId = null;
+        $this->serviceId = null;
     }
 }

@@ -30,6 +30,12 @@ class ComponentFactory
     /** @var EntityObjectSetter */
     protected $entityObjectSetter;
 
+    /** @var int */
+    protected $flushItemPackageNumber = 1000;
+
+    /** @var int */
+    protected $itemProcessLimit = 10000;
+
     /**
      * @return ClientAdapter
      */
@@ -51,6 +57,8 @@ class ComponentFactory
      */
     public function getItemCollector()
     {
+        $this->itemCollector->setFlushItemPackageNumber($this->flushItemPackageNumber);
+        $this->itemCollector->setItemProcessLimit($this->itemProcessLimit);
         return $this->itemCollector;
     }
 

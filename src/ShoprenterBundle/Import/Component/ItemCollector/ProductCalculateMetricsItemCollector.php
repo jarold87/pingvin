@@ -95,7 +95,8 @@ class ProductCalculateMetricsItemCollector extends ItemCollectorByLoadFromUserDa
             }
             if ($collectData) {
                 if (count($collectData) > 3) {
-                    dump($collectData); die('HIBA');
+                    $this->addError('Too many rows!');
+                    return;
                 }
                 foreach ($collectData as $timeKey => $values) {
                     $object = $values['object'];
